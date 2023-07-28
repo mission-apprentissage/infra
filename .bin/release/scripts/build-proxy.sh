@@ -60,6 +60,7 @@ echo "Building reverse_proxy:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/reverse_proxy" \
       --platform linux/amd64,linux/arm64 \
       --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:"$NEXT_VERSION" \
+      --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:latest \
       --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
       --label "org.opencontainers.image.description=Reverse proxy Mission Apprentissage" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
@@ -69,4 +70,4 @@ docker buildx build "$ROOT_DIR/reverse_proxy" \
 TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"
 git tag -f $TAG
-git push origin $TAG
+git push -f origin $TAG
