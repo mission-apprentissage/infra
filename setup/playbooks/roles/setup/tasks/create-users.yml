@@ -1,0 +1,36 @@
+- name: Ensure group "mna" exists
+  group:
+    name: mna
+    state: present
+
+- include: _create-sudoers.yml
+  loop: "{{habilitations}}"
+  loop_control:
+    loop_var: habilitation
+
+- name: "Création utilisateur deploy"
+  user:
+    name: "deploy"
+    password: "{{ vault.MNA_BAL_GH_USER_PASS_CLEAR | password_hash }}"
+    update_password: on_create
+    shell: /bin/bash
+    groups: sudo,mna
+    append: yes
+
+- name: "Ajout des clés d'autorisation à l'utilisateur deploy"
+  authorized_key:
+    user: "deploy"
+    state: present
+    key: "{{ vault.MNA_BAL_GH_USER_PUBLIC_KEY }}"
+
+- name: "Ajout de la SSH private key"
+  copy:
+    dest: "~/.ssh/id_ed25519"
+    content: "{{ vault.MNA_BAL_GH_USER_PRIVATE_KEY }}"
+    owner: root
+    mode: "700"
+
+- name: "Ajout de la SSH key"
+  shell: |
+    eval "$(ssh-agent)"
+    ssh-add ~/.ssh/id_ed25519

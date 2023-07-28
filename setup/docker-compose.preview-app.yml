@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  server:
+    image: "ghcr.io/mission-apprentissage/mna_bal_server:0.0.0-{{pr_number}}"
+    container_name: bal_{{pr_number}}_server
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    networks:
+      - bal_network
+    environment:
+      - VIRTUAL_HOST={{pr_number}}.bal-preview.apprentissage.beta.gouv.fr
+      - VIRTUAL_PATH=/api
+      - VIRTUAL_PORT=5000
+      - LETSENCRYPT_HOST={{pr_number}}.bal-preview.apprentissage.beta.gouv.fr
+      - LETSENCRYPT_EMAIL=misson.apprentissage.devops@gmail.com
+    env_file: .env_server
+    volumes:
+      - server:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5000/api/healthcheck"]
+      interval: 10s
+      timeout: 30s
+      retries: 11
+      start_period: 10s
+    labels:
+      - autoheal=true
+
+  ui:
+    image: "ghcr.io/mission-apprentissage/mna_bal_ui:0.0.0-{{pr_number}}-preview"
+    container_name: bal_{{pr_number}}_ui
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    networks:
+      - bal_network
+    environment:
+      - VIRTUAL_HOST={{pr_number}}.bal-preview.apprentissage.beta.gouv.fr
+      - VIRTUAL_PATH=/
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST={{pr_number}}.bal-preview.apprentissage.beta.gouv.fr
+      - LETSENCRYPT_EMAIL=misson.apprentissage.devops@gmail.com
+
+  processor:
+    image: "ghcr.io/mission-apprentissage/mna_bal_server:0.0.0-{{pr_number}}"
+    container_name: bal_{{pr_number}}_processor
+    command: ["yarn", "cli", "processor"]
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    restart: always
+    networks:
+      - bal_network
+    env_file: .env_server
+    volumes:
+      - server:/data
+
+volumes:
+  server:
+
+networks:
+  bal_network:
+    name: bal_network

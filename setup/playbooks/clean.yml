@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Remove the user {{username}}
+      user:
+        name: "{{username}}"
+        state: absent
+        remove: yes

@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  smtp:
+    image: axllent/mailpit:v1.5.5
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+      update_config:
+        failure_action: rollback
+      rollback_config:
+        parallelism: 0
+    ports:
+      - 1025:1025
+    networks:
+      - bal_network
+    volumes:
+      - /opt/bal/data/smtp:/data
+      - /opt/bal/configs/mailpit/auth:/auth
+    environment:
+      - MP_DATA_FILE=/data/mailpit.db
+      - MP_UI_AUTH_FILE=/auth

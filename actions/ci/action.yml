@@ -1,0 +1,53 @@
+name: CI
+on:
+  workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        description: Code coverrage token
+        required: true
+    outputs:
+      status:
+        description: Whether deployment succeeded or not
+        value: ${{ jobs.deploy.outputs.status }}
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:6.0.2-focal
+        ports:
+          - "27017:27017"
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: which python3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            .yarn/install-state.gz
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: yarn-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: lint
+        run: yarn lint
+
+      - name: typecheck
+        run: yarn typecheck:ci
+
+      - name: test
+        run: yarn test:ci
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

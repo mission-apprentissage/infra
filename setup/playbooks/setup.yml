@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - "../vault/vault.yml"
+    - "../vault/habilitations.yml"
+  roles:
+    - setup

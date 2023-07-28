@@ -1,0 +1,10 @@
+---
+- hosts: preview
+  become: true
+  gather_facts: false
+  vars_files:
+    - "../vault/vault.yml"
+  tasks:
+    - include_tasks: preview_pr.yml
+      vars:
+        build: true

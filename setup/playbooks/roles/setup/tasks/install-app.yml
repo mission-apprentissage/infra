@@ -1,0 +1,86 @@
+- name: Création des répertoires app -> /opt/bal
+  file:
+    path: "/opt/bal/{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - data/nginx
+    - data/ssl
+    - data/server
+    - data/mongodb/db
+    - data/mongodb/configdb
+    - data/mongodb/backups
+    - data/metabase
+    - backups/metabase
+    - data/clamav
+    - data/fluentd
+    - data/smtp
+    - data/cron
+
+- name: Création des répertoires app/tools & app/configs -> /opt/bal
+  file:
+    path: "/opt/bal/{{ item.path }}/"
+    state: directory
+  with_filetree:
+    - app
+  when: item.state == 'directory'
+
+- name: Copie des fichiers 'tools'
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/opt/bal/tools/{{ item.path }}"
+    mode: "g+x"
+  with_filetree:
+    - app/tools
+  when: item.state == 'file'
+
+- name: Copie des fichiers 'configs'
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/opt/bal/configs/{{ item.path }}"
+  with_filetree:
+    - app/configs
+  when: item.state == 'file'
+
+- name: Nettoyage des permissions sudo pour le groupe 'mna'
+  lineinfile:
+    path: /etc/sudoers
+    state: absent
+    regexp: "mna"
+
+- name: creation du fichier docker compose preview proxy
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/opt/bal/docker-compose.yml"
+  with_fileglob:
+    - "../../../../docker-compose.preview.yml"
+  when: env_type == 'preview'
+
+- name: lancement preview proxy
+  shell:
+    chdir: /opt/bal
+    cmd: docker compose up -d --wait
+  when: env_type == 'preview'
+
+- name: récupération du status de docker swarm
+  ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
+  register: docker_swarm_status
+  when: env_type != 'preview'
+
+- name: initialisation de docker swarm
+  ansible.builtin.shell: docker swarm init
+  when:
+    - env_type != 'preview'
+    - docker_swarm_status.stdout.find('inactive') != -1
+
+- name: Root only pour tous les répertoires applicatifs
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: root
+    group: root
+    mode: 770
+  with_items:
+    - "/opt/bal/tools"
+    - "/opt/bal/data"
+    - "/opt/bal/backups"
