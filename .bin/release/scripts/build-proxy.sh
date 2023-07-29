@@ -10,14 +10,54 @@ echo $VERSION
 
 echo "Build & Push docker du Reverse Proxy sur le registry github (https://ghcr.io/mission-apprentissage/)"
 
+parse_semver() {
+  local version="$1"
+  
+  # Extract major version
+  major="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract minor version
+  minor="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract patch version
+  patch="${version%%-*}"
+
+  # Check for pre-release and build metadata
+  if [[ "$version" =~ "-" ]]; then
+    version="${version#*-}"
+    pre_release="${version%%+*}"
+    build_metadata="${version#*+}"
+  fi
+}
+
 generate_next_patch_version() {
-  IFS='.' read -ra parts <<< "$VERSION"
+  # IFS='.' read -ra parts <<< "$VERSION"
+  local version="$VERSION"
+  
+  # Extract major version
+  local major="${version%%.*}"
+  version="${version#*.}"
 
-  major="${parts[0]}"
-  minor="${parts[1]}"
-  patch="${parts[2]}"
+  # Extract minor version
+  local minor="${version%%.*}"
+  version="${version#*.}"
 
-  echo "$major.$minor.$((patch + 1))" # Nouvelle version de correctif
+  # Extract patch version
+  local patch="${version%%-*}"
+
+  # Check for pre-release and build metadata
+  if [[ "$version" =~ "-" ]]; then
+    version="${version#*-}"
+    local pre_release_channel="${version%%.*}"
+    local pre_release_number="${version#*.}"
+
+    # echo "$major.$minor.$patch$((patch + 1))"
+    echo "$major.$minor.$patch-$pre_release_channel.$((pre_release_number + 1))"
+  else
+    echo "$major.$minor.$((patch + 1))" # Nouvelle version de correctif
+  fi
 }
 
 select_version() {
@@ -71,3 +111,5 @@ TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"
 git tag -f $TAG
 git push -f origin $TAG
+
+#TODO: set back default docker build
