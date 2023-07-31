@@ -25,6 +25,8 @@ server {
     include locations/*.conf;
 }
 
+# Use map to allow starting reverse_proxy without SSL ssl_certificate
+# This will allow certbot to create one and trigger reload
 map $host $fullchain {
     default       /etc/nginx/ssl/live/${SERVER_NAME}/fullchain.pem;
 }
