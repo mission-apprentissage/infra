@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+TAG_PREFIX="reverse_proxy"
 readonly VERSION=$(${RELEASE_SCRIPTS_DIR}/get-version.sh)
 
 echo "Get"
@@ -9,19 +10,77 @@ echo $VERSION
 
 echo "Build & Push docker du Reverse Proxy sur le registry github (https://ghcr.io/mission-apprentissage/)"
 
+parse_semver() {
+  local version="$1"
+  
+  # Extract major version
+  major="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract minor version
+  minor="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract patch version
+  patch="${version%%-*}"
+
+  # Check for pre-release and build metadata
+  if [[ "$version" =~ "-" ]]; then
+    version="${version#*-}"
+    pre_release="${version%%+*}"
+    build_metadata="${version#*+}"
+  fi
+}
 
 generate_next_patch_version() {
-  IFS='.' read -ra parts <<< "$VERSION"
+  local current_commit_id=$(git rev-parse HEAD)
+  local current_version_commit_id=$(git rev-list -n 1 $TAG_PREFIX@$VERSION)
 
-  major="${parts[0]}"
-  minor="${parts[1]}"
-  patch="${parts[2]}"
+  if [ $current_commit_id == $current_version_commit_id ]; then
+    echo $VERSION;
+    return
+  fi;
 
-  echo "$major.$minor.$((patch + 1))" # Nouvelle version de correctif
+  local version="$VERSION"
+  
+  # Extract major version
+  local major="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract minor version
+  local minor="${version%%.*}"
+  version="${version#*.}"
+
+  # Extract patch version
+  local patch="${version%%-*}"
+
+  # Check for pre-release and build metadata
+  if [[ "$version" =~ "-" ]]; then
+    version="${version#*-}"
+    local pre_release_channel="${version%%.*}"
+    local pre_release_number="${version#*.}"
+
+    # echo "$major.$minor.$patch$((patch + 1))"
+    echo "$major.$minor.$patch-$pre_release_channel.$((pre_release_number + 1))"
+  else
+    echo "$major.$minor.$((patch + 1))" # Nouvelle version de correctif
+  fi
 }
 
 select_version() {
   local NEXT_PATCH_VERSION=$(generate_next_patch_version)
+
+  if [ $NEXT_PATCH_VERSION == $VERSION ]; then
+    read -p "Current commit is already deployed as $VERSION. Do you want to overwrite ? [Y/n]: " overwrite
+    case $overwrite in
+      [yY][eE][sS]|[yY]|"")
+        echo "$VERSION"
+        return;
+        ;;
+      *)
+        ;;
+    esac
+  fi;
 
   read -p "Current version $VERSION > New version ($NEXT_PATCH_VERSION) ? [Y/n]: " response
   case $response in
@@ -29,8 +88,11 @@ select_version() {
       read -p "Custom version : " CUSTOM_VERSION
       echo "$CUSTOM_VERSION"
       ;;
-    *)
+    [yY][eE][sS]|[yY]|"")
       echo "$NEXT_PATCH_VERSION"
+      ;;
+    *)
+      echo "$response"
       ;;
   esac
 }
@@ -51,10 +113,25 @@ case $RES_LOGIN in
     ;;
 esac
 
-"${RELEASE_SCRIPTS_DIR}/setup-buildx.sh"
+set +e
+docker buildx create --name mna --driver docker-container --bootstrap --use 2> /dev/null
+set -e
+docker buildx use --builder mna
 
 echo "Building reverse_proxy:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/reverse_proxy" \
       --platform linux/amd64,linux/arm64 \
       --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:"$NEXT_VERSION" \
+      --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:latest \
+      --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
+      --label "org.opencontainers.image.description=Reverse proxy Mission Apprentissage" \
+      --label "org.opencontainers.image.version=$NEXT_VERSION" \
+      --label "org.opencontainers.image.licenses=MIT" \
       --push
+
+TAG="$TAG_PREFIX@$NEXT_VERSION"
+echo "Creating tag $TAG"
+git tag -f $TAG
+git push -f origin $TAG
+
+#TODO: set back default docker build

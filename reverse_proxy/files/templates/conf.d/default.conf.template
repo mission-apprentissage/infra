@@ -11,10 +11,27 @@ server {
     listen ${PORT} default_server;
 
     server_name ${SERVER_NAME};
+
+    location /.well-known/acme-challenge/ {
+      root /var/www/certbot;
+    }
+    
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
-    include includes/location_*.conf;
-    include includes/env/location_*.conf;
+    if ($always_redirect = on) {
+      return 301 https://$host$request_uri;
+    }
+
+    include locations/*.conf;
+}
+
+# Use map to allow starting reverse_proxy without SSL ssl_certificate
+# This will allow certbot to create one and trigger reload
+map $host $fullchain {
+    default       /etc/nginx/ssl/live/${SERVER_NAME}/fullchain.pem;
+}
+map $host $privkey {
+    default       /etc/nginx/ssl/live/${SERVER_NAME}/privkey.pem;
 }
 
 server {
@@ -22,8 +39,8 @@ server {
 
     server_name ${SERVER_NAME};
 
-    ssl_certificate ${PROXY_SSL_CERT};
-    ssl_certificate_key ${PROXY_SSL_CERT_KEY};
+    ssl_certificate $fullchain;
+    ssl_certificate_key $privkey;
     ssl_session_timeout 1d;
     ssl_session_cache shared:MozSSL:10m;
     ssl_session_tickets off;
@@ -39,8 +56,7 @@ server {
 
     ssl_verify_client ${PROXY_SSL_VERIFY};
 
-    include includes/location_*.conf;
-    include includes/env/location_*.conf;
+    include locations/*.conf;
 
     # Redirect to maintenance if maintenance.on file present & not maintenance ip
     if (-f /etc/nginx/html/maintenance.on) {

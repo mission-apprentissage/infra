@@ -1,10 +1,6 @@
 ARG NGINX_VERSION="1.22.1"
 FROM nginx:${NGINX_VERSION} as nginxModules
 
-LABEL "org.opencontainers.image.source" "https://github.com/mission-apprentissage/infra"
-LABEL "org.opencontainers.image.description" "Reverse proxy Mission Apprentissage"
-LABEL "org.opencontainers.image.licenses" "MIT"
-
 ARG HEADERS_MORE_VERSION="v0.34"
 
 RUN set -eux; \
@@ -46,9 +42,16 @@ FROM owasp/modsecurity-crs:3.3.4-nginx-202303180303
 COPY --from=nginxModules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
 # Disable some owasp-crs rules
-COPY app/nginx/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf /etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+COPY files/owasp-crs/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf /etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
 
 #Nginx
-COPY app/nginx /etc/nginx
+COPY files/templates /etc/nginx/templates
 
-VOLUME /data
+ENV NGINX_ALWAYS_TLS_REDIRECT=true
+ENV PARANOIA=1
+ENV ANOMALY_INBOUND=5
+ENV ANOMALY_OUTBOUND=4
+ENV REPORTING_LEVEL=4
+ENV DNS_SERVER=127.0.0.11
+ENV LOGLEVEL=warn
+ENV ALLOWED_METHODS="GET HEAD POST OPTIONS PUT DELETE"

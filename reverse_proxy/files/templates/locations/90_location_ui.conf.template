@@ -5,8 +5,4 @@ location / {
     # expires $ui_expires;
 
     client_max_body_size 0;
-
-    if ($always_redirect = on) {
-        return 301 https://$host$request_uri;
-    }
 }
