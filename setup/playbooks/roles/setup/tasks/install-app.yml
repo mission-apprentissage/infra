@@ -16,6 +16,8 @@
     - data/fluentd
     - data/smtp
     - data/cron
+    - data/certbot/www
+    - data/certbot/conf
 
 - name: Création des répertoires app/tools & app/configs -> /opt/app
   file:
