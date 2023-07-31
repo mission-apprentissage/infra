@@ -4,6 +4,6 @@ set -euo pipefail
 
 iptables -D INPUT -m set --match-set ipsum src -j DROP 2>/dev/null || true
 
-bash /opt/bal/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been cleared."
+bash /opt/app/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been cleared."
 
 ipset destroy ipsum

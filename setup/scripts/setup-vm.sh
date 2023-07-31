@@ -2,6 +2,8 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
+shift
 readonly ENV_FILTER=${1:?"Merci de préciser un ou plusieurs environnements (ex. recette ou production)"}
 shift
 
@@ -19,11 +21,12 @@ function setup() {
   ansible-galaxy collection install community.crypto
   ansible-galaxy collection install ansible.posix
   ansible-playbook \
-    -i "${SCRIPT_DIR}/../env.ini" \
+    -i "${SCRIPT_DIR}/../../products/${PRODUCT_NAME}/env.ini" \
     --limit "${ENV_FILTER}" \
     --vault-password-file="${SCRIPT_DIR}/vault/get-vault-password-client.sh" \
     ${ansible_become_default} \
      "${SCRIPT_DIR}/../playbooks/setup.yml" "$@"
 }
 
+op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${SCRIPT_DIR}/../../products/${PRODUCT_NAME}/habilitations.yml"
 setup "$@"
