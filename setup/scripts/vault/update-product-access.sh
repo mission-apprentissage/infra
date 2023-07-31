@@ -45,7 +45,6 @@ if [ ! -f "$HABILITATIONS_FILE" ]; then
     echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 fi
 
-echo "${HABILITATIONS_FILE}"
 code -w "${HABILITATIONS_FILE}"
 
 create_password_file
