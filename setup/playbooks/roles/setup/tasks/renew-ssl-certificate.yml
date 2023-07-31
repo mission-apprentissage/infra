@@ -1,0 +1,7 @@
+- name: Add cron to ensure SSL certificate will be renewed
+  ansible.builtin.cron:
+    name: "renew-certificate"
+    minute: "0"
+    hour: "2"
+    weekday: "1"
+    job: "bash /opt/app/tools/ssl/renew-certificate.sh {{dns_name}} >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Renew certificate' -v $?"

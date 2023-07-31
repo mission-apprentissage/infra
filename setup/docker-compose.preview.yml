@@ -50,7 +50,7 @@ services:
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
-      - /opt/bal/data/mongodb/db:/data/db
+      - /opt/app/data/mongodb/db:/data/db
     healthcheck:
       test:
         ["CMD", "mongosh", "--eval", '''db.runCommand("ping").ok''', "--quiet"]
@@ -72,7 +72,7 @@ services:
     networks:
       - bal_network
     volumes:
-      - /opt/bal/data/clamav:/var/lib/clamav
+      - /opt/app/data/clamav:/var/lib/clamav
     healthcheck:
       test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
       interval: 60s
@@ -93,8 +93,8 @@ services:
     networks:
       - bal_network
     volumes:
-      - /opt/bal/data/smtp:/data
-      - /opt/bal/configs/mailpit/auth:/auth
+      - /opt/app/data/smtp:/data
+      - /opt/app/configs/mailpit/auth:/auth
     environment:
       - MP_DATA_FILE=/data/mailpit.db
       - MP_UI_AUTH_FILE=/auth

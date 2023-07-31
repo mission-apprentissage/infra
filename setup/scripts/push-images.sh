@@ -50,17 +50,14 @@ build_image() {
 }
 
 if [ -f "$file_path" ]; then
-  reverse_proxy_version=$(awk -F= '/^reverse_proxy_version=/ {print $2}' "$file_path")
   app_version=$(awk -F= '/^app_version=/ {print $2}' "$file_path")
 
-  new_reverse_proxy_version=$(build_image "Reverse Proxy" "$reverse_proxy_version")
   new_app_version=$(build_image "App" "$app_version")
 else
   echo "Le fichier $file_path n'a pas été trouvé. Veuillez vérifier le chemin du fichier."
 fi
 
 echo -e '\n'
-echo "New Reverse Proxy: $new_reverse_proxy_version"
 echo "New App version: $new_app_version"
 read -p "Confirm $v ? [Y/n]: " response
 
@@ -83,20 +80,3 @@ if [ ! -z "$new_app_version" ]; then
   echo "Build ui:$new_app_version ..."
   .infra/scripts/release/release-app.sh $new_app_version push
 fi
-
-if [ ! -z "$new_reverse_proxy_version" ]; then
-  echo "Building reverse_proxy:$new_reverse_proxy_version ..."
-  docker build ./reverse_proxy \
-        --platform linux/amd64 \
-        --tag ghcr.io/mission-apprentissage/mna_bal_reverse_proxy:"$new_reverse_proxy_version" \
-        --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/bal" \
-        --label "org.opencontainers.image.description=Reverse proxy bal" \
-        --label "org.opencontainers.image.licenses=MIT"
-  sleep 3
-  echo "Pushing reverse_proxy:$new_reverse_proxy_version ..."
-  docker push ghcr.io/mission-apprentissage/mna_bal_reverse_proxy:"$new_reverse_proxy_version"
-
-  sed -i '' "s/reverse_proxy_version=.*/reverse_proxy_version=$new_reverse_proxy_version/" ".infra/env.ini"
-  echo "Bump reverse_proxy version in .infra/env.ini : $new_reverse_proxy_version"
-fi
-

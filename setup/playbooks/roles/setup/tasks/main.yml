@@ -22,8 +22,8 @@
 - import_tasks: install-app.yml
   tags: app
 
-# - import_tasks: generate-ssl-certificate.yml // TODO
-#   tags: ssl
+- import_tasks: renew-ssl-certificate
+  tags: ssl
 
 - import_tasks: generate-gpg-key.yml
   tags: gpg

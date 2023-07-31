@@ -34,13 +34,13 @@ services:
     environment:
       - SERVER_NAME={{dns_name}}
     volumes:
-      - /opt/bal/data/certbot/conf/:/etc/nginx/ssl/:ro
-      - /opt/bal/data/certbot/www:/var/www/certbot/:ro
+      - /opt/app/data/certbot/conf/:/etc/nginx/ssl/:ro
+      - /opt/app/data/certbot/www:/var/www/certbot/:ro
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.nginx
+        tag: docker.{{product_name}}.{{env_type}}.nginx
         fluentd-async: "true"
 
   server:
@@ -54,12 +54,12 @@ services:
       replicas: 2
     env_file: .env_server
     volumes:
-      - /opt/bal/data/server:/data
+      - /opt/app/data/server:/data
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.server
+        tag: docker.{{product_name}}.{{env_type}}.server
         fluentd-async: "true"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:5000/api/healthcheck"]
@@ -79,12 +79,12 @@ services:
     command: ["yarn", "cli", "processor"]
     env_file: .env_server
     volumes:
-      - /opt/bal/data/server:/data
+      - /opt/app/data/server:/data
     logging:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.processor
+        tag: docker.{{product_name}}.{{env_type}}.processor
         fluentd-async: "true"
 
   ui:
@@ -100,7 +100,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.ui
+        tag: docker.{{product_name}}.{{env_type}}.ui
         fluentd-async: "true"
 
   metabase:
@@ -135,7 +135,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.metabase
+        tag: docker.{{product_name}}.{{env_type}}.metabase
         fluentd-async: "true"
 
   clamav:
@@ -155,10 +155,10 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.bal.{{env_type}}.clamav
+        tag: docker.{{product_name}}.{{env_type}}.clamav
         fluentd-async: "true"
     volumes:
-      - /opt/bal/data/clamav:/var/lib/clamav
+      - /opt/app/data/clamav:/var/lib/clamav
 
   nodeexporter:
     <<: *default
@@ -177,7 +177,7 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-      - /opt/bal/data/cron:/var/cron-exporter:rw
+      - /opt/app/data/cron:/var/cron-exporter:rw
 
   cadvisor:
     <<: *default
