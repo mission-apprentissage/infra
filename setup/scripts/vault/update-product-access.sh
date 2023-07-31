@@ -28,8 +28,24 @@ function create_password_file() {
   op document delete ".vault-password-${PRODUCT_NAME}" --vault "mna-vault-passwords-common"
   cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "mna-vault-passwords-common"
 
+#  # ===> set dans infra
+#   gh secret set "${PRODUCT_NAME}_vault_password" --body "$(cat "${VAULT_PASSWORD_FILE}")"   
+#   # ===> set dans bal (utile pour le deploy)
+#   gh secret set "${PRODUCT_NAME}_vault_password --body "$(cat "${VAULT_PASSWORD_FILE}")" --repo "https://github.com/mission-apprentissage/${PRODUCT_NAME}"
+
+  op document delete "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common"
+  cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "mna-vault-passwords-common"
+
   rm "${VAULT_PASSWORD_FILE}"
+  rm "${HABILITATIONS_FILE}"
 }
 
+if [ ! -f "$HABILITATIONS_FILE" ]; then
+    DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" || echo "") 
+    echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
+fi
+
+echo "${HABILITATIONS_FILE}"
+code -w "${HABILITATIONS_FILE}"
 
 create_password_file
