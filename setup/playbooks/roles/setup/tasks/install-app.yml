@@ -1,6 +1,6 @@
-- name: Création des répertoires app -> /opt/bal
+- name: Création des répertoires app -> /opt/app
   file:
-    path: "/opt/bal/{{ item }}"
+    path: "/opt/app/{{ item }}"
     state: directory
     recurse: true
   with_items:
@@ -17,9 +17,9 @@
     - data/smtp
     - data/cron
 
-- name: Création des répertoires app/tools & app/configs -> /opt/bal
+- name: Création des répertoires app/tools & app/configs -> /opt/app
   file:
-    path: "/opt/bal/{{ item.path }}/"
+    path: "/opt/app/{{ item.path }}/"
     state: directory
   with_filetree:
     - app
@@ -28,7 +28,7 @@
 - name: Copie des fichiers 'tools'
   ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: "/opt/bal/tools/{{ item.path }}"
+    dest: "/opt/app/tools/{{ item.path }}"
     mode: "g+x"
   with_filetree:
     - app/tools
@@ -37,7 +37,7 @@
 - name: Copie des fichiers 'configs'
   ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: "/opt/bal/configs/{{ item.path }}"
+    dest: "/opt/app/configs/{{ item.path }}"
   with_filetree:
     - app/configs
   when: item.state == 'file'
@@ -51,14 +51,14 @@
 - name: creation du fichier docker compose preview proxy
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/opt/bal/docker-compose.yml"
+    dest: "/opt/app/docker-compose.yml"
   with_fileglob:
     - "../../../../docker-compose.preview.yml"
   when: env_type == 'preview'
 
 - name: lancement preview proxy
   shell:
-    chdir: /opt/bal
+    chdir: /opt/app
     cmd: docker compose up -d --wait
   when: env_type == 'preview'
 
@@ -81,6 +81,6 @@
     group: root
     mode: 770
   with_items:
-    - "/opt/bal/tools"
-    - "/opt/bal/data"
-    - "/opt/bal/backups"
+    - "/opt/app/tools"
+    - "/opt/app/data"
+    - "/opt/app/backups"

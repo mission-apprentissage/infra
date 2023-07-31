@@ -7,4 +7,4 @@
     name: "blacklist_ips"
     minute: "0"
     hour: "4"
-    job: "bash /opt/bal/tools/jail/blacklist-ips.sh >> /var/log/cron.log 2>&1; /opt/bal/tools/monitoring/export-cron-status-prom.sh -c 'Backlist IPs' -v $?"
+    job: "bash /opt/app/tools/jail/blacklist-ips.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Backlist IPs' -v $?"

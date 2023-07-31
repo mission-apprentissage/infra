@@ -7,7 +7,7 @@
   tasks:
     - name: List projects
       ansible.builtin.find:
-        paths: /opt/bal/projects
+        paths: /opt/app/projects
         file_type: directory
       register: projects
 
