@@ -33,7 +33,14 @@ parse_semver() {
 }
 
 generate_next_patch_version() {
-  # IFS='.' read -ra parts <<< "$VERSION"
+  local current_commit_id=$(git rev-parse HEAD)
+  local current_version_commit_id=$(git rev-list -n 1 $TAG_PREFIX@$VERSION)
+
+  if [ $current_commit_id == $current_version_commit_id ]; then
+    echo $VERSION;
+    return
+  fi;
+
   local version="$VERSION"
   
   # Extract major version
@@ -63,14 +70,29 @@ generate_next_patch_version() {
 select_version() {
   local NEXT_PATCH_VERSION=$(generate_next_patch_version)
 
+  if [ $NEXT_PATCH_VERSION == $VERSION ]; then
+    read -p "Current commit is already deployed as $VERSION. Do you want to overwrite ? [Y/n]: " overwrite
+    case $overwrite in
+      [yY][eE][sS]|[yY]|"")
+        echo "$VERSION"
+        return;
+        ;;
+      *)
+        ;;
+    esac
+  fi;
+
   read -p "Current version $VERSION > New version ($NEXT_PATCH_VERSION) ? [Y/n]: " response
   case $response in
     [nN][oO]|[nN])
       read -p "Custom version : " CUSTOM_VERSION
       echo "$CUSTOM_VERSION"
       ;;
-    *)
+    [yY][eE][sS]|[yY]|"")
       echo "$NEXT_PATCH_VERSION"
+      ;;
+    *)
+      echo "$response"
       ;;
   esac
 }
