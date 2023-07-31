@@ -2,13 +2,11 @@
 
 set -euo pipefail
 
-TAG_PREFIX="reverse_proxy"
-readonly VERSION=$(${RELEASE_SCRIPTS_DIR}/get-version.sh)
+readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fluentd)"}
+shift
+readonly VERSION=$(${RELEASE_SCRIPTS_DIR}/get-version.sh $TAG_PREFIX)
 
-echo "Get"
-echo $VERSION
-
-echo "Build & Push docker du Reverse Proxy sur le registry github (https://ghcr.io/mission-apprentissage/)"
+echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/mission-apprentissage/)"
 
 parse_semver() {
   local version="$1"
@@ -34,9 +32,9 @@ parse_semver() {
 
 generate_next_patch_version() {
   local current_commit_id=$(git rev-parse HEAD)
-  local current_version_commit_id=$(git rev-list -n 1 $TAG_PREFIX@$VERSION)
+  local current_version_commit_id=$(git rev-list -n 1 $TAG_PREFIX@$VERSION 2> /dev/null)
 
-  if [ $current_commit_id == $current_version_commit_id ]; then
+  if [ "$current_commit_id" == "$current_version_commit_id" ]; then
     echo $VERSION;
     return
   fi;
@@ -118,20 +116,23 @@ docker buildx create --name mna --driver docker-container --bootstrap --use 2> /
 set -e
 docker buildx use --builder mna
 
-echo "Building reverse_proxy:$NEXT_VERSION ..."
-docker buildx build "$ROOT_DIR/reverse_proxy" \
+echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
+docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
-      --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:"$NEXT_VERSION" \
-      --tag ghcr.io/mission-apprentissage/mna_reverse_proxy:latest \
+      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:"$NEXT_VERSION" \
+      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:latest \
       --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
-      --label "org.opencontainers.image.description=Reverse proxy Mission Apprentissage" \
+      --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
       --label "org.opencontainers.image.licenses=MIT" \
       --push
+
+docker context use default
 
 TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"
 git tag -f $TAG
 git push -f origin $TAG
+
 
 #TODO: set back default docker build

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-TAG_PREFIX="reverse_proxy"
+readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fluentd)"}
+shift
 LATEST_TAG=$(git describe --tags --abbrev=0 --candidates 100 --match "$TAG_PREFIX@*" --always)
 HEAD=$(git rev-parse HEAD)
 
