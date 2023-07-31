@@ -26,7 +26,7 @@
             journal:
               labels:
                 job: systemd-journal
-                product: "{{ vault.APP_NAME }}"
+                product: "{{ product_name }}"
                 env: "{{ env_type }}"
             relabel_configs:
               - source_labels: ["__journal__hostname"]
