@@ -21,3 +21,9 @@ services:
     environment:
       - MP_DATA_FILE=/data/mailpit.db
       - MP_UI_AUTH_FILE=/auth
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.bal.{{env_type}}.smtp
+        fluentd-async: "true"

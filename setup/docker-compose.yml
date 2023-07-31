@@ -21,7 +21,7 @@ x-default: &default
 services:
   reverse_proxy:
     <<: *default
-    image: "ghcr.io/mission-apprentissage/mna_bal_reverse_proxy:{{reverse_proxy_version}}"
+    image: "ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}"
     deploy:
       <<: *deploy-default
       resources:
@@ -33,22 +33,9 @@ services:
       - "443:443"
     environment:
       - SERVER_NAME={{dns_name}}
-      - NGINX_ALWAYS_TLS_REDIRECT=true
-      - PROXY_SSL_CERT=/ssl/fullchain.pem
-      - PROXY_SSL_CERT_KEY=/ssl/privkey.pem
-      - PARANOIA=1
-      - ANOMALY_INBOUND=5
-      - ANOMALY_OUTBOUND=4
-      - REPORTING_LEVEL=4
-      - DNS_SERVER=127.0.0.11
-      - PROXY=1
-      - SERVERNAME=localhost
-      - LOGLEVEL=warn
-      - NGINX_ALWAYS_TLS_REDIRECT=false
-      - ALLOWED_METHODS=GET HEAD POST OPTIONS PUT DELETE
     volumes:
-      - /opt/bal/data/nginx:/data
-      - /opt/bal/data/ssl:/ssl:ro
+      - /opt/bal/data/certbot/conf/:/etc/nginx/ssl/:ro
+      - /opt/bal/data/certbot/www:/var/www/certbot/:ro
     logging:
       driver: "fluentd"
       options:
@@ -210,26 +197,11 @@ services:
 
   fluentd:
     <<: *default
-    image: grafana/fluent-plugin-loki:main
-    user: root
-    volumes:
-      - /opt/bal/configs/fluentd/conf:/fluentd/etc
-      - /opt/bal/data/fluentd:/var/log/fluent
-      - /var/log:/var/log
-      # Needed for journald log ingestion:
-      - /etc/machine-id:/etc/machine-id
-      - /dev/log:/dev/log
-      - /var/run/systemd/journal/:/var/run/systemd/journal/
+    image: "ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}"
     ports:
       - "24224:24224"
       - "24224:24224/udp"
-    command:
-      - "fluentd"
-      - "-v"
-      - "-p"
-      - "/fluentd/plugins"
-    environment:
-      LOKI_URL: https://monitoring.apprentissage.beta.gouv.fr/loki
+    # environment:
       # LOKI_USERNAME:
       # LOKI_PASSWORD:
 
