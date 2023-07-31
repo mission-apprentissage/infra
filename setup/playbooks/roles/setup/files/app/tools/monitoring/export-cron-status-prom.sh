@@ -43,10 +43,10 @@ done
 # echo "Write metric node_cron_job_exit_code for code \"$CODE\" with value $VALUE."
 ID=$(echo $CODE | shasum | cut -c1-5)
 
-cat << EOF >> /opt/bal/data/cron/node_cron_job_exit_code.$ID.prom.$$
+cat << EOF >> /opt/app/data/cron/node_cron_job_exit_code.$ID.prom.$$
 # HELP node_cron_job_exit_code Last exit code of cron job.
 # TYPE node_cron_job_exit_code counter
 node_cron_job_exit_code{code="$CODE"} $VALUE
 EOF
-chmod go+rw /opt/bal/data/cron/node_cron_job_exit_code.$ID.prom.$$
-mv /opt/bal/data/cron/node_cron_job_exit_code.$ID.prom.$$ /opt/bal/data/cron/node_cron_job_exit_code.$ID.prom
+chmod go+rw /opt/app/data/cron/node_cron_job_exit_code.$ID.prom.$$
+mv /opt/app/data/cron/node_cron_job_exit_code.$ID.prom.$$ /opt/app/data/cron/node_cron_job_exit_code.$ID.prom

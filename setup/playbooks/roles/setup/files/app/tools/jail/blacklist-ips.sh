@@ -11,4 +11,4 @@ for ip in $(curl --compressed https://raw.githubusercontent.com/stamparm/ipsum/m
 iptables -D INPUT -m set --match-set ipsum src -j DROP 2>/dev/null || true
 iptables -I INPUT -m set --match-set ipsum src -j DROP
 
-bash /opt/bal/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been renewed."
+bash /opt/app/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been renewed."

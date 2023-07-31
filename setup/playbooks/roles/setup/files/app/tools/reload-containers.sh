@@ -2,14 +2,14 @@
 set -euo pipefail
 #Needs to be run as sudo
 
-readonly PROJECT_DIR="/opt/bal"
+readonly PROJECT_DIR="/opt/app"
 
 function reload_containers() {
     echo "Rechargement des conteneurs ..."
-    if test -f "/opt/bal/docker-compose.recette.yml"; then
-      docker stack deploy -c /opt/bal/docker-compose.yml -c /opt/bal/docker-compose.recette.yml bal;
+    if test -f "/opt/app/docker-compose.recette.yml"; then
+      docker stack deploy -c /opt/app/docker-compose.yml -c /opt/app/docker-compose.recette.yml {{product_name}};
     else
-      docker stack deploy -c /opt/bal/docker-compose.yml bal;
+      docker stack deploy -c /opt/app/docker-compose.yml {{product_name}};
     fi
 }
 

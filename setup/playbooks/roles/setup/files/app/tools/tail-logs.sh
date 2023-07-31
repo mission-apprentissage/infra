@@ -5,4 +5,4 @@ set -euo pipefail
 readonly SERVICE=${1:?"Merci de préciser le service"}
 shift
 
-docker service logs bal_${SERVICE} "$@"
+docker service logs {{product_name}}_${SERVICE} "$@"

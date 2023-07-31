@@ -3,6 +3,6 @@
   become: true
   vars_files:
     - "../vault/vault.yml"
-    - "../vault/habilitations.yml"
+    - "../../products/{{ product_name }}/habilitations.yml"
   roles:
     - setup
