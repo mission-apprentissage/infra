@@ -114,7 +114,6 @@ esac
 set +e
 docker buildx create --name mna --driver docker-container --bootstrap --use 2> /dev/null
 set -e
-docker buildx use --builder mna
 
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
@@ -125,9 +124,8 @@ docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
       --label "org.opencontainers.image.licenses=MIT" \
+      --builder mna \
       --push
-
-docker context use default
 
 TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"

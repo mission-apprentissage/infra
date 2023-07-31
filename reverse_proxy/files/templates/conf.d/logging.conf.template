@@ -1,4 +1,17 @@
-log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+map $time_iso8601 $year {
+  ~^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+) $1;
+}
+map $time_iso8601 $month {
+  ~^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+) $2;
+}
+map $time_iso8601 $day {
+  ~^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+) $3;
+}
+map $time_iso8601 $time {
+  ~^(\d+)-(\d+)-(\d+)T(\d+:\d+:\d+) $4;
+}
+
+log_format main '$remote_addr $remote_user [$year/$month/$day $time] "$request" '
                 '$status $body_bytes_sent "$http_referer" '
                 '"$http_user_agent" "$http_x_forwarded_for" '
                 '"$host" $request_time';

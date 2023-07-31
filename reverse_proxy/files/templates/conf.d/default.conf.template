@@ -18,10 +18,12 @@ server {
     
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
-    if ($always_redirect = on) {
+    include includes/location_common.conf;
+
+    if ($always_redirect = true) {
       return 301 https://$host$request_uri;
     }
-
+    
     include locations/*.conf;
 }
 
@@ -56,8 +58,6 @@ server {
 
     ssl_verify_client ${PROXY_SSL_VERIFY};
 
-    include locations/*.conf;
-
     # Redirect to maintenance if maintenance.on file present & not maintenance ip
     if (-f /etc/nginx/html/maintenance.on) {
         set $maintenance  1;
@@ -77,4 +77,6 @@ server {
         rewrite ^(.*)$ /maintenance.html break;
         root /etc/nginx/html;
     }
+
+    include locations/*.conf;
 }
