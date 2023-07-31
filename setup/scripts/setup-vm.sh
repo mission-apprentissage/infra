@@ -28,6 +28,5 @@ function setup() {
      "${SCRIPT_DIR}/../playbooks/setup.yml" "$@"
 }
 
-
-## TODO DOWNLOAD HABILITATION!
+op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${SCRIPT_DIR}/../../products/${PRODUCT_NAME}/habilitations.yml"
 setup "$@"
