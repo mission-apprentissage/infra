@@ -58,6 +58,12 @@ server {
 
     ssl_verify_client ${PROXY_SSL_VERIFY};
 
+    location /.well-known/acme-challenge/ {
+      root /var/www/certbot;
+    }
+
+    include includes/location_common.conf;
+
     # Redirect to maintenance if maintenance.on file present & not maintenance ip
     if (-f /etc/nginx/html/maintenance.on) {
         set $maintenance  1;
