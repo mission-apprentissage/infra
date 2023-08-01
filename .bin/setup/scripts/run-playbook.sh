@@ -21,6 +21,7 @@ function runPlaybook() {
         echo "Pour cela, ajouter le dans le vault "Private" l'item ${PRODUCT_NAME}-$ENV_FILTER avec le champs password"
         ansible_become_default="--ask-become-pass"
       else
+        echo "Récupération du mot 'become_pass' depuis 1password" 
         ansible_become_default="-e ansible_become_password='$become_pass'"
       fi;
   fi
@@ -31,13 +32,11 @@ function runPlaybook() {
       if [ -z $username ]; then
         echo "Si vous avez 1password CLI, il est possible de récupérer le username automatiquement"
         echo "Pour cela, ajouter le dans le vault "Private" l'item ${PRODUCT_NAME}-$ENV_FILTER avec le champs username"
+      else
+        echo "Récupération du username depuis 1password" 
         ansible_extra_opts+=("--user" $username)
       fi;
   fi
-
-
-  echo $ansible_become_default
-  echo $username
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
   ansible-galaxy install patrickjahns.promtail
@@ -59,4 +58,11 @@ function runPlaybook() {
 
 op document get ".vault-password-infra" --vault "mna-vault-passwords-common" --out-file="${ROOT_DIR}/setup/vault/.vault-password.gpg" --force
 op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
-runPlaybook "$@"
+
+# Do not show error log in CI
+# Do not remove this behavior as displaying errors can reveal secrets
+if [[ -z "${CI:-}" ]]; then
+  runPlaybook "$@"
+else
+  runPlaybook "$@" 2> /dev/null
+fi;
