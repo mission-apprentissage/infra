@@ -6,8 +6,8 @@ shift
 
 docker run \
   --rm \
-  -v /opt/{{product_name}}/data/certbot/www/:/var/www/certbot/:rw \
-  -v /opt/{{product_name}}/data/certbot/conf/:/etc/letsencrypt/:rw \
+  -v /opt/app/data/certbot/www/:/var/www/certbot/:rw \
+  -v /opt/app/data/certbot/conf/:/etc/letsencrypt/:rw \
   --rm certbot/certbot:latest \
   certonly \
     --webroot --webroot-path /var/www/certbot/ \
