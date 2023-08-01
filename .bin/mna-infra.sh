@@ -6,6 +6,7 @@ export SCRIPT_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
 export ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
 
 source "${SCRIPT_DIR}/release/release.sh"
+source "${SCRIPT_DIR}/setup/setup.sh"
 
 
 ################################################################################
