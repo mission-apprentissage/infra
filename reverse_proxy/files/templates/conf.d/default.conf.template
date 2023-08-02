@@ -18,10 +18,10 @@ server {
 
     server_name ${SERVER_NAME};
 
-    set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
-
     include includes/location_common.conf;
     include includes/location_acme.conf;
+
+    set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
     if ($https_only = false) {
       set $always_redirect false;
@@ -31,9 +31,7 @@ server {
       return 301 https://$host$request_uri;
     }
 
-    if ($always_redirect = false) {
-      include locations/*.conf;
-    }
+    include locations/*.conf;
 }
 
 # Use map to allow starting reverse_proxy without SSL ssl_certificate
