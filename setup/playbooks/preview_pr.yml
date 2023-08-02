@@ -115,7 +115,7 @@
 
     - name: "[{{ pr_number }}] Remove database"
       shell:
-        cmd: docker run --rm -it --network bal_network mongo:6.0.2-focal mongosh "{{ vault[env_type].MNA_BAL_MONGODB_URI }}" --eval "db.dropDatabase()"
+        cmd: docker run --rm -i --network bal_network mongo:6.0.2-focal mongosh "{{ vault[env_type].MNA_BAL_MONGODB_URI }}" --eval "db.dropDatabase()"
 
     - name: "[{{ pr_number }}] Removing preview directory"
       shell:
