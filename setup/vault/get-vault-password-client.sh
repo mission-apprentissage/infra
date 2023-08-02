@@ -25,7 +25,7 @@ function usage {
 }
 
 function main() {
-  local vault_password_file="${SCRIPT_DIR}/../../vault/.vault-password.gpg"
+  local vault_password_file="${SCRIPT_DIR}/.vault-password.gpg"
 
   while [[ $# -gt 0 ]]; do
     params="$1"
@@ -36,9 +36,9 @@ function main() {
       ;;
     --vault-id)
       if [[ $2 == "default" ]]; then
-        vault_password_file="${SCRIPT_DIR}/../../vault/.vault-password.gpg"
+        vault_password_file="${SCRIPT_DIR}/.vault-password.gpg"
       else
-        vault_password_file="${SCRIPT_DIR}/../../vault/.vault-password-$2.gpg"
+        vault_password_file="${SCRIPT_DIR}/.vault-password-$2.gpg"
       fi
       shift
       shift
