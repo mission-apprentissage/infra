@@ -50,19 +50,27 @@
     state: absent
     regexp: "mna"
 
-- name: creation du fichier docker compose preview proxy
+# - name: creation du fichier docker compose preview proxy
+#   ansible.builtin.template:
+#     src: "{{ item }}"
+#     dest: "/opt/app/docker-compose.yml"
+#   with_fileglob:
+#     - "../../../../docker-compose.preview.yml"
+#   when: env_type == 'preview'
+
+# - name: lancement preview proxy
+#   shell:
+#     chdir: /opt/app
+#     cmd: docker compose up -d --wait
+#   when: env_type == 'preview'
+
+
+- name: copy du fichier docker compose
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "/opt/app/docker-compose.yml"
+    dest: "/opt/app/docker-compose-system.yml"
   with_fileglob:
-    - "../../../../docker-compose.preview.yml"
-  when: env_type == 'preview'
-
-- name: lancement preview proxy
-  shell:
-    chdir: /opt/app
-    cmd: docker compose up -d --wait
-  when: env_type == 'preview'
+    - "../docker-compose-system.yml"
 
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
