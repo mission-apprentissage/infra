@@ -1,0 +1,96 @@
+version: "3.8"
+
+# The following variables define reusable configurations for deployment, providing consistent and predefined 
+# behaviors for updating, rolling back, and restarting services.
+
+x-deploy-default: &deploy-default
+  update_config:
+    failure_action: rollback
+    parallelism: 1
+    delay: 10s
+  rollback_config:
+    parallelism: 0
+  restart_policy:
+    window: 5s
+
+x-default: &default
+  networks:
+    - bal_network
+
+
+services:
+  reverse_proxy:
+    <<: *default
+    image: "ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}"
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 256m
+      replicas: 2
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SERVER_NAME={{dns_name}}
+    volumes:
+      - /opt/app/data/certbot/conf/:/etc/nginx/ssl/:ro
+      - /opt/app/data/certbot/www:/var/www/certbot/:ro
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.{{product_name}}.{{env_type}}.nginx
+        fluentd-async: "true"
+
+  nodeexporter:
+    <<: *default
+    image: prom/node-exporter:v1.5.0
+    hostname: {{host_name}}
+    user: root
+    deploy:
+      <<: *deploy-default
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.textfile.directory=/var/cron-exporter'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /opt/app/data/cron:/var/cron-exporter:rw
+
+  cadvisor:
+    <<: *default
+    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    deploy:
+      <<: *deploy-default
+    hostname: {{host_name}}
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  fluentd:
+    <<: *default
+    image: "ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    # environment:
+      # LOKI_USERNAME:
+      # LOKI_PASSWORD:
+
+networks:
+  bal_network:
+    name: bal_network
+    attachable: true
+    external: true
+    driver: overlay
