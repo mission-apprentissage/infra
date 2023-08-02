@@ -8,26 +8,15 @@ readonly VERSION=$(${RELEASE_SCRIPTS_DIR}/get-version.sh $TAG_PREFIX)
 
 echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/mission-apprentissage/)"
 
-parse_semver() {
+get_channel() {
   local version="$1"
-  
-  # Extract major version
-  major="${version%%.*}"
-  version="${version#*.}"
+  channel=$(echo "$version" | cut -d '-' -f 2)
 
-  # Extract minor version
-  minor="${version%%.*}"
-  version="${version#*.}"
-
-  # Extract patch version
-  patch="${version%%-*}"
-
-  # Check for pre-release and build metadata
-  if [[ "$version" =~ "-" ]]; then
-    version="${version#*-}"
-    pre_release="${version%%+*}"
-    build_metadata="${version#*+}"
+  if [ -z "$channel" ]; then
+    channel="latest"
   fi
+
+  echo $channel
 }
 
 generate_next_patch_version() {
@@ -119,7 +108,7 @@ echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
       --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:"$NEXT_VERSION" \
-      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:latest \
+      --tag ghcr.io/mission-apprentissage/mna_$(get_channel $NEXT_VERSION):latest \
       --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
       --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
@@ -131,6 +120,3 @@ TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"
 git tag -f $TAG
 git push -f origin $TAG
-
-
-#TODO: set back default docker build
