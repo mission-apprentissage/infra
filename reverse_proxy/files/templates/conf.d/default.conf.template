@@ -8,8 +8,8 @@ map $http_upgrade $connection_upgrade {
 }
 
 map $request_uri $https_only {
-  "~^/.well-known"  false;
-  "~^/healthz"      false;
+  "~^/.well-known/acme-challenge/"  false;
+  "~^/healthz$"      false;
   default           true;
 }
 
