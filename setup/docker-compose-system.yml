@@ -15,13 +15,12 @@ x-deploy-default: &deploy-default
 
 x-default: &default
   networks:
-    - bal_network
-
+    - mna_network
 
 services:
   reverse_proxy:
     <<: *default
-    image: "ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}"
+    image: ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       resources:
@@ -35,7 +34,7 @@ services:
       - SERVER_NAME={{dns_name}}
     volumes:
       - /opt/app/data/certbot/conf/:/etc/nginx/ssl/:ro
-      - /opt/app/data/certbot/www:/var/www/certbot/:ro
+      - /opt/app/data/certbot/www/:/var/www/certbot/:ro
     logging:
       driver: "fluentd"
       options:
@@ -80,7 +79,7 @@ services:
 
   fluentd:
     <<: *default
-    image: "ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}"
+    image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"
@@ -89,8 +88,8 @@ services:
       # LOKI_PASSWORD:
 
 networks:
-  bal_network:
-    name: bal_network
+  mna_network:
+    name: mna_network
     attachable: true
     external: true
     driver: overlay
