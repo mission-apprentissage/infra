@@ -12,19 +12,18 @@ server {
 
     server_name ${SERVER_NAME};
 
-    location /.well-known/acme-challenge/ {
-      root /var/www/certbot;
-    }
-    
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
     include includes/location_common.conf;
+    include includes/location_acme.conf;
 
-    if ($always_redirect = true) {
-      return 301 https://$host$request_uri;
-    }
-    
-    include locations/*.conf;
+    location / {
+      if ($always_redirect = true) {
+        return 301 https://$host$request_uri;
+      }
+
+      include locations/*.conf; 
+    } 
 }
 
 # Use map to allow starting reverse_proxy without SSL ssl_certificate
@@ -58,10 +57,7 @@ server {
 
     ssl_verify_client ${PROXY_SSL_VERIFY};
 
-    location /.well-known/acme-challenge/ {
-      root /var/www/certbot;
-    }
-
+    include includes/location_acme.conf;
     include includes/location_common.conf;
 
     # Redirect to maintenance if maintenance.on file present & not maintenance ip
