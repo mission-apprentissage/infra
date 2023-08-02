@@ -7,6 +7,12 @@ map $http_upgrade $connection_upgrade {
     '' close;
 }
 
+map $request_uri $https_only {
+  "~^/.well-known"  false;
+  "~^/healthz"      false;
+  default           true;
+}
+
 server {
     listen ${PORT} default_server;
 
@@ -17,13 +23,17 @@ server {
     include includes/location_common.conf;
     include includes/location_acme.conf;
 
-    location / {
-      if ($always_redirect = true) {
-        return 301 https://$host$request_uri;
-      }
+    if ($https_only = false) {
+      set $always_redirect false;
+    }
 
-      include locations/*.conf; 
-    } 
+    if ($always_redirect = true) {
+      return 301 https://$host$request_uri;
+    }
+
+    if ($always_redirect = false) {
+      include locations/*.conf;
+    }
 }
 
 # Use map to allow starting reverse_proxy without SSL ssl_certificate
@@ -61,16 +71,15 @@ server {
     include includes/location_common.conf;
 
     # Redirect to maintenance if maintenance.on file present & not maintenance ip
+
+    set $maintenance false;
+
     if (-f /etc/nginx/html/maintenance.on) {
-        set $maintenance  1;
+        set $maintenance true;
     }
 
-    if ($maintenance_allowed_ips != 1) {
-        set $maintenance "${maintenance}1";
-    }
-
-    if ($maintenance = 11) {
-      return 503;
+    if ($maintenance_allowed_ips = 1) {
+      set $maintenance false;
     }
 
     error_page 503 @maintenance;
@@ -78,6 +87,10 @@ server {
     location @maintenance {
         rewrite ^(.*)$ /maintenance.html break;
         root /etc/nginx/html;
+    }
+
+    if ($maintenance = true) {
+      return 503;
     }
 
     include locations/*.conf;
