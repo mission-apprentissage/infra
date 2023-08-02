@@ -10,9 +10,6 @@
 - import_tasks: configure-network.yml
   tags: network
 
-- import_tasks: configure-backup.yml
-  tags: backup
-
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban
 

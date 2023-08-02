@@ -92,12 +92,8 @@
 
 - name: Root only pour tous les répertoires applicatifs
   file:
-    path: "{{item}}"
+    path: "/opt/app"
     state: directory
     owner: root
     group: root
     mode: 770
-  with_items:
-    - "/opt/app/tools"
-    - "/opt/app/data"
-    - "/opt/app/backups"
