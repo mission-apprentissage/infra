@@ -7,6 +7,20 @@ shift
 readonly HABILITATIONS_FILE="${SCRIPT_DIR}/../../../products/${PRODUCT_NAME}/habilitations.yml"
 readonly VAULT_PASSWORD_FILE="${SCRIPT_DIR}/../../../products/${PRODUCT_NAME}/.vault-password.gpg"
 
+
+# TODO pas beaux ! 
+case $PRODUCT_NAME in
+    tdb)
+         REPO_NAME="flux-retour-cfas"
+        ;;
+    lba)
+         REPO_NAME="labonnealternance"
+        ;;
+    *)
+        REPO_NAME=$PRODUCT_NAME
+        ;;
+esac
+
 function create_password_file() {
   local recipients=()
   local password
@@ -31,7 +45,7 @@ function create_password_file() {
 #  # ===> set dans infra
 #   gh secret set "${PRODUCT_NAME}_vault_password" --body "$(cat "${VAULT_PASSWORD_FILE}")"   
 #   # ===> set dans bal (utile pour le deploy)
-#   gh secret set "${PRODUCT_NAME}_vault_password --body "$(cat "${VAULT_PASSWORD_FILE}")" --repo "https://github.com/mission-apprentissage/${PRODUCT_NAME}"
+  gh secret set "${PRODUCT_NAME}_vault_password --body "$(cat "${VAULT_PASSWORD_FILE}")" --repo "https://github.com/mission-apprentissage/${REPO_NAME}" 
 
   op document delete "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common"
   cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "mna-vault-passwords-common"

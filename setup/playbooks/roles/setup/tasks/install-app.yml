@@ -21,6 +21,13 @@
     state: absent
     regexp: "mna"
 
+- name: copy du fichier docker compose
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/opt/app/docker-compose.system.yml"
+  with_fileglob:
+    - "app/docker-compose.system.yml"
+
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
   register: docker_swarm_status
