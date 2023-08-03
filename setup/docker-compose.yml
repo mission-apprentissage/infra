@@ -15,7 +15,7 @@ x-deploy-default: &deploy-default
 
 x-default: &default
   networks:
-    - bal_network
+    - mna_network
 
 
 services:
@@ -206,8 +206,8 @@ services:
       # LOKI_PASSWORD:
 
 networks:
-  bal_network:
-    name: bal_network
+  mna_network:
+    name: mna_network
     attachable: true
     external: true
     driver: overlay

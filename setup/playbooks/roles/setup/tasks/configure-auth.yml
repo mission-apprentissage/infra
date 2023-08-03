@@ -30,10 +30,18 @@
     regexp: '^umask$'
     line: 'umask 0077'
 
+- name: Enable color in sudo
+  shell:
+    cmd: sudo sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' /root/.bashrc
+
 - name: Set default umask
   lineinfile:
     path: /etc/pam.d/common-session
     regexp: '^session optional			pam_umask.so$'
     line: 'session optional pam_umask.so umask=0027'
 
-
+- name: Set default directory /opt/app
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^cd /opt/app$'
+    line: 'cd /opt/app'

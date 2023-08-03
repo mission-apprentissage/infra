@@ -14,7 +14,7 @@ services:
     ports:
       - 1025:1025
     networks:
-      - bal_network
+      - mna_network
     volumes:
       - /opt/app/data/smtp:/data
       - /opt/app/configs/mailpit/auth:/auth

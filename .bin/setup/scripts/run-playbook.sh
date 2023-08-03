@@ -13,20 +13,19 @@ PRODUCT_DIR="${ROOT_DIR}/products/${PRODUCT_NAME}"
 function runPlaybook() {
   echo "Lancement du playbook ${PLAYBOOK_NAME} pour ${PRODUCT_NAME}-${ENV_FILTER}..."
   
-  local ansible_become_default=""
+  local ansible_extra_opts=()
   if [[ $* != *"pass"* ]]; then
       local become_pass=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/password 2> /dev/null);
       if [ -z $become_pass ]; then
         echo "Si vous avez 1password CLI, il est possible de récupérer le password automatiquement"
         echo "Pour cela, ajouter le dans le vault "Private" l'item ${PRODUCT_NAME}-$ENV_FILTER avec le champs password"
-        ansible_become_default="--ask-become-pass"
+        ansible_extra_opts+=("--ask-become-pass")
       else
-        echo "Récupération du mot 'become_pass' depuis 1password" 
-        ansible_become_default="-e ansible_become_password='$become_pass'"
+        echo "Récupération du mot de passe 'become_pass' depuis 1password" 
+        ansible_extra_opts+=("-e ansible_become_password='$become_pass'")
       fi;
   fi
 
-  local ansible_extra_opts=()
   if [[ $* != *"--user"* ]]; then
       local username=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/username 2> /dev/null);
       if [ -z $username ]; then
@@ -52,7 +51,6 @@ function runPlaybook() {
     --limit "${ENV_FILTER}" \
     --vault-password-file="${ROOT_DIR}/setup/vault/get-vault-password-client.sh" \
     "${ansible_extra_opts[@]}" \
-    ${ansible_become_default} \
      "${PLAYBOOKS_ROOT}/${PLAYBOOK_NAME}" "$@"
 }
 

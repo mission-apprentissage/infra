@@ -40,7 +40,7 @@ function system:setup() {
 }
 
 function system:setup:initial() {
-  setup:system "$@" --user ubuntu --ask-pass 
+  system:setup "$@" --user ubuntu --ask-pass 
 }
 
 function system:user:remove() {
