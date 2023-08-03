@@ -78,8 +78,6 @@ L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de 
 l'administrateur du compte OVH et est également disponible dans les emails de
 service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 
-Une fois le script terminé, l'application est disponible à l'url qui correspond au `dns_name` dans le fichier `env.ini`
-
 Pour finaliser le création de l'environnement, vous devez vous connecter pour initialiser votre utilisateur :
 
 ```bash
@@ -89,7 +87,5 @@ ssh <nom_utilisateur>@<ip>
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
 
 ```bash
-mna-bal system:user:remove --user <votre_nom_utilisateur> --extra-vars "username=ubuntu"
+mna-infra system:user:remove <nom_produit> <nom_environnement> --user <votre_nom_utilisateur> --extra-vars "username=ubuntu"
 ```
-
-Vous pouvez maintenant poursuivre avec le [Deploiement de l'application](#deploiement-de-lapplication).
