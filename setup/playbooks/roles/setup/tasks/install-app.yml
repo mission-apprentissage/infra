@@ -1,24 +1,3 @@
-- name: Création des répertoires app -> /opt/app
-  file:
-    path: "/opt/app/{{ item }}"
-    state: directory
-    recurse: true
-  with_items:
-    - data/nginx
-    - data/ssl
-    - data/server
-    - data/mongodb/db
-    - data/mongodb/configdb
-    - data/mongodb/backups
-    - data/metabase
-    - backups/metabase
-    - data/clamav
-    - data/fluentd
-    - data/smtp
-    - data/cron
-    - data/certbot/www
-    - data/certbot/conf
-
 - name: Création des répertoires app/tools & app/configs -> /opt/app
   file:
     path: "/opt/app/{{ item.path }}/"
@@ -36,34 +15,11 @@
     - app/tools
   when: item.state == 'file'
 
-- name: Copie des fichiers 'configs'
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "/opt/app/configs/{{ item.path }}"
-  with_filetree:
-    - app/configs
-  when: item.state == 'file'
-
 - name: Nettoyage des permissions sudo pour le groupe 'mna'
   lineinfile:
     path: /etc/sudoers
     state: absent
     regexp: "mna"
-
-# - name: creation du fichier docker compose preview proxy
-#   ansible.builtin.template:
-#     src: "{{ item }}"
-#     dest: "/opt/app/docker-compose.yml"
-#   with_fileglob:
-#     - "../../../../docker-compose.preview.yml"
-#   when: env_type == 'preview'
-
-# - name: lancement preview proxy
-#   shell:
-#     chdir: /opt/app
-#     cmd: docker compose up -d --wait
-#   when: env_type == 'preview'
-
 
 - name: copy du fichier docker compose
   ansible.builtin.template:
@@ -92,11 +48,21 @@
 - debug:
     var: network
 
-- name: création du docker network
+- name: création du docker network en swarm mode
   ansible.builtin.shell:
     chdir: /opt/app
     cmd: docker network create -d overlay --attachable mna_network
-  when: network.stdout == ""
+  when:
+    - network.stdout == ""
+    - env_type != 'preview'
+
+- name: création du docker network en compose mode
+  ansible.builtin.shell:
+    chdir: /opt/app
+    cmd: docker network create --attachable mna_network
+  when:
+    - network.stdout == ""
+    - env_type == 'preview'
 
 - name: Root only pour tous les répertoires applicatifs
   file:
