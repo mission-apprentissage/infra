@@ -108,7 +108,7 @@ echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
       --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:"$NEXT_VERSION" \
-      --tag ghcr.io/mission-apprentissage/mna_$(get_channel $NEXT_VERSION):latest \
+      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
       --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
       --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
