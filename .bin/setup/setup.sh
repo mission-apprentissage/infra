@@ -13,12 +13,16 @@ function validateProductNameAndEnv() {
   fi;
 
   set +e
-  local env_ip=$(grep "\[$2\]" -A 1 "${env_ini}" | tail -1)
+  local env_name="\[$2\]";
+  local env_ip=$(ansible-inventory -i"${env_ini}" --list -l "${env_name}" | jq ".${env_name}.hosts[0]")
+  
   set -e
   if [[ "$env_ip" == "" ]]; then
     echo "Environment $2 not found";
     exit 1;
   fi;
+
+  echo $env_ip
 }
 
 function firewall:setup() {
@@ -50,5 +54,21 @@ function system:user:remove() {
   validateProductNameAndEnv "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SETUP_SCRIPTS_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+}
+
+function ssh:known_hosts:print() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ips=$("${ROOT_DIR}/.bin/scripts/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
+  ssh-keyscan ${ips}
+}
+
+function ssh:known_hosts:update() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ips=$("${ROOT_DIR}/.bin/scripts/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
+  for ip in ${ips}; do
+    ssh-keygen -R ${ip}
+  done;
+
+  ssh-keyscan ${ips} >> ~/.ssh/known_hosts
 }
 
