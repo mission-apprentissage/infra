@@ -26,10 +26,19 @@ services:
       resources:
         limits:
           memory: 256m
-      replicas: 2
+      mode: global
+    # Ingress port mode (default) is not able to provide user real-ip
+    # In order to bypass this, we need to use mode host port mapping
+    # But we cannot replicate the service on a single node
     ports:
-      - "80:80"
-      - "443:443"
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     environment:
       - SERVER_NAME={{dns_name}}
     volumes:
