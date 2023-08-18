@@ -48,8 +48,8 @@
   when: ctop.stat.exists == False
   shell: "wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop"
 
-- name: Installation node 18
-  shell: "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -"
+- name: Installation node 20
+  shell: "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
   when: env_type == 'preview'
 
 - name: apt-key yarn

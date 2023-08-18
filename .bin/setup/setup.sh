@@ -13,8 +13,7 @@ function validateProductNameAndEnv() {
   fi;
 
   set +e
-  local env_name="\[$2\]";
-  local env_ip=$(ansible-inventory -i"${env_ini}" --list -l "${env_name}" | jq ".${env_name}.hosts[0]")
+  local env_ip=$(ansible-inventory -i "${env_ini}" --list -l "${2}" | jq ".${2}.hosts[0]")
   
   set -e
   if [[ "$env_ip" == "" ]]; then
