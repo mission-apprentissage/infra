@@ -3,4 +3,7 @@ set -euo pipefail
 #Needs to be run as sudo
 
 echo "Désactivation de la page de maintenance..."
-docker exec -i $(docker ps -q -f name={{product_name}}_reverse_proxy --latest) bash -c "rm -f /etc/nginx/html/*.on"
+for containerId in $(docker ps -q -f name={{product_name}}_reverse_proxy)
+do
+  docker exec -i $containerId bash -c 'rm -f /etc/nginx/html/*.on'
+done

@@ -46,6 +46,7 @@ COPY files/owasp-crs/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf /etc/modsecurit
 
 #Nginx
 COPY files/templates /etc/nginx/templates
+COPY files/reload.sh /reload.sh
 
 ENV NGINX_ALWAYS_TLS_REDIRECT=true
 ENV PARANOIA=1

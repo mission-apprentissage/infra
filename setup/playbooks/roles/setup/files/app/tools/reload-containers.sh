@@ -6,11 +6,10 @@ readonly PROJECT_DIR="/opt/app"
 
 function reload_containers() {
     echo "Rechargement des conteneurs ..."
-    if test -f "/opt/app/docker-compose.recette.yml"; then
-      docker stack deploy -c /opt/app/docker-compose.yml -c /opt/app/docker-compose.recette.yml {{product_name}};
-    else
-      docker stack deploy -c /opt/app/docker-compose.yml {{product_name}};
-    fi
+    for serviceId in $(docker service ls -q)
+    do
+      docker service update $serviceId
+    done
 }
 
 echo "****************************"
