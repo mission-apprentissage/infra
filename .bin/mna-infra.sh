@@ -2,12 +2,11 @@
 
 set -euo pipefail
 
-export SCRIPT_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
-export ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
+export BIN_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
+export ROOT_DIR="$(dirname "${BIN_DIR}")"
+export SCRIPT_DIR="$BIN_DIR/scripts"
 
-source "${SCRIPT_DIR}/release/release.sh"
-source "${SCRIPT_DIR}/setup/setup.sh"
-
+source "${BIN_DIR}/commands.sh"
 
 ################################################################################
 # Help                                                                         #

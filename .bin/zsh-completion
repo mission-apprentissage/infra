@@ -1,0 +1,36 @@
+#compdef -d mna-infra
+
+_mna-infra_completion() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+  local -a commands=(
+   "help:'Show help message'"
+   "bin\:setup:'Installs mna-bal binary with zsh completion on system'"
+   "product\:ini_file:Get product ini file location\""
+   "product\:env\:ip:Get product environnement IP\""
+   "product\:validate\:env:Validate product + environnment name\""
+   "firewall\:setup:Setup OVH firewall\""
+   "firewall\:service\:close:Close service on OVH firewall\""
+   "system\:setup:Setup server\""
+   "system\:setup\:initial:Initial setup server\""
+   "system\:user\:remove:Remove user from server\""
+   "ssh\:known_hosts\:print:Print SSH known host for a product including all servers\""
+   "ssh\:known_hosts\:update:Update SSH known host for a product including all servers\""
+   "release\:proxy:Release docker reverse proxy image\""
+   "release\:fluentd:Release fluentd reverse proxy image\""
+  )
+
+  # Set completion behavior based on the current word
+  _arguments -C '1: :->command'
+
+  case $state in
+    (command)
+      # Provide completion for commands
+      _describe 'command' commands
+      ;;
+  esac
+  
+  # _describe 'command' commands
+}
+
+_mna-infra_completion "$@"

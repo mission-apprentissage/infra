@@ -19,7 +19,7 @@ async function getClient(key) {
   }
 
   let client = newOvhClient();
-  let { consumerKey, validationUrl } = await client.request("POST", "/auth/credential", {
+  let { consumerKey, validationUrl, ...rest } = await client.request("POST", "/auth/credential", {
     accessRules: [
       { method: "POST", path: "/auth/*" },
       { method: "GET", path: "/ip/*" },
