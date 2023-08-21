@@ -4,7 +4,7 @@ set -euo pipefail
 
 readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fluentd)"}
 shift
-readonly VERSION=$(${RELEASE_SCRIPTS_DIR}/get-version.sh $TAG_PREFIX)
+readonly VERSION=$(${SCRIPT_DIR}/release/get-version.sh $TAG_PREFIX)
 
 echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/mission-apprentissage/)"
 
@@ -20,8 +20,8 @@ get_channel() {
 }
 
 generate_next_patch_version() {
-  local current_commit_id=$(git rev-parse HEAD)
-  local current_version_commit_id=$(git rev-list -n 1 $TAG_PREFIX@$VERSION 2> /dev/null)
+  local current_commit_id=$(git --git-dir="$ROOT_DIR/.git" rev-parse HEAD)
+  local current_version_commit_id=$(git --git-dir="$ROOT_DIR/.git" rev-list -n 1 $TAG_PREFIX@$VERSION 2> /dev/null)
 
   if [ "$current_commit_id" == "$current_version_commit_id" ]; then
     echo $VERSION;
@@ -118,5 +118,5 @@ docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
 
 TAG="$TAG_PREFIX@$NEXT_VERSION"
 echo "Creating tag $TAG"
-git tag -f $TAG
-git push -f origin $TAG
+git --git-dir="$ROOT_DIR/.git" tag -f $TAG
+git --git-dir="$ROOT_DIR/.git" push -f origin $TAG

@@ -49,7 +49,7 @@ La première étape est de créer un VPS via l'interface d'OVH : https://www.ovh
 Une fois le VPS créé, il est nécessaire de configurer le firewall en lançant la commande :
 
 ```bash
-mna-infra firewall:setup <nom_produit> <nom_environnement> <app_key> <app_secret>
+mna-infra firewall:setup <nom_produit> <nom_environnement>
 ```
 
 Lors de l'exécution de ce script, vous serez redirigé vers une page web vous demandant de vous authentifier afin de
