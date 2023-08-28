@@ -4,4 +4,4 @@ set -euo pipefail
 
 PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
 env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
-ansible-inventory -i ${env_ini} --list | jq -r '._meta.hostvars | keys | map(. | select(.!="localhost")) | join(" ")'
+ansible-inventory -i "${env_ini}" --list | jq -r '._meta.hostvars | keys | map(. | select(.!="localhost")) | join(" ")'
