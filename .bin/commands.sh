@@ -47,7 +47,7 @@ function product:env:ip() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
   local env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
-  if [ -z $env_ini ]; then exit 1; fi
+  if [[ -z $env_ini ]]; then exit 1; fi
 
   local env_ip=$(ansible-inventory -i "${env_ini}" --list -l "${ENV_NAME}" | jq -r ".${ENV_NAME}.hosts[0]")
 
