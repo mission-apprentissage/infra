@@ -131,3 +131,32 @@ function release:proxy() {
 function release:fluentd() {
   "$SCRIPT_DIR/release/build-image.sh" fluentd "$@"
 }
+
+function ssh:config() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ips=($("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
+  if [ -z "$ips" ]; then exit 1; fi
+
+  local hostnames=($("${SCRIPT_DIR}/known_hosts/list_hostnames.sh" "${PRODUCT_NAME}"))
+
+  read -p "What is your username? " username
+
+  local config=""
+
+  for i in "${!ips[@]}"; do
+    config="${config}
+Host ${hostnames[$i]}
+  Port 22
+  User ${username}
+  HostName ${ips[$i]}
+"
+  done;
+
+  if ! grep -qF 'Include ~/.ssh/config.d/*.config' ~/.ssh/config; then
+    echo '' >> ~/.ssh/config
+    echo 'Include ~/.ssh/config.d/*.config' >> ~/.ssh/config
+  fi
+
+  mkdir -p ~/.ssh/config.d
+  echo "$config" > ~/.ssh/config.d/${PRODUCT_NAME}.config
+}
