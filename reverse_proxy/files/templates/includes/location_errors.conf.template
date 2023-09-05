@@ -1,0 +1,23 @@
+location @502.json {
+  default_type application/json;
+  internal;
+  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "name": "Server Error" } }';
+}
+
+location @503.json {
+  default_type application/json;
+  internal;
+  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "name": "Server Error" } }';
+}
+
+location @503.html {
+  rewrite ^(.*)$ /503.html break;
+  internal;
+  root /etc/nginx/error_pages;
+}
+
+location @5xx.html {
+  rewrite ^(.*)$ /5xx.html break;
+  internal;
+  root /etc/nginx/error_pages;
+}

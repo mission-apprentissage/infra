@@ -78,12 +78,10 @@ server {
       set $maintenance false;
     }
 
-    error_page 503 @maintenance;
+    error_page 503 @503.html;
+    error_page 500 502 504 @5xx.html;
 
-    location @maintenance {
-        rewrite ^(.*)$ /maintenance.html break;
-        root /etc/nginx/html;
-    }
+    include includes/location_errors.conf;
 
     if ($maintenance = true) {
       return 503;
