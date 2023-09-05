@@ -19,3 +19,4 @@ log_format main '$remote_addr $remote_user [$year/$month/$day $time] "$request" 
 access_log /dev/stdout main;
 
 error_log /dev/stderr ${LOGLEVEL};
+error_log /var/log/nginx/error.log ${LOGLEVEL};
