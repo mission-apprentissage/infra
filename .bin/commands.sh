@@ -16,6 +16,7 @@ function Help() {
    echo "  system:user:remove                                      Remove user from server"
    echo "  ssh:known_hosts:print                                   Print SSH known host for a product including all servers"
    echo "  ssh:known_hosts:update                                  Update SSH known host for a product including all servers"
+   echo "  ssh:config                                              Update your local SSH config for a product including all servers"
    echo "  release:proxy                                           Release docker reverse proxy image"
    echo "  release:fluentd                                         Release fluentd reverse proxy image"
    echo 
@@ -116,12 +117,27 @@ function ssh:known_hosts:print() {
 function ssh:known_hosts:update() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
-  if [ -z $ips ]; then exit 1; fi
+  if [ -z "$ips" ]; then exit 1; fi
   for ip in ${ips}; do
     ssh-keygen -R ${ip}
   done;
 
-  ssh-keyscan ${ips} >> ~/.ssh/known_hosts
+  ssh-keyscan ${ips} >> ~/.ssh/known_hosts 2> /dev/null
+
+  read -p "Do you want to update github variable? [Y/n]" response
+
+  case $response in
+    [yY][eE][sS]|[yY]|"")
+      ;;
+    *)
+      return
+      ;;
+  esac
+
+  local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
+
+  SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
+  gh variable -R "${repo[0]}" set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS"
 }
 
 function release:proxy() {
@@ -137,7 +153,7 @@ function ssh:config() {
   local ips=($("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
   if [ -z "$ips" ]; then exit 1; fi
 
-  local hostnames=($("${SCRIPT_DIR}/known_hosts/list_hostnames.sh" "${PRODUCT_NAME}"))
+  local hostnames=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name"))
 
   read -p "What is your username? " username
 

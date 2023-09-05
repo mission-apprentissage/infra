@@ -16,6 +16,7 @@ _mna-infra_completion() {
    "system\:user\:remove:Remove user from server\""
    "ssh\:known_hosts\:print:Print SSH known host for a product including all servers\""
    "ssh\:known_hosts\:update:Update SSH known host for a product including all servers\""
+   "ssh\:config:Update your local SSH config for a product including all servers\""
    "release\:proxy:Release docker reverse proxy image\""
    "release\:fluentd:Release fluentd reverse proxy image\""
   )
