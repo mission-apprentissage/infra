@@ -84,11 +84,9 @@
     line: 'XKBLAYOUT="fr"'
 
 - name: Définition de l'environnement
-  lineinfile:
-    path: /env
-    create: yes
-    regexp: "^{{env_type}}$"
-    line: "{{env_type}}"
+  copy:
+    dest: /env
+    content: "{{env_type}}"
 
 #See https://unix.stackexchange.com/questions/186859/understand-hostname-and-etc-hosts
 - name: Définition du nom de l'hôte
