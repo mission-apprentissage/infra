@@ -5,7 +5,7 @@
 *.* text eol=lf
 
 # Vault
-.infra/vault/vault.yml diff=ansible-vault merge=ansible-vault
+setup/vault/vault.yml diff=diff-vault merge=merge-vault
 
 # Force images/fonts to be handled as binaries
 # Documents
