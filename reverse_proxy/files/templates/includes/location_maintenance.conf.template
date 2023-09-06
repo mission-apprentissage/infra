@@ -1,0 +1,53 @@
+# Define Error Pages
+
+error_page 503 @503.html;
+error_page 500 502 504 @5xx.html;
+
+location @502.json {
+  default_type application/json;
+  internal;
+  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "name": "Server Error" } }';
+}
+
+location @503.json {
+  default_type application/json;
+  internal;
+  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "name": "Server Error" } }';
+}
+
+location @503.html {
+  internal;
+  # We always redirect to files 503.html expect for path starting with /system
+  # It is required to be able to get assets when in maintenance mode
+  rewrite ^(?!/system/).*$ /503.html break;
+  # For assets, we just remove the system prefix
+  rewrite ^/system/(.*)$ /$1 break;
+  root /etc/nginx/system;
+}
+
+location @5xx.html {
+  internal;
+  rewrite .* /5xx.html break;
+  root /etc/nginx/error_pages;
+}
+
+location  /system/ {
+  rewrite ^/system/(.*)$ /$1 break;
+  root /etc/nginx/system;
+}
+
+# Redirect to maintenance if maintenance.on file present & not maintenance ip
+
+set $maintenance false;
+
+if (-f /etc/nginx/html/maintenance.on) {
+  set $maintenance true;
+}
+
+if ($maintenance_allowed_ips = 1) {
+  set $maintenance false;
+}
+
+if ($maintenance = true) {
+  return 503;
+}

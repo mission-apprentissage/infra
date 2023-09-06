@@ -19,6 +19,7 @@ server {
     server_name ${SERVER_NAME};
 
     include includes/location_acme.conf;
+    include includes/location_maintenance.conf;
 
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
@@ -65,28 +66,7 @@ server {
     ssl_verify_client ${PROXY_SSL_VERIFY};
 
     include includes/location_acme.conf;
-
-    # Redirect to maintenance if maintenance.on file present & not maintenance ip
-
-    set $maintenance false;
-
-    if (-f /etc/nginx/html/maintenance.on) {
-        set $maintenance true;
-    }
-
-    if ($maintenance_allowed_ips = 1) {
-      set $maintenance false;
-    }
-
-    error_page 503 @503.html;
-    error_page 500 502 504 @5xx.html;
-
-    include includes/location_errors.conf;
-
-    if ($maintenance = true) {
-      return 503;
-    }
-
+    include includes/location_maintenance.conf;
     include includes/location_monitoring.conf;
     include locations/*.conf;
 }
