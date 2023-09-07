@@ -51,7 +51,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-        tag: docker.{{product_name}}.{{env_type}}.nginx
+        tag: docker.nginx.{{product_name}}.{{env_type}}.nginx
         fluentd-async: "true"
 
   nodeexporter:
