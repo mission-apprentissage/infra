@@ -6,13 +6,13 @@ error_page 500 502 504 @5xx.html;
 location @502.json {
   default_type application/json;
   internal;
-  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "name": "Server Error" } }';
+  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "name": "Server Error" } ';
 }
 
 location @503.json {
   default_type application/json;
   internal;
-  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "name": "Server Error" } }';
+  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "name": "Server Error" } ';
 }
 
 location @503.html {
