@@ -11,6 +11,13 @@
 
 - include_role:
     name: geerlingguy.docker
+  vars:
+    docker_daemon_options:
+      log-driver: fluentd
+      log-opts:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
+        fluentd-async: "true"
 
 - include_role:
     name: patrickjahns.promtail
