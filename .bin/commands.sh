@@ -170,6 +170,7 @@ Host ${hostnames[$i]}
 
   if ! grep -qF 'Include ~/.ssh/config.d/*.config' ~/.ssh/config; then
     echo '' >> ~/.ssh/config
+    echo 'Match All' >> ~/.ssh/config
     echo 'Include ~/.ssh/config.d/*.config' >> ~/.ssh/config
   fi
 
