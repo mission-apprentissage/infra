@@ -69,9 +69,9 @@ Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/re
 Pour configurer l'environnement, il faut lancer la commande suivante :
 
 ```bash
-ssh-keygen -R <ip>
-ssh-keyscan <ip> >> ~/.ssh/known_hosts
+mna-infra ssh:known_hosts:update <nom_produit>
 mna-infra system:setup:initial <nom_produit> <nom_environnement>
+mna-infra ssh:config <nom_produit>
 ```
 
 L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à
@@ -81,7 +81,7 @@ service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 Pour finaliser le création de l'environnement, vous devez vous connecter pour initialiser votre utilisateur :
 
 ```bash
-ssh <nom_utilisateur>@<ip>
+ssh <nom_produit>-<nom_environnement>
 ```
 
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
