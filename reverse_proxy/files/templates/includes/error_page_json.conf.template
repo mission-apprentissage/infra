@@ -1,0 +1,5 @@
+# Define JSON error_page
+
+error_page 500 @500.html;
+error_page 502 @502.html;
+error_page 504 @504.html;

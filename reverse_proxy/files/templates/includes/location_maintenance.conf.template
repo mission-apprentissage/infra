@@ -3,16 +3,28 @@
 error_page 503 @503.html;
 error_page 500 502 504 @5xx.html;
 
+location @500.json {
+  default_type application/json;
+  internal;
+  return 500 '{ "statusCode": "500", "message": "Internal Server Error", "error": "Reverse Proxy" } ';
+}
+
 location @502.json {
   default_type application/json;
   internal;
-  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "name": "Server Error" } ';
+  return 502 '{ "statusCode": "502", "message": "Bad Gateway", "error": "Reverse Proxy" } ';
 }
 
 location @503.json {
   default_type application/json;
   internal;
-  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "name": "Server Error" } ';
+  return 503 '{ "statusCode": "503", "message": "Service Unavailable", "error": "Reverse Proxy" } ';
+}
+
+location @504.json {
+  default_type application/json;
+  internal;
+  return 504 '{ "statusCode": "504", "message": "Gateway Timeout", "error": "Reverse Proxy" } ';
 }
 
 location @503.html {
@@ -28,7 +40,7 @@ location @503.html {
 location @5xx.html {
   internal;
   rewrite .* /5xx.html break;
-  root /etc/nginx/error_pages;
+  root /etc/nginx/system;
 }
 
 location  /system/ {
