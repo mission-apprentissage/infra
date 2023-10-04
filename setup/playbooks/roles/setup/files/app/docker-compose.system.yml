@@ -50,6 +50,7 @@ services:
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
       - /opt/app/configs/reverse_proxy/locations/:/etc/nginx/templates/locations/:ro
       - /opt/app/configs/reverse_proxy/system/:/etc/nginx/system/:ro
+      - /opt/app/configs/reverse_proxy/extra-conf.d/:/etc/nginx/extra-conf.d/:ro
       - /opt/app/system/nginx/:/var/log/nginx/:rw
     logging:
       driver: "fluentd"
