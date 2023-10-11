@@ -1,5 +1,7 @@
 # Clé GPG
 
+## Création d'une clé GPG
+
 Pour décrypter les variables d'environnement, vous avez besoin d'une clé GPG. Si vous n'en avez pas, vous pouvez en créer une en suivant la documentation GitHub [ici](https://docs.github.com/fr/authentication/managing-commit-signature-verification/generating-a-new-gpg-key).
 
 Voici les étapes pour créer votre clé GPG :
@@ -41,3 +43,17 @@ Voici les étapes pour créer votre clé GPG :
 
 - `.infra/vault/.vault-password.gpg`
 - `.infra/vault/habilitations.yml`
+
+## Ajout d'un accès
+
+```bash
+bash ./setup/scripts/vault/update-product-access.sh <product_name>
+```
+
+--> Le script va ouvrir en edition le fichier d'habilitations il faudra le modifier et fermer le fichier.
+
+> En cas d'erreur `gpg: keyserver receive failed: No route to host`, cela signifie que GPG essaie de se connecter au keyserveur via IPv4. Pour résoudre le problème, il faut changer le mode de résolution DNS via:
+```bash
+echo standard-resolver >> $HOME/.gnupg/dirmngr.conf;
+pkill dirmngr
+```
