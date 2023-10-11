@@ -27,9 +27,12 @@ services:
     image: ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
+      restart_policy:
+        window: 3s
+        delay: 2s
       resources:
         limits:
-          memory: 256m
+          memory: 1g
       mode: global
     # Ingress port mode (default) is not able to provide user real-ip
     # In order to bypass this, we need to use mode host port mapping
@@ -96,6 +99,8 @@ services:
 
   fluentd:
     <<: *default
+    deploy:
+      <<: *deploy-default
     image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
