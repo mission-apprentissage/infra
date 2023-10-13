@@ -8,3 +8,4 @@ shift
 fail2ban-client set "sshd" unbanip "${IP}"
 fail2ban-client set "nginx-conn-limit" unbanip "${IP}"
 fail2ban-client set "nginx-req-limit" unbanip "${IP}"
+fail2ban-client set "nginx-conn-limit-long" unbanip "${IP}"

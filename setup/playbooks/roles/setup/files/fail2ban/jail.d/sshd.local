@@ -1,3 +1,6 @@
+[whitelist]
+ignoreip = 127.0.0.0/16 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 91.168.137.131 91.173.13.14 78.198.91.2
+
 [sshd]
 enabled = true
 port = ssh
@@ -7,3 +10,4 @@ maxretry = 10
 bantime = 2592000
 banaction = iptables-multiport
             slack-notify
+ignoreip = @whitelist
