@@ -28,8 +28,8 @@ services:
     deploy:
       <<: *deploy-default
       restart_policy:
-        window: 3s
-        delay: 2s
+        window: 5s
+        delay: 5s
       resources:
         limits:
           memory: 1g
