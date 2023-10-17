@@ -7,7 +7,7 @@ RUN set -eux; \
   apt-get clean; \
   rm -rf /var/lib/apt/lists/*;
 RUN fluent-gem install fluent-plugin-grafana-loki
-RUN fluent-gem install fluent-plugin-prometheus --version=0.4.0
+RUN fluent-gem install fluent-plugin-prometheus
 COPY ./fluent.conf /fluentd/etc/fluent.conf
 VOLUME [ "/var/log/fluent" ]
 EXPOSE 24231
