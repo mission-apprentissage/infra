@@ -6,3 +6,7 @@ location /_monitoring/nodeexporter {
     set $upstream http://nodeexporter:9100/metrics;
     include includes/proxy.conf;
 }
+location /_monitoring/fluentd {
+    set $upstream http://fluentd:24231/metrics;
+    include includes/proxy.conf;
+}

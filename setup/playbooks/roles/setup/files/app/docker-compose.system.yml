@@ -105,9 +105,14 @@ services:
     ports:
       - "24224:24224"
       - "24224:24224/udp"
+    volumes:
+      - fluentd:/var/log/fluent
     # environment:
       # LOKI_USERNAME:
       # LOKI_PASSWORD:
+
+volumes:
+  fluentd:
 
 networks:
   mna_network:
