@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+#Needs to be run as sudo
+
+docker stack deploy $(for file in $(ls /opt/app/docker-compose.*.yml); do echo -n "-c $file "; done) {{product_name}}

@@ -58,6 +58,7 @@ ENV LOGLEVEL=warn
 ENV ALLOWED_METHODS="GET HEAD POST OPTIONS PUT DELETE"
 ENV MODSEC_AUDIT_LOG_FORMAT="JSON"
 ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
+ENV MODSEC_DISABLE_BACKEND_COMPRESSION="On"
 
 HEALTHCHECK CMD curl -sk -A healthcheck "http://localhost/healthz"
 VOLUME [ "/var/log/nginx" ]
