@@ -56,5 +56,8 @@ ENV REPORTING_LEVEL=4
 ENV DNS_SERVER=127.0.0.11
 ENV LOGLEVEL=warn
 ENV ALLOWED_METHODS="GET HEAD POST OPTIONS PUT DELETE"
+ENV MODSEC_AUDIT_LOG_FORMAT="JSON"
+ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
 
 HEALTHCHECK CMD curl -sk -A healthcheck "http://localhost/healthz"
+VOLUME [ "/var/log/nginx" ]
