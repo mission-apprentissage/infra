@@ -11,6 +11,7 @@ for ip in $(curl --compressed https://raw.githubusercontent.com/stamparm/ipsum/m
 done
 
 ips+=(3.92.127.83)
+ips+=(82.65.116.94)
 ips+=(82.165.82.41)
 
 # specific blacklist
