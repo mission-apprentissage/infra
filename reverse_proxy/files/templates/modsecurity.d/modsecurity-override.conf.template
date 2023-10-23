@@ -6,7 +6,7 @@ SecAuditEngine ${MODSEC_AUDIT_ENGINE}
 SecAuditLog ${MODSEC_AUDIT_LOG}
 SecAuditLogFormat ${MODSEC_AUDIT_LOG_FORMAT}
 SecAuditLogParts ${MODSEC_AUDIT_LOG_PARTS}
-SecAuditLogRelevantStatus "^(?:5|4(?!04))"
+SecAuditLogRelevantStatus "^5"
 SecAuditLogStorageDir ${MODSEC_AUDIT_STORAGE}
 SecAuditLogType ${MODSEC_AUDIT_LOG_TYPE}
 SecCookieFormat 0
