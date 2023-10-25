@@ -1,6 +1,9 @@
 - import_tasks: configure-system.yml
   tags: system
 
+- import_tasks: configure-dns.yml
+  tags: dns
+
 - import_tasks: create-users.yml
   tags: users
 

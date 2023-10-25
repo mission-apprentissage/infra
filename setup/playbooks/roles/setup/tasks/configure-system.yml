@@ -24,9 +24,6 @@
   vars:
     docker_daemon_options:
       log-driver: local
-      log-opts:
-        max-size: "10m"
-        max-file: 3
   when: env_type == 'preview'
 
 - include_role:
