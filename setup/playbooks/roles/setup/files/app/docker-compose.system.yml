@@ -108,7 +108,10 @@ services:
       - "24224:24224/udp"
     volumes:
       - fluentd:/var/log/fluent
-    # environment:
+      - /opt/app/system/nginx/:/var/log/nginx/:rw
+    environment:
+      PRODUCT_NAME: "{{ product_name }}"
+      ENV_TYPE: "{{ env_type }}"
       # LOKI_USERNAME:
       # LOKI_PASSWORD:
 
