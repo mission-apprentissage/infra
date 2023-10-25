@@ -27,3 +27,6 @@
 
 - import_tasks: generate-gpg-key.yml
   tags: gpg
+
+- import_tasks: configure-logrotate.yml
+  tags: logrotate

@@ -8,3 +8,9 @@
     name: fail2ban
     enabled: true
     state: restarted
+
+- name: restart-logrotate
+  service:
+    name: logrotate
+    enabled: true
+    state: restarted

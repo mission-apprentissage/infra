@@ -1,0 +1,11 @@
+/opt/app/system/nginx/*.log {
+    daily
+    rotate 90
+    compress
+    delaycompress
+    # Do not rotate if empty
+    notifempty
+    missingok
+
+    create 640 root root
+}
