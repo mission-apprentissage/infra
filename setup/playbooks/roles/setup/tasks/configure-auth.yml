@@ -1,5 +1,4 @@
 - name: Mise à jour configuration sshd
-  when: update_sshd_config|bool == true
   copy:
     src: sshd/sshd_config
     dest: /etc/ssh/sshd_config
