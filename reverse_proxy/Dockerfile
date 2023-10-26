@@ -41,9 +41,6 @@ FROM owasp/modsecurity-crs:3.3.4-nginx-202303180303
 
 COPY --from=nginxModules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
-# Disable some owasp-crs rules
-COPY files/owasp-crs/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf /etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
-
 #Nginx
 COPY files/templates /etc/nginx/templates
 COPY files/reload.sh /reload.sh
@@ -55,7 +52,7 @@ ENV ANOMALY_OUTBOUND=4
 ENV REPORTING_LEVEL=4
 ENV DNS_SERVER=127.0.0.11
 ENV LOGLEVEL=warn
-ENV ALLOWED_METHODS="GET HEAD POST OPTIONS PUT DELETE"
+ENV ALLOWED_METHODS="GET HEAD POST OPTIONS PUT PATCH DELETE"
 ENV MODSEC_AUDIT_LOG_FORMAT="JSON"
 ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
 
