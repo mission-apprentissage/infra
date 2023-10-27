@@ -1,4 +1,4 @@
-/opt/app/system/nginx/*.log {
+/opt/app/system/nginx/error.log {
     daily
     rotate 90
     compress
@@ -6,6 +6,22 @@
     # Do not rotate if empty
     notifempty
     missingok
+    postrotate
+      /opt/app/tools/reload-proxy.sh
+    endscript
+
+    create 640 root root
+}
+/opt/app/system/nginx/modsec_audit.log {
+    daily
+    rotate 90
+    compress
+    delaycompress
+    # Do not rotate if empty
+    notifempty
+    missingok
+    # see https://github.com/SpiderLabs/ModSecurity-nginx/issues/121
+    copytruncate
 
     create 640 root root
 }
