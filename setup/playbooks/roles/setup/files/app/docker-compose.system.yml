@@ -48,6 +48,7 @@ services:
         mode: host
     environment:
       - SERVER_NAME={{dns_name}}
+      - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
     volumes:
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
