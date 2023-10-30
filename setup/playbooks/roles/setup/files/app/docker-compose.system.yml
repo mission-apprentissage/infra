@@ -73,6 +73,9 @@ services:
     user: root
     deploy:
       <<: *deploy-default
+      resources:
+        limits:
+          cpus: '0.50'
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
@@ -90,6 +93,9 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.46.0
     deploy:
       <<: *deploy-default
+      resources:
+        limits:
+          cpus: '0.50'
     hostname: {{host_name}}
     privileged: true
     devices:
@@ -105,6 +111,9 @@ services:
     <<: *default
     deploy:
       <<: *deploy-default
+      resources:
+        limits:
+          cpus: '1.00'
     image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
