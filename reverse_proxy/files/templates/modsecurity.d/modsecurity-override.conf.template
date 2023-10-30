@@ -40,6 +40,6 @@ SecUploadFileMode 0644
 #
 SecRuleRemoveById 200007
 SecArgumentsLimit 10000
-SecRule &ARGS "@ge 2000" \
+SecRule &ARGS "@ge 10000" \
 "id:'1200007', phase:2,t:none,log,deny,status:400,msg:'Failed to fully parse request body due to large argument count',severity:2"
 
