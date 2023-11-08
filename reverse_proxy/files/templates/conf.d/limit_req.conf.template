@@ -2,3 +2,5 @@
 limit_req_zone $binary_remote_addr zone=flood:10m rate=400r/m;
 limit_req_log_level error;
 limit_req zone=flood burst=100 nodelay;
+limit_req_status 429;
+limit_conn_status 429;
