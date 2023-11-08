@@ -122,6 +122,7 @@ services:
     volumes:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:rw
+      - /var/log/:/var/log/host/:rw
     environment:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
