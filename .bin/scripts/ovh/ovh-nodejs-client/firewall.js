@@ -1,53 +1,71 @@
-const { resourceExists } = require("./utils");
+const { resourceExists, resourceOrNull } = require("./utils");
 
-const rules = {
-  allowTcpConnection: () => {
-    return {
-      sequence: "0",
-      action: "permit",
-      protocol: "tcp",
-      source: null,
-      sourcePort: null,
-      destinationPort: null,
-      tcpOption: { option: "established" },
-    };
-  },
-  allowTcpOnPort: (port, priority) => {
-    return {
-      sequence: priority,
-      action: "permit",
-      protocol: "tcp",
-      destinationPort: port,
-      source: null,
-      sourcePort: null,
-      tcpOption: {},
-    };
-  },
-  allowICMP: () => {
-    return {
-      sequence: "10",
-      protocol: "icmp",
-      action: "permit",
-      source: null,
-      sourcePort: null,
-      destinationPort: null,
-    };
-  },
-  denyAllTcp: () => {
-    return {
-      sequence: "19",
-      action: "deny",
-      protocol: "tcp",
-      source: null,
-      sourcePort: null,
-      destinationPort: null,
-      tcpOption: {},
-    };
-  },
+const allowTcpConnection = (sequence) => {
+  return {
+    sequence,
+    action: "permit",
+    protocol: "tcp",
+    source: null,
+    sourcePort: null,
+    destinationPort: null,
+    tcpOption: { option: "established" },
+  };
+};
+
+const allowTcpOnPort = (sequence, port) => {
+  return {
+    sequence,
+    action: "permit",
+    protocol: "tcp",
+    destinationPort: port,
+    source: null,
+    sourcePort: null,
+    tcpOption: {},
+  };
+};
+
+const allowICMP = (sequence) => {
+  return {
+    sequence,
+    protocol: "icmp",
+    action: "permit",
+    source: null,
+    sourcePort: null,
+    destinationPort: null,
+  };
+};
+const denyAllTcp = (sequence) => {
+  return {
+    sequence,
+    action: "deny",
+    protocol: "tcp",
+    source: null,
+    sourcePort: null,
+    destinationPort: null,
+    tcpOption: {},
+  };
+};
+
+// Rule definition doesn't have same shape as the rule object
+const ruleNeedsUpdate = (def, currentRule = null) => {
+  const defTcpOption = def.tcpOption?.option ?? null;
+  const defDestPort = def.destinationPort ? `eq ${def.destinationPort}` : def.destinationPort;
+  return (
+    currentRule === null ||
+    def.sequence !== currentRule.sequence ||
+    def.action !== currentRule.action ||
+    def.protocol !== currentRule.protocol ||
+    currentRule.state !== "ok" ||
+    def.sourcePort !== currentRule.sourcePort ||
+    defDestPort !== currentRule.destinationPort ||
+    currentRule.fragments ||
+    defTcpOption !== currentRule.tcpOption
+  );
 };
 
 function asIpBlock(ip) {
-  return `${ip}%2F32`;
+  const mask = ip.includes(":") ? 128 : 32;
+  return encodeURIComponent(`${ip}/${mask}`);
 }
 
 async function firewallExists(client, ip) {
@@ -57,10 +75,10 @@ async function firewallExists(client, ip) {
   });
 }
 
-async function ruleExists(client, ip, rule) {
-  return resourceExists(client, () => {
+async function getRule(client, ip, sequence) {
+  return resourceOrNull(client, () => {
     let ipBlock = asIpBlock(ip);
-    return client.request("GET", `/ip/${ipBlock}/firewall/${ip}/rule/${rule.sequence}`);
+    return client.request("GET", `/ip/${ipBlock}/firewall/${ip}/rule/${sequence}`);
   });
 }
 
@@ -75,50 +93,71 @@ async function createFirewall(client, ip) {
   let ipBlock = asIpBlock(ip);
 
   if (await firewallExists(client, ip)) {
-    console.log("Firewall already created");
+    console.log(`Firewall already created for ip '${ip}'`);
     return;
   }
   console.log(`Creating firewall for ip '${ip}'...`);
   return client.request("POST", `/ip/${ipBlock}/firewall`, { ipOnFirewall: ip });
 }
 
-async function removeRule(client, ip, rule) {
+async function updateRule(client, ip, def) {
   let ipBlock = asIpBlock(ip);
 
-  if (await ruleExists(client, ip, rule)) {
-    console.log(`Deleting rule ${rule.sequence}...`);
-    return client.request("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${rule.sequence}`);
-  } else {
-    console.log(`Rule ${rule.sequence} does not exists !`);
+  const currentRule = await getRule(client, ip, def.sequence);
+  if (currentRule) {
+    if (!ruleNeedsUpdate(def, currentRule)) {
+      return;
+    }
+
+    console.log("Removing rule", currentRule);
+    await client.request("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${currentRule.sequence}`);
+    console.log("Waiting 60s for rule to be removed");
+    await new Promise((resolve) => setTimeout(resolve, 60_000));
   }
+
+  console.log(`Creating rule`, def);
+  await client.request("POST", `/ip/${ipBlock}/firewall/${ip}/rule`, def);
 }
 
-async function addRule(client, ip, rule) {
+async function updateRules(client, ip, defs) {
   let ipBlock = asIpBlock(ip);
 
-  if (await ruleExists(client, ip, rule)) {
-    console.log(`Rule ${rule.sequence} already exists`);
-    return;
-  }
+  const existingSequence = await client.request("GET", `/ip/${ipBlock}/firewall/${ip}/rule`);
+  const expectedSequence = new Set(defs.map((def) => def.sequence));
 
-  console.log(`Creating rule ${rule.sequence}...`);
-  return client.request("POST", `/ip/${ipBlock}/firewall/${ip}/rule`, rule);
+  const tasks = [];
+  for (let i = 0; i < defs.length; i++) {
+    tasks.push(updateRule(client, ip, defs[i]));
+  }
+  tasks.push(
+    ...existingSequence
+      .filter((s) => !expectedSequence.has(Number(s)))
+      .map(async (s) => {
+        console.log("Removing rule", await getRule(client, ip, s));
+        return client.request("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${s}`);
+      })
+  );
+
+  await Promise.all(tasks);
 }
 
 async function configureFirewall(client, ip) {
   await createFirewall(client, ip);
-  await addRule(client, ip, rules.allowTcpConnection());
-  await addRule(client, ip, rules.allowTcpOnPort(22, 1));
-  await addRule(client, ip, rules.allowTcpOnPort(443, 2));
-  await addRule(client, ip, rules.allowTcpOnPort(80, 3));
-  await addRule(client, ip, rules.allowICMP());
-  await addRule(client, ip, rules.denyAllTcp());
+  await updateRules(client, ip, [
+    allowTcpConnection(0),
+    allowTcpOnPort(1, 22),
+    allowTcpOnPort(2, 443),
+    allowTcpOnPort(3, 80),
+    allowICMP(10),
+    denyAllTcp(19),
+  ]);
+  console.log(`Firewall for ${ip} configured`);
 }
 
 async function activateMitigation(client, ip) {
   let ipBlock = asIpBlock(ip);
   if (await mitigationActivated(client, ip)) {
-    console.log("Mitigation already activated");
+    console.log(`Mitigation already activated for ip '${ip}'`);
     return;
   }
 
@@ -128,15 +167,22 @@ async function activateMitigation(client, ip) {
 
 async function closeService(client, ip) {
   if (await firewallExists(client, ip)) {
-    await removeRule(client, ip, rules.allowTcpOnPort(443, 2));
-    await removeRule(client, ip, rules.allowTcpOnPort(80, 3));
+    await updateRules(client, ip, [allowTcpConnection(0), allowTcpOnPort(1, 22), allowICMP(10), denyAllTcp(19)]);
   } else {
     console.log("Firewall does not exist, can't close service on port 443/80 !");
   }
+}
+
+async function getAllIp(client, ip) {
+  const ipData = await client.request("GET", `/ip/${ip}`);
+  const ips = await client.request("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+  // Returns all ipv4
+  return ips.filter((i) => i.includes("."));
 }
 
 module.exports = {
   configureFirewall,
   activateMitigation,
   closeService,
+  getAllIp,
 };

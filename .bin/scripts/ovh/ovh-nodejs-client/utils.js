@@ -10,6 +10,18 @@ async function resourceExists(client, sendRequest) {
   }
 }
 
+async function resourceOrNull(client, sendRequest) {
+  try {
+    const result = await sendRequest();
+    return result;
+  } catch (e) {
+    if (e === 404) {
+      return null;
+    }
+    throw e;
+  }
+}
+
 function waitReady(callback, options = {}) {
   return new Promise((resolve, reject) => {
     let retries = 0;
@@ -35,4 +47,5 @@ function waitReady(callback, options = {}) {
 module.exports = {
   resourceExists,
   waitReady,
+  resourceOrNull,
 };

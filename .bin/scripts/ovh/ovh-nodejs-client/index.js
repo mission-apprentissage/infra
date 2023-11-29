@@ -1,7 +1,12 @@
 require("dotenv").config();
 const { program: cli } = require("commander");
 const { getClient } = require("./api");
-const { configureFirewall, activateMitigation, closeService } = require("./firewall");
+const {
+  configureFirewall,
+  activateMitigation,
+  closeService,
+  getAllIp,
+} = require("./firewall");
 
 function handleError(e) {
   console.error(e.constructor.name === "EnvVarError" ? e.message : e);
@@ -27,10 +32,13 @@ cli
   .action(async (ip, { key }) => {
     let client = await getClient(key);
 
-    await configureFirewall(client, ip);
-    await activateMitigation(client, ip);
+    const ips = await getAllIp(client, ip);
 
-    console.log(`Firewall and mitigation activated for VPS ${ip}`);
+    for (const ipV4 of ips) {
+      await configureFirewall(client, ipV4);
+      await activateMitigation(client, ipV4);
+      console.log(`Firewall and mitigation activated for VPS ${ipV4}`);
+    }
   });
 
 cli
@@ -40,9 +48,12 @@ cli
   .action(async (ip, { key }) => {
     let client = await getClient(key);
 
-    await closeService(client, ip);
+    const ips = await getAllIp(client, ip);
 
-    console.log(`Service closed on port 80/443 for VPS ${ip}.`);
+    for (const ipV4 of ips) {
+      await closeService(client, ipV4);
+      console.log(`Service closed on port for VPS ${ipV4}.`);
+    }
   });
 
 cli.parse(process.argv);
