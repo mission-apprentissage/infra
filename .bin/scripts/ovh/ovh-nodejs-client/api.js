@@ -1,9 +1,10 @@
 const env = require("env-var");
 const { promisify } = require("util");
 const open = require("open");
+const ovh = require("ovh");
 
 function newOvhClient(consumerKey) {
-  let client = require("ovh")({
+  let client = ovh({
     endpoint: "ovh-eu",
     appKey: env.get("APP_KEY").asString(),
     appSecret: env.get("APP_SECRET").asString(),
@@ -22,10 +23,14 @@ async function getClient(key) {
   let { consumerKey, validationUrl, ...rest } = await client.request("POST", "/auth/credential", {
     accessRules: [
       { method: "POST", path: "/auth/*" },
+      { method: "GET", path: "/ip" },
       { method: "GET", path: "/ip/*" },
       { method: "POST", path: "/ip/*" },
+      { method: "DELETE", path: "/ip/*" },
       { method: "GET", path: "/dedicated/*" },
       { method: "POST", path: "/dedicated/*" },
+      { method: "GET", path: "/vps" },
+      { method: "GET", path: "/vps/*" },
     ],
   });
 
