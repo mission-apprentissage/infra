@@ -3,7 +3,7 @@
     name: mna
     state: present
 
-- include: _create-sudoers.yml
+- include_tasks: _create-sudoers.yml
   loop: "{{habilitations}}"
   loop_control:
     loop_var: habilitation
