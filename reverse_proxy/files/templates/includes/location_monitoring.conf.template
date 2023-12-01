@@ -1,12 +1,21 @@
 location /_monitoring/cadvisor {
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/templates/locations/monitoring.htpasswd;
+
     set $upstream http://cadvisor:8080/metrics;
     include includes/proxy.conf;
 }
 location /_monitoring/nodeexporter {
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/templates/locations/monitoring.htpasswd;
+
     set $upstream http://nodeexporter:9100/metrics;
     include includes/proxy.conf;
 }
 location /_monitoring/fluentd {
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/templates/locations/monitoring.htpasswd;
+
     set $upstream http://fluentd:24231/metrics;
     include includes/proxy.conf;
 }
