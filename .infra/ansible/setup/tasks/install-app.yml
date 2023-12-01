@@ -70,14 +70,9 @@
     group: root
     mode: 770
 
-- name: docker_swarm_status.stdout.find
-  shell: |
-    touch /opt/app/reverse_proxy/locations/.htpasswd;
-    sudo htpasswd -bBc "/opt/app/reverse_proxy/locations/.htpasswd" {{ item }} {{ vault[item].LOKI_PASS }}
-  when:
-    - product_name == "monitoring"
-  with_items:
-    - "bal"
-    - "tdb"
-    - "lba"
-    - "monitoring"
+- name: Install htpasswd
+  apt:
+    name: [apache2-utils]
+
+- name: Create monitoring access file
+  shell: htpasswd -bBc "/opt/app/configs/reverse_proxy/locations/monitoring.htpasswd" monitoring {{ vault.MONITORING_PASSWORD }}
