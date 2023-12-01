@@ -5,84 +5,45 @@ set -euo pipefail
 function Help() {
    # Display Help
    echo "Commands"
-   echo "  bin:setup                                               Installs mna-infra binary with zsh completion on system"
-   echo "  product:ini_file                                        Get product ini file location"
-   echo "  product:env:ip                                          Get product environnement IP"
-   echo "  product:validate:env                                    Validate product + environnment name"
-   echo "  firewall:setup                                          Setup OVH firewall"
-   echo "  firewall:service:close                                  Close service on OVH firewall"
-   echo "  system:setup                                            Setup server"
-   echo "  system:setup:initial                                    Initial setup server"
-   echo "  system:user:remove                                      Remove user from server"
-   echo "  ssh:known_hosts:print                                   Print SSH known host for a product including all servers"
-   echo "  ssh:known_hosts:update                                  Update SSH known host for a product including all servers"
-   echo "  ssh:config                                              Update your local SSH config for a product including all servers"
-   echo "  release:proxy                                           Release docker reverse proxy image"
-   echo "  release:fluentd                                         Release fluentd reverse proxy image"
+   echo "  bin:setup                                  Installs mna-infra binary with zsh completion on system"
+   echo "  release:proxy                              Release docker reverse proxy image"
+   echo "  release:fluentd                            Release fluentd reverse proxy image"
+   echo "  system:setup                               Setup server"
+   echo "  system:setup:initial                       Initial setup server"
+   echo "  system:user:remove                         Remove user from server"
+   echo "  vault:edit                                 Edit vault file"
+   echo "  vault:password                             Show vault password"
+   echo "  deploy:log:encrypt                         Encrypt Github ansible logs"
+   echo "  deploy:log:dencrypt                        Decrypt Github ansible logs"
+   echo "  product:ini_file                           Get product ini file location"
+   echo "  product:env:ip                             Get product environnement IP"
+   echo "  product:validate:env                       Validate product + environnment name"
+   echo "  product:repo                               Get product repository"
+   echo "  product:create                             Create a new repository"
+   echo "  product:access:update                      Update product access"
+   echo "  firewall:setup                             Setup OVH firewall"
+   echo "  firewall:service:close                     Close service on OVH firewall"
+   echo "  ssh:known_hosts:print                      Print SSH known host for a product including all servers"
+   echo "  ssh:known_hosts:update                     Update SSH known host for a product including all servers"
+   echo "  ssh:config                                 Update your local SSH config for a product including all servers"
    echo 
    echo
 }
 
 function bin:setup() {
-  sudo ln -fs "${ROOT_DIR}/.bin/mna-infra.sh" /usr/local/bin/mna-infra
+  sudo ln -fs "${ROOT_DIR}/.bin/mna" "/usr/local/bin/mna-infra"
 
   sudo mkdir -p /usr/local/share/zsh/site-functions
-  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" /usr/local/share/zsh/site-functions/_mna-infra
+  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_mna-infra"
   sudo rm -f ~/.zcompdump*
 }
 
-function product:ini_file() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
-  local env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
-
-  if [ ! -f "${env_ini}" ]; then
-    >&2 echo "Product $PRODUCT_NAME not found (${env_ini})";
-    return 1;
-  fi;
-
-  echo $env_ini;
+function release:proxy() {
+  "$SCRIPT_DIR/release/build-image.sh" reverse_proxy "$@"
 }
 
-function product:env:ip() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
-  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
-  local env_ini=$(product:ini_file "${PRODUCT_NAME}")
-
-  if [[ -z $env_ini ]]; then exit 1; fi
-
-  local env_ip=$(ansible-inventory -i "${env_ini}" --list -l "${ENV_NAME}" | jq -r ".${ENV_NAME}.hosts[0]")
-
-  if [[ "$env_ip" == "" || "$env_ip" == "null" ]]; then
-    >&2 echo "Environment ${ENV_NAME} not found";
-    exit 1;
-  fi;
-
-  echo $env_ip
-}
-
-function product:validate:env() {
-  # If we're able to get ip then we're good
-  local env_ip=$(product:env:ip "$@")
-
-  if [ -z $env_ip ]; then exit 1; fi
-}
-
-function firewall:setup() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
-  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
-
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-
-  "$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
-}
-
-function firewall:service:close() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
-  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
-
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-
-  "$SCRIPT_DIR/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+function release:fluentd() {
+  "$SCRIPT_DIR/release/build-image.sh" fluentd "$@"
 }
 
 function system:setup() {
@@ -107,6 +68,86 @@ function system:user:remove() {
   "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
+function vault:edit() {
+  editor=${EDITOR:-'code -w'}
+  EDITOR=$editor "${SCRIPT_DIR}/edit-vault.sh" "$@"
+}
+
+function vault:password() {
+  "${SCRIPT_DIR}/get-vault-password-client.sh" "$@"
+}
+
+function deploy:log:encrypt() {
+  "${SCRIPT_DIR}/deploy-log-encrypt.sh" "$@"
+}
+
+function deploy:log:decrypt() {
+  "${SCRIPT_DIR}/deploy-log-decrypt.sh" "$@"
+}
+
+function product:ini_file() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
+
+  if [ ! -f "${env_ini}" ]; then
+    >&2 echo "Product $PRODUCT_NAME not found (${env_ini})";
+    return 1;
+  fi;
+
+  echo $env_ini;
+}
+
+function product:env:ip() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local env_ini=$(product:ini_file "${PRODUCT_NAME}")
+
+  if [[ -z $env_ini ]]; then exit 1; fi
+
+  "$SCRIPT_DIR/get-product-env-ip.sh" "$PRODUCT_NAME" "$@"
+}
+
+function product:repo() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local env_ini=$(product:ini_file "${PRODUCT_NAME}")
+
+  if [[ -z $env_ini ]]; then exit 1; fi
+
+  "$SCRIPT_DIR/get-product-repo.sh" "$PRODUCT_NAME" "$@"
+}
+
+function product:validate:env() {
+  # If we're able to get ip then we're good
+  local env_ip=$(product:env:ip "$@")
+
+  if [ -z $env_ip ]; then exit 1; fi
+}
+
+function product:create() {
+  "$SCRIPT_DIR/create-product.sh" "$@"
+}
+
+function product:access:update() {
+  "$SCRIPT_DIR/update-product-access.sh" "$@"
+}
+
+function firewall:setup() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+
+  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+
+  "$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+}
+
+function firewall:service:close() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+
+  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+
+  "$SCRIPT_DIR/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+}
+
 function ssh:known_hosts:print() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
@@ -119,7 +160,9 @@ function ssh:known_hosts:update() {
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
   for ip in ${ips}; do
-    ssh-keygen -R ${ip}
+    if [[ "${ip}" != "x.x.x.x" ]]; then
+      ssh-keygen -R ${ip}
+    fi;
   done;
 
   ssh-keyscan ${ips} >> ~/.ssh/known_hosts 2> /dev/null
@@ -138,14 +181,6 @@ function ssh:known_hosts:update() {
 
   SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
   gh variable -R "${repo[0]}" set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS"
-}
-
-function release:proxy() {
-  "$SCRIPT_DIR/release/build-image.sh" reverse_proxy "$@"
-}
-
-function release:fluentd() {
-  "$SCRIPT_DIR/release/build-image.sh" fluentd "$@"
 }
 
 function ssh:config() {

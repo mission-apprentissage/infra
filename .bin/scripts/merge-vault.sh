@@ -2,10 +2,7 @@
 
 set -e
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly BIN_DIR="$(dirname "${SCRIPT_DIR}")"
-readonly ROOT_DIR="$(dirname "${BIN_DIR}")"
-readonly VAULT_DIR="${ROOT_DIR}/setup/vault"
+readonly VAULT_DIR="${ROOT_DIR}/.infra/vault"
 readonly VAULT_FILE="${VAULT_DIR}/vault.yml"
 
 ancestor_version=$1
