@@ -2,7 +2,10 @@
 
 - [Provisionnement d'un VPS](#provisionnement-dun-vps)
   - [Prérequis](#prérequis)
-  - [Création d'une app OVH](#création-dune-app-ovh)
+  - [Création d'un produit (optionnel)](#création-dun-produit-optionnel)
+    - [Création du env.ini](#création-du-envini)
+    - [Création du vault password \& habilitations](#création-du-vault-password--habilitations)
+    - [Création du Slack Webhook](#création-du-slack-webhook)
   - [Déclaration de l'environnement](#déclaration-de-lenvironnement)
   - [Création du VPS OVH](#création-du-vps-ovh)
   - [Création du nom de domaine](#création-du-nom-de-domaine)
@@ -14,14 +17,47 @@ Voir [Prérequis](./pre-requisites.md)
 
 **Important:** Cette section décris comment installer l'infrastructure sur un nouvel environnement. Pour la mise à jour de celui-ci, veuillez vous référer à la section [Mise à jour de la configuration](#mise-à-jour-de-la-configuration).
 
-## Création d'une app OVH
+## Création d'un produit (optionnel)
 
-OVH Europe https://eu.api.ovh.com/createApp/
+Si vous voulez simplement ajouter un nouvel environnement à un produit existant vous pouvez ignorer cette étape
 
-Conserver les informmations suivantes :
+### Création du env.ini
 
-- Application Key
-- Application Secret
+```bash
+.bin/mna product:create <nom_produit>
+```
+
+Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variables `product_name` & `repo`
+
+### Création du vault password & habilitations
+
+Création des habilitations initiales
+```bash 
+.bin/man product:access:update <nom_produit>
+```
+
+Un fichier vide s'ouvre dans VsCode, veuillez compléter les habilitations avec le model suivant:
+
+```yaml
+habilitations:
+  - username: 
+    name: 
+    gpg_key: 
+    authorized_keys:
+      - "https://github.com/mission-apprentissage.keys"
+
+gpg_keys: "{{ habilitations  | map(attribute='gpg_key', default='') | select() | join(',')}}"
+```
+
+Fermez le fichier
+
+### Création du Slack Webhook
+
+Créez les variables d'environnement
+
+```bash
+.bin/mna vault:edit
+```
 
 ## Déclaration de l'environnement
 
@@ -49,7 +85,7 @@ La première étape est de créer un VPS via l'interface d'OVH : https://www.ovh
 Une fois le VPS créé, il est nécessaire de configurer le firewall en lançant la commande :
 
 ```bash
-mna-infra firewall:setup <nom_produit> <nom_environnement>
+.bin/mna firewall:setup <nom_produit> <nom_environnement>
 ```
 
 Lors de l'exécution de ce script, vous serez redirigé vers une page web vous demandant de vous authentifier afin de
@@ -69,9 +105,9 @@ Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/re
 Pour configurer l'environnement, il faut lancer la commande suivante :
 
 ```bash
-mna-infra ssh:known_hosts:update <nom_produit>
-mna-infra system:setup:initial <nom_produit> <nom_environnement>
-mna-infra ssh:config <nom_produit>
+.bin/mna ssh:known_hosts:update <nom_produit>
+.bin/mna system:setup:initial <nom_produit> <nom_environnement>
+.bin/mna ssh:config <nom_produit>
 ```
 
 L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à
@@ -87,5 +123,11 @@ ssh <nom_produit>-<nom_environnement>
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
 
 ```bash
-mna-infra system:user:remove <nom_produit> <nom_environnement> --user <votre_nom_utilisateur> --extra-vars "username=ubuntu"
+.bin/mna system:user:remove <nom_produit> <nom_environnement> --user <votre_nom_utilisateur> --extra-vars "username=ubuntu"
+```
+
+Vous pouvez finalement ajouter la config SSH local via
+
+```bash
+.bin/mna ssh:config <nom_produit>
 ```

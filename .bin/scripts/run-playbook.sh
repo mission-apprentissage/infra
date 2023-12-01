@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 readonly PLAYBOOK_NAME=${1:?"Merci de préciser le playbook a éxécuter"}
@@ -14,6 +15,7 @@ function runPlaybook() {
   echo "Lancement du playbook ${PLAYBOOK_NAME} pour ${PRODUCT_NAME}-${ENV_FILTER}..."
   
   local ansible_extra_opts=()
+if [[ -z "${ANSIBLE_BECOME_PASS:-}" ]]; then
   if [[ $* != *"pass"* ]]; then
       local become_pass=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/password 2> /dev/null);
       if [ -z $become_pass ]; then
@@ -24,8 +26,12 @@ function runPlaybook() {
         echo "Récupération du mot de passe 'become_pass' depuis 1password" 
         ansible_extra_opts+=("-e ansible_become_password='$become_pass'")
       fi;
+fi
+  else
+    echo "Récupération du mot de passe 'become_pass' depuis l'environnement variable ANSIBLE_BECOME_PASS" 
   fi
 
+if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   if [[ $* != *"--user"* ]]; then
       local username=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/username 2> /dev/null);
       if [ -z $username ]; then
@@ -36,6 +42,9 @@ function runPlaybook() {
         ansible_extra_opts+=("--user" $username)
       fi;
   fi
+  else
+    echo "Récupération du username depuis l'environnement variable ANSIBLE_REMOTE_USER" 
+  fi
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
   ansible-galaxy install patrickjahns.promtail
@@ -44,17 +53,21 @@ function runPlaybook() {
   ansible-galaxy collection install community.crypto
   ansible-galaxy collection install ansible.posix
 
-  PLAYBOOKS_ROOT="${ROOT_DIR}/setup/playbooks";
+  # This env-vars is used by CI to decrypt
+  if [[ -z "${ANSIBLE_VAULT_PASSWORD_FILE:-}" ]]; then
+    ansible_extra_opts+=("--vault-password-file" "${SCRIPT_DIR}/get-vault-password-client.sh")
+  else
+    echo "Récupération de la passphrase depuis l'environnement variable ANSIBLE_VAULT_PASSWORD_FILE" 
+  fi
 
-  ANSIBLE_CONFIG="${PLAYBOOKS_ROOT}/ansible.cfg" ansible-playbook \
+  ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible/ansible.cfg" ansible-playbook \
     -i "${PRODUCT_DIR}/env.ini" \
     --limit "${ENV_FILTER}" \
-    --vault-password-file="${ROOT_DIR}/setup/vault/get-vault-password-client.sh" \
     "${ansible_extra_opts[@]}" \
-     "${PLAYBOOKS_ROOT}/${PLAYBOOK_NAME}" "$@"
+    "${ROOT_DIR}/.infra/ansible/${PLAYBOOK_NAME}" \
+    "$@"
 }
 
-op document get ".vault-password-infra" --vault "mna-vault-passwords-common" --out-file="${ROOT_DIR}/setup/vault/.vault-password.gpg" --force
 op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
 
 # Do not show error log in CI
@@ -62,5 +75,5 @@ op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-com
 if [[ -z "${CI:-}" ]]; then
   runPlaybook "$@"
 else
-  runPlaybook "$@" 2> /dev/null
+  runPlaybook "$@" 2> /tmp/deploy_error.log
 fi;

@@ -1,0 +1,16 @@
+- name: Ensure logrotate is started
+  service:
+    name: logrotate
+    enabled: true
+    state: started
+
+- name: Copy logrotate settings
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/logrotate.d"
+    owner: "root"
+    mode: 0644
+  with_fileglob:
+    - "{{playbook_dir}}/../files/logrotate.d/*"
+  notify: restart-logrotate
+

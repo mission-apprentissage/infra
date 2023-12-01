@@ -1,8 +1,0 @@
----
-- hosts: all
-  become: true
-  vars_files:
-    - "../vault/vault.yml"
-    - "../../products/{{ product_name }}/habilitations.yml"
-  roles:
-    - setup

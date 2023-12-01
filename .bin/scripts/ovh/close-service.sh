@@ -6,7 +6,7 @@ readonly ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou prod
 readonly MODULE_DIR="${SCRIPT_DIR}/ovh/ovh-nodejs-client"
 
 function main() {
-  local env_ip=$("${BIN_DIR}/mna-infra.sh" product:env:ip "${PRODUCT_NAME}" "${ENV_NAME}")
+  local env_ip=$("${BIN_DIR}/mna.sh" product:env:ip "${PRODUCT_NAME}" "${ENV_NAME}")
   if [ -z $env_ip ]; then exit 1; fi
 
   cd "${MODULE_DIR}"
