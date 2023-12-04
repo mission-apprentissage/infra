@@ -9,5 +9,6 @@ RUN set -eux; \
 RUN fluent-gem install fluent-plugin-grafana-loki
 RUN fluent-gem install fluent-plugin-prometheus
 COPY ./fluent.conf /fluentd/etc/fluent.conf
+COPY ./conf.d /fluentd/etc/conf.d
 VOLUME [ "/var/log/fluent" ]
 EXPOSE 24231
