@@ -145,6 +145,10 @@ services:
       LOKI_URL: "https://monitoring-recette.apprentissage.beta.gouv.fr/loki"
       LOKI_USERNAME: "monitoring" 
       LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
+      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}" 
+      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}" 
+      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}" 
+      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}" 
     logging:
       driver: "fluentd"
       options:
