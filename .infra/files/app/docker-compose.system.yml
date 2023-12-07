@@ -151,11 +151,7 @@ services:
       OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}" 
       OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}" 
     logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.nginx.{{product_name}}.{{env_type}}.fluentd
-        fluentd-async: "true"
+      driver: "local"
 
 volumes:
   fluentd:
