@@ -142,7 +142,7 @@ services:
     environment:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
-      LOKI_URL: "https://monitoring-recette.apprentissage.beta.gouv.fr/loki"
+      LOKI_URL: "https://monitoring.apprentissage.beta.gouv.fr/loki"
       LOKI_USERNAME: "monitoring" 
       LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
       OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}" 
