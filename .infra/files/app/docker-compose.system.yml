@@ -149,6 +149,7 @@ services:
       OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}" 
       OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}" 
       OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}" 
+      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}" 
     logging:
       driver: "fluentd"
       options:
