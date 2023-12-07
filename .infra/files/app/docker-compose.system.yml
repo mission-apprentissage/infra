@@ -88,6 +88,12 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /opt/app/system/cron:/var/cron-exporter:rw
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.nginx.{{product_name}}.{{env_type}}.nodeexporter
+        fluentd-async: "true"
 
   cadvisor:
     <<: *default
@@ -107,6 +113,12 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.nginx.{{product_name}}.{{env_type}}.cadvisor
+        fluentd-async: "true"
 
   fluentd:
     <<: *default
@@ -123,12 +135,22 @@ services:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:rw
       - /var/log/:/var/log/host/:rw
+      # Container needs to have same localtime as host
+      # It's mandatory to intreprete correctly localtime from syslog
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     environment:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
       LOKI_URL: "https://monitoring-recette.apprentissage.beta.gouv.fr/loki"
       LOKI_USERNAME: "monitoring" 
       LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.nginx.{{product_name}}.{{env_type}}.fluentd
+        fluentd-async: "true"
 
 volumes:
   fluentd:
