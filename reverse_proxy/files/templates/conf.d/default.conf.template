@@ -45,6 +45,8 @@ map $host $privkey {
 
 server {
     include includes/ssl.conf;
+    ssl_certificate $fullchain;
+    ssl_certificate_key $privkey;
 
     server_name ${SERVER_NAME};
 
