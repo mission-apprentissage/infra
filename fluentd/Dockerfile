@@ -8,6 +8,7 @@ RUN set -eux; \
   rm -rf /var/lib/apt/lists/*;
 RUN fluent-gem install fluent-plugin-grafana-loki
 RUN fluent-gem install fluent-plugin-prometheus
+RUN fluent-gem install fluent-plugin-s3
 COPY ./fluent.conf /fluentd/etc/fluent.conf
 COPY ./conf.d /fluentd/etc/conf.d
 VOLUME [ "/var/log/fluent" ]
