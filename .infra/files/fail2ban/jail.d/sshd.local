@@ -11,3 +11,4 @@ bantime = 2592000
 banaction = iptables-multiport
 ignoreip = @whitelist
 findtime=3600
+logtimezone = UTC
