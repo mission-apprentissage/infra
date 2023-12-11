@@ -50,10 +50,10 @@ jobs:
         env:
           VAULT_PWD: ${{ secrets[format('{0}_VAULT_PWD', inputs.product)] }}
 
-      - name: Create vault pwd file
-        run: echo ${VAULT_PWD} > products/${{inputs.product}}/habilitations.yml
+      - name: Create habilitations file
+        run: echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml
         env:
-          VAULT_PWD: ${{ secrets[format('{0}_HABILITATIONS', inputs.product)] }}
+          HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', inputs.product)] }}
           
       - name: Run playbook
         run: ".bin/mna system:setup ${{ inputs.product }} ${{ inputs.environment }}"
@@ -66,7 +66,7 @@ jobs:
           APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
 
       - name: Encrypt Error log on failure
-        run: .bin/mna-lba deploy:log:encrypt
+        run: .bin/mna deploy:log:encrypt
         if: failure()
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
@@ -84,7 +84,7 @@ jobs:
         with:
           status: ${{ job.status }}
           notification_title: "Le setup ${{ inputs.product }} en ${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna-lba deploy:log:decrypt ${{ github.run_id }}`"
+          message_format: "{emoji} *[${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:
