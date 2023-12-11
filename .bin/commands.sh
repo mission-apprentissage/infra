@@ -189,6 +189,7 @@ function ssh:known_hosts:update() {
 
   SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
   gh variable -R "${repo[0]}" set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS"
+  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS"
 }
 
 function ssh:config() {
