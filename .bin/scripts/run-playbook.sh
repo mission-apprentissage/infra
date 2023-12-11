@@ -68,7 +68,9 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
     "$@"
 }
 
-op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
+if [[ -z "${CI:-}" ]]; then
+  op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
+fi;
 
 # Do not show error log in CI
 # Do not remove this behavior as displaying errors can reveal secrets
