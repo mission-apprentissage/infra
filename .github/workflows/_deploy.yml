@@ -28,6 +28,13 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: cd .bin/scripts/ovh/ovh-nodejs-client; yarn install
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
