@@ -188,8 +188,8 @@ function ssh:known_hosts:update() {
   local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
   SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
-  gh variable -R "${repo[0]}" set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS"
-  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS"
+  gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
+  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "https://github.com/mission-apprentissage/infra"
 }
 
 function ssh:config() {
