@@ -2,6 +2,12 @@
   apt:
     name: [ 'fail2ban' ]
 
+- name: start-fail2ban
+  service:
+    name: fail2ban
+    enabled: true
+    state: started
+
 - name: Ensure nginx error.log exists
   ansible.builtin.shell: touch /opt/app/system/nginx/error.log
 
