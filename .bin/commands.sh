@@ -51,21 +51,29 @@ function system:setup() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 function system:setup:initial() {
-  system:setup "$@" --user ubuntu --ask-pass 
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+
+  export ANSIBLE_HOST_KEY_CHECKING=False
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass 
 }
 
 function system:user:remove() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+  local USERNAME=${1:?"Merci de préciser l'utilisateur à supprimer"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
 }
 
 function vault:edit() {

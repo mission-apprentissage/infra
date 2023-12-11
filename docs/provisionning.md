@@ -7,7 +7,6 @@
     - [Création du vault password \& habilitations](#création-du-vault-password--habilitations)
     - [Création du Slack Webhook](#création-du-slack-webhook)
   - [Déclaration de l'environnement](#déclaration-de-lenvironnement)
-  - [Création du VPS OVH](#création-du-vps-ovh)
   - [Création du nom de domaine](#création-du-nom-de-domaine)
   - [Configuration de l'environnement](#configuration-de-lenvironnement)
 
@@ -33,7 +32,7 @@ Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variab
 
 Création des habilitations initiales
 ```bash 
-.bin/man product:access:update <nom_produit>
+.bin/mna product:access:update <nom_produit>
 ```
 
 Un fichier vide s'ouvre dans VsCode, veuillez compléter les habilitations avec le model suivant:
@@ -78,24 +77,6 @@ service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 
 Editer le vault pour créer les env-vars liés à ce nouvel environnement (cf: [Edition du vault](#edition-du-vault))
 
-## Création du VPS OVH
-
-La première étape est de créer un VPS via l'interface d'OVH : https://www.ovhcloud.com/fr/vps/
-
-Une fois le VPS créé, il est nécessaire de configurer le firewall en lançant la commande :
-
-```bash
-.bin/mna firewall:setup <nom_produit> <nom_environnement>
-```
-
-Lors de l'exécution de ce script, vous serez redirigé vers une page web vous demandant de vous authentifier afin de
-générer un jeton d'api. Vous devez donc avoir un compte OVH ayant le droit de gérer les instances de la Mission
-Apprentissage. Une fois authentifié, le script utilisera automatiquement ce jeton.
-
-Quand le script est terminé, vous pouvez aller sur l'interface
-OVH [https://www.ovh.com/manager/#/dedicated/ip](https://www.ovh.com/manager/#/dedicated/ip)
-afin de vérifier que le firewall a été activé pour l'ip du VPS.
-
 ## Création du nom de domaine
 
 Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/record/?domain=69636 `<nom_produit>-<nom_environnement>.apprentissage.beta.gouv.fr` et pour la prod `<nom_produit>.apprentissage.beta.gouv.fr`
@@ -123,11 +104,5 @@ ssh <nom_produit>-<nom_environnement>
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
 
 ```bash
-.bin/mna system:user:remove <nom_produit> <nom_environnement> --user <votre_nom_utilisateur> --extra-vars "username=ubuntu"
-```
-
-Vous pouvez finalement ajouter la config SSH local via
-
-```bash
-.bin/mna ssh:config <nom_produit>
+.bin/mna system:user:remove <nom_produit> <nom_environnement> ubuntu --user <votre_nom_utilisateur>
 ```

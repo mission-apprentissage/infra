@@ -14,8 +14,9 @@ function main() {
 
   export APP_KEY=$(op item get "API OVH" --vault "devsops" --fields username)
   export APP_SECRET=$(op item get "API OVH" --vault "devsops" --fields credential)
+  export TOKEN=$(op item get "API OVH" --vault "devsops" --fields token)
 
-  yarn --silent cli createFirewall ${env_ip} "$@"
+  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" --key "${TOKEN}"
   cd - >/dev/null
 }
 

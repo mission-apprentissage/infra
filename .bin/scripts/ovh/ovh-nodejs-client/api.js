@@ -10,7 +10,6 @@ function newOvhClient(consumerKey) {
     appSecret: env.get("APP_SECRET").asString(),
     ...(consumerKey ? { consumerKey } : {}),
   });
-  client.request = promisify(client.request);
   return client;
 }
 
@@ -20,7 +19,7 @@ async function getClient(key) {
   }
 
   let client = newOvhClient();
-  let { consumerKey, validationUrl, ...rest } = await client.request("POST", "/auth/credential", {
+  let { consumerKey, validationUrl, ...rest } = await client.requestPromised("POST", "/auth/credential", {
     accessRules: [
       { method: "POST", path: "/auth/*" },
       { method: "GET", path: "/ip" },
