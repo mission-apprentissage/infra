@@ -8,6 +8,10 @@
   notify:
     - restart-sshd
 
+- name: Validate sshd Config
+  shell:
+    cmd: sshd -t
+
 - name: Install pam packages
   apt:
     name: [ 'libpam-cracklib' ]

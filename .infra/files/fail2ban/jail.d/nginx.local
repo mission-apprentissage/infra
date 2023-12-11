@@ -1,11 +1,7 @@
-[whitelist]
-ignoreip = 127.0.0.0/16 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 91.168.137.131 91.173.13.14 78.198.91.2 213.91.3.170 213.91.3.180 91.173.13.14 88.125.248.222 185.107.232.1/24 1.179.112.1/20
-
 [nginx-req-limit]
 enabled = true
 port = http,https
 filter = nginx-req-limit
-ignoreip = @whitelist
 logpath = /opt/app/system/nginx/error.log
 findtime=3600
 banaction = iptables-multiport[name=nginx-req-limit, port="http,https", protocol=tcp, chain=DOCKER-USER]
@@ -15,7 +11,6 @@ logtimezone = UTC
 enabled = true
 port = http,https
 filter = nginx-conn-limit
-ignoreip = @whitelist
 logpath = /opt/app/system/nginx/error.log
 findtime=3600
 banaction = iptables-multiport[name=nginx-conn-limit, port="http,https", protocol=tcp, chain=DOCKER-USER]
@@ -25,7 +20,6 @@ logtimezone = UTC
 enabled = true
 port = http,https
 filter = nginx-conn-limit-long
-ignoreip = @whitelist
 logpath = /opt/app/system/nginx/error.log
 bantime = 2592000
 findtime=3600
