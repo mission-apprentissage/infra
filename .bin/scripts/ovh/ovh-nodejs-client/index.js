@@ -22,20 +22,20 @@ cli
   .action(async ({ key }) => {
     let client = await getClient(key);
 
-    await client.request("GET", `/auth/time`);
+    await client.requestPromised("GET", `/auth/time`);
   });
 
 cli
-  .command("createFirewall <ip>")
+  .command("createFirewall <ip> <product>")
   .description("Permet de créer/configurer le firewall et d'activer la mitigation")
   .option("--key <key>", "La consumer key")
-  .action(async (ip, { key }) => {
+  .action(async (ip, product, { key }) => {
     let client = await getClient(key);
 
     const ips = await getAllIp(client, ip);
 
     for (const ipV4 of ips) {
-      await configureFirewall(client, ipV4);
+      await configureFirewall(client, ipV4, product);
       await activateMitigation(client, ipV4);
       console.log(`Firewall and mitigation activated for VPS ${ipV4}`);
     }

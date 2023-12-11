@@ -23,7 +23,16 @@ const allowTcpOnPort = (sequence, port) => {
     tcpOption: {},
   };
 };
-
+const allowUdpOnPort = (sequence, port) => {
+  return {
+    sequence,
+    action: "permit",
+    protocol: "udp",
+    destinationPort: port,
+    source: null,
+    sourcePort: null,
+  };
+};
 const allowICMP = (sequence) => {
   return {
     sequence,
@@ -45,6 +54,16 @@ const denyAllTcp = (sequence) => {
     tcpOption: {},
   };
 };
+const denyAllUdp = (sequence) => {
+  return {
+    sequence,
+    action: "deny",
+    protocol: "udp",
+    source: null,
+    sourcePort: null,
+    destinationPort: null,
+  };
+};
 
 // Rule definition doesn't have same shape as the rule object
 const ruleNeedsUpdate = (def, currentRule = null) => {
@@ -55,7 +74,7 @@ const ruleNeedsUpdate = (def, currentRule = null) => {
     def.sequence !== currentRule.sequence ||
     def.action !== currentRule.action ||
     def.protocol !== currentRule.protocol ||
-    currentRule.state !== "ok" ||
+    !["ok", 'creationPending'].includes(currentRule.state) ||
     def.sourcePort !== currentRule.sourcePort ||
     defDestPort !== currentRule.destinationPort ||
     currentRule.fragments ||
@@ -71,21 +90,21 @@ function asIpBlock(ip) {
 async function firewallExists(client, ip) {
   return resourceExists(client, () => {
     let ipBlock = asIpBlock(ip);
-    return client.request("GET", `/ip/${ipBlock}/firewall/${ip}`);
+    return client.requestPromised("GET", `/ip/${ipBlock}/firewall/${ip}`);
   });
 }
 
 async function getRule(client, ip, sequence) {
   return resourceOrNull(client, () => {
     let ipBlock = asIpBlock(ip);
-    return client.request("GET", `/ip/${ipBlock}/firewall/${ip}/rule/${sequence}`);
+    return client.requestPromised("GET", `/ip/${ipBlock}/firewall/${ip}/rule/${sequence}`);
   });
 }
 
 async function mitigationActivated(client, ip) {
   return resourceExists(client, () => {
     let ipBlock = asIpBlock(ip);
-    return client.request("GET", `/ip/${ipBlock}/mitigation/${ip}`);
+    return client.requestPromised("GET", `/ip/${ipBlock}/mitigation/${ip}`);
   });
 }
 
@@ -97,7 +116,7 @@ async function createFirewall(client, ip) {
     return;
   }
   console.log(`Creating firewall for ip '${ip}'...`);
-  return client.request("POST", `/ip/${ipBlock}/firewall`, { ipOnFirewall: ip });
+  return client.requestPromised("POST", `/ip/${ipBlock}/firewall`, { ipOnFirewall: ip });
 }
 
 async function updateRule(client, ip, def) {
@@ -106,23 +125,24 @@ async function updateRule(client, ip, def) {
   const currentRule = await getRule(client, ip, def.sequence);
   if (currentRule) {
     if (!ruleNeedsUpdate(def, currentRule)) {
+      console.log(`Rule ${def.sequence} is already configured`)
       return;
     }
 
     console.log("Removing rule", currentRule);
-    await client.request("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${currentRule.sequence}`);
+    await client.requestPromised("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${currentRule.sequence}`);
     console.log("Waiting 60s for rule to be removed");
     await new Promise((resolve) => setTimeout(resolve, 60_000));
   }
 
   console.log(`Creating rule`, def);
-  await client.request("POST", `/ip/${ipBlock}/firewall/${ip}/rule`, def);
+  await client.requestPromised("POST", `/ip/${ipBlock}/firewall/${ip}/rule`, def);
 }
 
 async function updateRules(client, ip, defs) {
   let ipBlock = asIpBlock(ip);
 
-  const existingSequence = await client.request("GET", `/ip/${ipBlock}/firewall/${ip}/rule`);
+  const existingSequence = await client.requestPromised("GET", `/ip/${ipBlock}/firewall/${ip}/rule`);
   const expectedSequence = new Set(defs.map((def) => def.sequence));
 
   const tasks = [];
@@ -134,23 +154,30 @@ async function updateRules(client, ip, defs) {
       .filter((s) => !expectedSequence.has(Number(s)))
       .map(async (s) => {
         console.log("Removing rule", await getRule(client, ip, s));
-        return client.request("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${s}`);
+        return client.requestPromised("DELETE", `/ip/${ipBlock}/firewall/${ip}/rule/${s}`);
       })
   );
 
   await Promise.all(tasks);
 }
 
-async function configureFirewall(client, ip) {
+async function configureFirewall(client, ip, product) {
   await createFirewall(client, ip);
-  await updateRules(client, ip, [
+  const rules = [
     allowTcpConnection(0),
     allowTcpOnPort(1, 22),
     allowTcpOnPort(2, 443),
     allowTcpOnPort(3, 80),
     allowICMP(10),
+    denyAllUdp(18),
     denyAllTcp(19),
-  ]);
+  ];
+
+  if (product === 'vpn') {
+    rules.push(5, allowUdpOnPort(3, 1194))
+  }
+
+  await updateRules(client, ip, rules);
   console.log(`Firewall for ${ip} configured`);
 }
 
@@ -162,7 +189,7 @@ async function activateMitigation(client, ip) {
   }
 
   console.log(`Activating permanent mitigation...`);
-  await client.request("POST", `/ip/${ipBlock}/mitigation`, { ipOnMitigation: ip });
+  await client.requestPromised("POST", `/ip/${ipBlock}/mitigation`, { ipOnMitigation: ip });
 }
 
 async function closeService(client, ip) {
@@ -174,8 +201,8 @@ async function closeService(client, ip) {
 }
 
 async function getAllIp(client, ip) {
-  const ipData = await client.request("GET", `/ip/${ip}`);
-  const ips = await client.request("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+  const ipData = await client.requestPromised("GET", `/ip/${ip}`);
+  const ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
   // Returns all ipv4
   return ips.filter((i) => i.includes("."));
 }

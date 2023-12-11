@@ -3,10 +3,11 @@ async function resourceExists(client, sendRequest) {
     await sendRequest();
     return true;
   } catch (e) {
-    if (e === 404) {
+    if (e.error === 404) {
       return false;
     }
-    throw e;
+    console.error(e);
+    throw new Error('Error from OVH API');
   }
 }
 
@@ -15,10 +16,11 @@ async function resourceOrNull(client, sendRequest) {
     const result = await sendRequest();
     return result;
   } catch (e) {
-    if (e === 404) {
+    if (e.error === 404) {
       return null;
     }
-    throw e;
+    console.error(e);
+    throw new Error('Error from OVH API');
   }
 }
 
