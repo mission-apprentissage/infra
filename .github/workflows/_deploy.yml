@@ -56,6 +56,9 @@ jobs:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
           ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
+          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+          APP_KEY: ${{ secrets.OVH_APP_KEY }}
+          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
 
       - name: Encrypt Error log on failure
         run: .bin/mna-lba deploy:log:encrypt

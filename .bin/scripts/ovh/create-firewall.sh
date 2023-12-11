@@ -12,11 +12,17 @@ function main() {
   cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"
   yarn --silent install
 
-  export APP_KEY=$(op item get "API OVH" --vault "devsops" --fields username)
-  export APP_SECRET=$(op item get "API OVH" --vault "devsops" --fields credential)
-  export TOKEN=$(op item get "API OVH" --vault "devsops" --fields token)
+  if [[ -z "${APP_KEY:-}" ]]; then
+    export APP_KEY=$(op item get "API OVH" --vault "devsops" --fields username)
+  fi;
+  if [[ -z "${APP_SECRET:-}" ]]; then
+    export APP_SECRET=$(op item get "API OVH" --vault "devsops" --fields credential)
+  fi;
+  if [[ -z "${APP_TOKEN:-}" ]]; then
+    export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --fields token)
+  fi;
 
-  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" --key "${TOKEN}"
+  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" --key "${APP_TOKEN}"
   cd - >/dev/null
 }
 
