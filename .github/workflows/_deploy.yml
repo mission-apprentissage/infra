@@ -41,9 +41,8 @@ jobs:
       - name: Create vault pwd file
         run: echo ${VAULT_PWD} > .infra/.vault_pwd.txt
         env:
-          VAULT_PWD: ${{ vars[format('{0}_VAULT_PWD', inputs.product)] }}
+          VAULT_PWD: ${{ secrets[format('{0}_VAULT_PWD', inputs.product)] }}
           
-
       - name: Run playbook
         run: ".bin/mna system:setup ${{ inputs.product }} ${{ inputs.environment }}"
         env:
