@@ -41,13 +41,13 @@ jobs:
         with:
           name: github_actions
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', inputs.product)] }}
+          known_hosts: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', matrix.product)] }}
           config: |
             Host *
               IdentityFile ~/.ssh/github_actions
 
       - name: Run playbook
-        run: ".bin/mna system:unban ${{ inputs.product }} ${{ inputs.environment }} ${{ inputs.ip }}"
+        run: ".bin/mna system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
@@ -71,8 +71,8 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          notification_title: "Unban ip ${{ inputs.ip }} en ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
+          notification_title: "Unban ip ${{ inputs.ip }} en ${{ matrix.product }}-${{ matrix.environment }} a échoué"
+          message_format: "{emoji} *[${{ matrix.product }}-${{ matrix.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:
