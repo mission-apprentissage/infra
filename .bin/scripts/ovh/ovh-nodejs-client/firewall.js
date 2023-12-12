@@ -169,13 +169,13 @@ async function configureFirewall(client, ip, product) {
     allowTcpOnPort(2, 443),
     allowTcpOnPort(3, 80),
     allowICMP(10),
-    denyAllUdp(18),
+    // denyAllUdp(18),
     denyAllTcp(19),
   ];
 
-  if (product === 'vpn') {
-    rules.push(5, allowUdpOnPort(3, 1194))
-  }
+  // if (product === 'vpn') {
+  //   rules.push(5, allowUdpOnPort(3, 1194))
+  // }
 
   await updateRules(client, ip, rules);
   console.log(`Firewall for ${ip} configured`);
