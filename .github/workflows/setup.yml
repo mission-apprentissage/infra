@@ -1,6 +1,6 @@
 name: Setup One
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       product:
         description: The product

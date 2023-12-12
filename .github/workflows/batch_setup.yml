@@ -1,6 +1,6 @@
 name: Setup Batch
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       products:
         description: JSON product array
