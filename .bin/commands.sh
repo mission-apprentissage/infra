@@ -9,6 +9,7 @@ function Help() {
    echo "  release:proxy                              Release docker reverse proxy image"
    echo "  release:fluentd                            Release fluentd reverse proxy image"
    echo "  system:setup                               Setup server"
+   echo "  system:unban                               Unban IP from server"
    echo "  system:setup:initial                       Initial setup server"
    echo "  system:user:remove                         Remove user from server"
    echo "  vault:edit                                 Edit vault file"
@@ -74,6 +75,16 @@ function system:user:remove() {
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
+}
+
+function system:unban() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+  local IP=${1:?"Merci de préciser l'ip à unban"}; shift;
+
+  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+
+  "$SCRIPT_DIR/run-playbook.sh" "unban.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "ip='${IP}'" "$@"
 }
 
 function vault:edit() {

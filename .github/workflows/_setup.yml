@@ -85,7 +85,7 @@ jobs:
         run: echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml
         env:
           HABILITATIONS: ${{ secrets.HABILITATIONS }}
-          
+
       - name: Run playbook
         run: ".bin/mna system:setup ${{ inputs.product }} ${{ inputs.environment }}"
         env:

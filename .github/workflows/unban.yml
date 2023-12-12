@@ -1,0 +1,78 @@
+name: Unban Batch
+on:
+  workflow_dispatch:
+    inputs:
+      ip:
+        type: string
+        required: true
+
+jobs:
+  setup:
+    strategy:
+      matrix:
+        product: ["bal", "lba", "monitoring", "tdb", "vpn"]
+        environment: ["production", "recette", "preview", "pentest"]
+        exclude:
+          - product: bal
+            environment: pentest
+          - product: tdb
+            environment: pentest
+          - product: monitoring
+            environment: pentest
+          - product: vpn
+            environment: pentest
+          - product: monitoring
+            environment: recette
+          - product: vpn
+            environment: recette
+          - product: monitoring
+            environment: preview
+          - product: vpn
+            environment: preview
+    name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          name: github_actions
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
+          config: |
+            Host *
+              IdentityFile ~/.ssh/github_actions
+
+      - name: Run playbook
+        run: ".bin/mna system:unban ${{ inputs.product }} ${{ inputs.environment }} ${{ inputs.ip }}"
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
+          ANSIBLE_REMOTE_USER: deploy
+          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
+
+      - name: Encrypt Error log on failure
+        run: .bin/mna deploy:log:encrypt
+        if: failure()
+        env:
+          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
+
+      - name: Upload failure artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: error-logs
+          path: /tmp/deploy_error.log.gpg
+
+      - name: Notify failure on Slack
+        uses: ravsamhq/notify-slack-action@v2
+        if: always()
+        with:
+          status: ${{ job.status }}
+          notification_title: "Unban ip ${{ inputs.ip }} en ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+          message_format: "{emoji} *[${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
+          notify_when: "failure"
+          mention_groups: "!channel"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
