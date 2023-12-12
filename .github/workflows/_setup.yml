@@ -1,6 +1,6 @@
-name: Setup
+name: Run Setup
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       product:
         description: The product
@@ -10,9 +10,40 @@ on:
         description: The environment to setup
         type: string
         required: true
+      SSH_KNOWN_HOSTS:
+        description: The product SSH_KNOWN_HOSTS
+        type: string
+        required: true
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY:
+        description: SSH private key
+        required: true
+      DEPLOY_PASS:
+        description: SSH PWD TO DEPLOY
+        required: true
+      SLACK_WEBHOOK:
+        description: Slack webhook URL
+        required: true
+      VAULT_PWD:
+        description: Vault Password
+        required: true
+      HABILITATIONS:
+        description: Product habilitations
+        required: true
+      OVH_APP_TOKEN:
+        description: OVH Application token
+        required: true
+      OVH_APP_KEY:
+        description: OVH Application key
+        required: true
+      OVH_APP_SECRET:
+        description: OVH Application secret
+        required: true
 
 jobs:
-  deploy:
+  setup:
+    concurrency:
+      group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
     name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
@@ -40,7 +71,7 @@ jobs:
         with:
           name: github_actions
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', inputs.product)] }}
+          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
           config: |
             Host *
               IdentityFile ~/.ssh/github_actions
@@ -53,7 +84,7 @@ jobs:
       - name: Create habilitations file
         run: echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml
         env:
-          HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', inputs.product)] }}
+          HABILITATIONS: ${{ secrets.HABILITATIONS }}
           
       - name: Run playbook
         run: ".bin/mna system:setup ${{ inputs.product }} ${{ inputs.environment }}"

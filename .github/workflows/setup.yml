@@ -1,0 +1,30 @@
+name: Setup One
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: The product
+        type: string
+        required: true
+      environment:
+        description: The environment to setup
+        type: string
+        required: true
+
+jobs:
+  setup:
+    name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
+    uses: "./.github/workflows/_setup.yml"
+    with:
+      product: ${{ inputs.product}}
+      environment: ${{ inputs.environment}}
+      SSH_KNOWN_HOSTS: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', inputs.product)] }}
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', inputs.product)] }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}

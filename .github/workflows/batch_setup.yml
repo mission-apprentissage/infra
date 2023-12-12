@@ -1,0 +1,34 @@
+name: Setup Batch
+on:
+  workflow_call:
+    inputs:
+      products:
+        description: JSON product array
+        type: string
+        required: true
+      environments:
+        description: JSON environment array
+        type: string
+        required: true
+
+jobs:
+  setup:
+    strategy:
+      matrix:
+        product: ${{ fromJSON(inputs.products) }}
+        environment: ${{ fromJSON(inputs.environments) }}
+    name: Setup ${{ matrix.product }} on ${{ matrix.environment }}
+    uses: "./.github/workflows/_setup.yml"
+    with:
+      product: ${{ matrix.product}}
+      environment: ${{ matrix.environment}}
+      SSH_KNOWN_HOSTS: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', matrix.product)] }}
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', matrix.product)] }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
