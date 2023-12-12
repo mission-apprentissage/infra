@@ -9,6 +9,7 @@ on:
 jobs:
   setup:
     strategy:
+      fail-fast: false
       matrix:
         product: ["bal", "lba", "monitoring", "tdb", "vpn"]
         environment: ["production", "recette", "preview", "pentest"]
