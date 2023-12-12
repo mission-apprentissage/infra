@@ -46,6 +46,11 @@ jobs:
             Host *
               IdentityFile ~/.ssh/github_actions
 
+      - name: Create vault pwd file
+        run: echo ${VAULT_PWD} > .infra/.vault_pwd.txt
+        env:
+          VAULT_PWD: ${{ secrets.VAULT_PWD }}
+
       - name: Run playbook
         run: ".bin/mna system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
         env:
