@@ -11,9 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["bal", "lba", "monitoring", "tdb", "vpn"]
+        product: ["api", "bal", "lba", "monitoring", "tdb", "vpn"]
         environment: ["production", "recette", "preview", "pentest"]
         exclude:
+          - product: api
+            environment: pentest
           - product: bal
             environment: pentest
           - product: tdb

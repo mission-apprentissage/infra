@@ -6,7 +6,7 @@ on:
         description: JSON product array
         type: string
         required: true
-        default: '["bal", "lba", "monitoring", "tdb", "vpn"]'
+        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn"]'
       environments:
         description: JSON environment array
         type: string
@@ -21,6 +21,8 @@ jobs:
         product: ${{ fromJSON(inputs.products) }}
         environment: ${{ fromJSON(inputs.environments) }}
         exclude:
+          - product: api
+            environment: pentest
           - product: bal
             environment: pentest
           - product: tdb

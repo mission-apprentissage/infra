@@ -18,3 +18,9 @@ Ensuite lors du merge, vous serez invité à entrer votre passphrase (3 fois) po
 ```bash
 git merge master
 ```
+
+### Documentation
+
+- [Pré-requis](./docs/pre-requisites.md)
+- [Gpg](./docs/gpg.md)
+- [Provisionning](./docs/provisionning.md)

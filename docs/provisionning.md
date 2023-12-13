@@ -5,10 +5,11 @@
   - [Création d'un produit (optionnel)](#création-dun-produit-optionnel)
     - [Création du env.ini](#création-du-envini)
     - [Création du vault password \& habilitations](#création-du-vault-password--habilitations)
-    - [Création du Slack Webhook](#création-du-slack-webhook)
+    - [Mise à jour du vault](#mise-à-jour-du-vault)
   - [Déclaration de l'environnement](#déclaration-de-lenvironnement)
   - [Création du nom de domaine](#création-du-nom-de-domaine)
   - [Configuration de l'environnement](#configuration-de-lenvironnement)
+  - [Mise à jour des Github Action](#mise-à-jour-des-github-action)
 
 ## Prérequis
 
@@ -50,9 +51,11 @@ gpg_keys: "{{ habilitations  | map(attribute='gpg_key', default='') | select() |
 
 Fermez le fichier
 
-### Création du Slack Webhook
+### Mise à jour du vault
 
-Créez les variables d'environnement
+Récupérez le slack webhook depuis https://api.slack.com/apps/A01JENR8874
+
+Mettre à jour le vault
 
 ```bash
 .bin/mna vault:edit
@@ -106,3 +109,7 @@ Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubun
 ```bash
 .bin/mna system:user:remove <nom_produit> <nom_environnement> ubuntu --user <votre_nom_utilisateur>
 ```
+
+## Mise à jour des Github Action
+
+Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les cas d'exclusions).
