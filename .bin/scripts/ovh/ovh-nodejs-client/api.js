@@ -24,6 +24,7 @@ async function getClient(key) {
       { method: "POST", path: "/auth/*" },
       { method: "GET", path: "/ip" },
       { method: "GET", path: "/ip/*" },
+      { method: "PUT", path: "/ip/*" },
       { method: "POST", path: "/ip/*" },
       { method: "DELETE", path: "/ip/*" },
       { method: "GET", path: "/dedicated/*" },

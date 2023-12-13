@@ -161,7 +161,17 @@ async function updateRules(client, ip, defs) {
   await Promise.all(tasks);
 }
 
-async function configureFirewall(client, ip, product) {
+async function updateIpDescription(client, ip, product, env) {
+  const resp = await client.requestPromised("GET", `/ip/${asIpBlock(ip)}`);
+  const description = `${product}-${env}`
+  if (resp.description !== description) {
+    await client.requestPromised("PUT", `/ip/${asIpBlock(ip)}`, { description: description });
+  }
+}
+
+async function configureFirewall(client, ip, product, env) {
+  await updateIpDescription(client, ip, product, env);
+
   await createFirewall(client, ip);
   const rules = [
     allowTcpConnection(0),
