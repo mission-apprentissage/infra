@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+{% if env_type == "preview" %}
+  echo "Not supported in preview environnment"
+  exit 0;
+{% endif %}
+
 readonly SERVER_NAME=${1:?"Missing server name parameter"};
 shift
 
