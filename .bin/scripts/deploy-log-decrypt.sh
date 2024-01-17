@@ -27,7 +27,6 @@ trap delete_cleartext EXIT
 rm -f /tmp/deploy_error.log.gpg
 
 gh run download "$RUN_ID" -n error-logs -D /tmp
-echo "${ansible_extra_opts[@]}"
 ansible-vault view "${ansible_extra_opts[@]}" "$VAULT_FILE" | yq '.vault.DEPLOY_GPG_PASSPHRASE' > "$PASSPHRASE"
 
 gpg -d --batch --passphrase-file "$PASSPHRASE" /tmp/deploy_error.log.gpg
