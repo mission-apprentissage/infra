@@ -17,6 +17,8 @@ http {
 
     resolver ${DNS_SERVER} valid=5s;
 
+    client_body_buffer_size 256k;
+
     include /etc/nginx/conf.d/*.conf;
     include /etc/nginx/extra-conf.d/*.conf;
 }
