@@ -1,7 +1,7 @@
-ARG NGINX_VERSION="1.22.1"
+ARG NGINX_VERSION="1.25.3"
 FROM nginx:${NGINX_VERSION} as nginxModules
 
-ARG HEADERS_MORE_VERSION="v0.34"
+ARG HEADERS_MORE_VERSION="v0.37"
 
 RUN set -eux; \
   apt-get update; \
