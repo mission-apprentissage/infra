@@ -12,12 +12,17 @@ RUN set -eux; \
   g++ \
   git \
   libcurl4-gnutls-dev \
+  libfuzzy-dev \
   libgeoip-dev \
   liblua5.3-dev \
-  libpcre++-dev \
+  libpcre3-dev \
+  libpcre2-dev \
   libtool \
   libxml2-dev \
+  libyajl-dev \
   make \
+  patch \
+  pkg-config \
   ruby \
   pkg-config \
   zlib1g-dev; \
@@ -37,7 +42,7 @@ RUN set -eux; \
   strip objs/ngx_http_headers_more_filter_module.so; \
   cp objs/ngx_http_headers_more_filter_module.so /etc/nginx/modules/;
 
-FROM owasp/modsecurity-crs:3.3.4-nginx-202303180303
+FROM owasp/modsecurity-crs:3.3.5-nginx-202401080101
 
 COPY --from=nginxModules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
