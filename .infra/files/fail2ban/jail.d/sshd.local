@@ -4,7 +4,7 @@ port = ssh
 filter = sshd[mode=aggressive]
 logpath = /var/log/auth.log
 maxretry = 10
-bantime = 2592000
+bantime = 30d
 banaction = iptables-multiport
 findtime=3600
 logtimezone = UTC

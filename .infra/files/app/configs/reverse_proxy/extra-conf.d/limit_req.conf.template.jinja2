@@ -1,0 +1,22 @@
+geo $remote_addr $rate_limit_wl {
+    default 0;
+    127.0.0.0/16 1; # For local connections
+    10.0.0.0/8 1; # For private network connections
+    172.16.0.0/12 1; # For private network connections
+    192.168.0.0/16 1; # For private network connections
+{% for ip in vault.trust_ips %}
+    {{ ip }} 1;
+{% endfor %}
+}
+
+map $rate_limit_wl $rate_limit_key {
+    0 "";
+    1 $binary_remote_addr;
+}
+
+# Maximum 2400r/m pour l'ensemble des utilisateurs avant dégradation du service
+limit_req_zone $rate_limit_key zone=flood:10m rate=40r/s;
+limit_req_log_level error;
+limit_req zone=flood burst=100 nodelay;
+limit_req_status 429;
+limit_conn_status 429;

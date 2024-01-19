@@ -32,7 +32,7 @@
   notify: restart-fail2ban
 
 - name: Copy fail2ban jails
-  copy:
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "/etc/fail2ban/jail.d"
     owner: "root"

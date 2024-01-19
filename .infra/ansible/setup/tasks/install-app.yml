@@ -5,13 +5,29 @@
   with_filetree: "{{playbook_dir}}/../files/app"
   when: item.state == 'directory'
 
-- name: Copie des fichiers 'tools'
+- name: Copie des fichiers 'app'
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/opt/app/{{ item.path }}"
+    mode: "{{ item.mode }}"
+  with_filetree: "{{playbook_dir}}/../files/app"
+  when:
+    - item.state == 'file'
+    - item.path | regex_search('\.jinja2$') == none
+    - item.path | basename != '.gitkeep'
+    - item.path | basename != '.DS_Store'
+
+- name: Copie des template de l'arborescence /opt/app
   ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: "/opt/app/tools/{{ item.path }}"
-    mode: "g+x"
-  with_filetree: "{{playbook_dir}}/../files/app/tools"
-  when: item.state == 'file'
+    dest: "/opt/app/{{ (item.path | splitext)[0] }}"
+    mode: "{{ item.mode }}"
+  with_filetree: "{{playbook_dir}}/../files/app"
+  when:
+    - item.state == 'file'
+    - item.path | regex_search('\.jinja2$') != none
+    - item.path | basename != '.gitkeep'
+    - item.path | basename != '.DS_Store'
 
 - name: Nettoyage des permissions sudo pour le groupe 'mna'
   lineinfile:

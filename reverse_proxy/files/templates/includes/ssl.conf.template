@@ -1,7 +1,7 @@
 listen ${SSL_PORT} ssl;
 
-ssl_session_timeout 1d;
-ssl_session_cache shared:MozSSL:10m;
+ssl_session_timeout 4h;
+ssl_session_cache shared:MozSSL:100m;
 ssl_session_tickets off;
 
 ssl_dhparam /etc/ssl/certs/dhparam-${PROXY_SSL_DH_BITS}.pem;
