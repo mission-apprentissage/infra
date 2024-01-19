@@ -47,11 +47,11 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   fi
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-  ansible-galaxy install patrickjahns.promtail
-  ansible-galaxy install geerlingguy.docker
-  ansible-galaxy collection install community.general
-  ansible-galaxy collection install community.crypto
-  ansible-galaxy collection install ansible.posix
+  ansible-galaxy install patrickjahns.promtail,1.27.0
+  ansible-galaxy install geerlingguy.docker,7.0.2
+  ansible-galaxy collection install -U community.general
+  ansible-galaxy collection install -U community.crypto
+  ansible-galaxy collection install -U ansible.posix
 
   # This env-vars is used by CI to decrypt
   if [[ -z "${ANSIBLE_VAULT_PASSWORD_FILE:-}" ]]; then
