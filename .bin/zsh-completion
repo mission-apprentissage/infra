@@ -22,6 +22,7 @@ _mna-infra_completion() {
    "product\:repo:Get product repository"
    "product\:create:Create a new repository"
    "product\:access\:update:Update product access"
+   "infra\:access\:update:Update infra access"
    "firewall\:setup:Setup OVH firewall"
    "firewall\:service\:close:Close service on OVH firewall"
    "ssh\:known_hosts\:print:Print SSH known host for a product including all servers"

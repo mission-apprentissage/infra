@@ -22,6 +22,7 @@ function Help() {
    echo "  product:repo                               Get product repository"
    echo "  product:create                             Create a new repository"
    echo "  product:access:update                      Update product access"
+   echo "  infra:access:update                        Update infra access"
    echo "  firewall:setup                             Setup OVH firewall"
    echo "  firewall:service:close                     Close service on OVH firewall"
    echo "  ssh:known_hosts:print                      Print SSH known host for a product including all servers"
@@ -147,6 +148,10 @@ function product:create() {
 
 function product:access:update() {
   "$SCRIPT_DIR/update-product-access.sh" "$@"
+}
+
+function infra:access:update() {
+  "$SCRIPT_DIR/update-infra-access.sh" "$@"
 }
 
 function firewall:setup() {
