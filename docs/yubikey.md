@@ -5,6 +5,32 @@
 > Pour tout compléments d'informations, veullez vous référer au guider original
 > La documentation qui suit est un résumé dans notre cas d'utilisation
 
+- [Yubikey](#yubikey)
+  - [Pré-requis](#pré-requis)
+  - [Clef GPG](#clef-gpg)
+    - [Création de la clef maitre](#création-de-la-clef-maitre)
+    - [Création des sous-clefs](#création-des-sous-clefs)
+    - [Backup des clefs](#backup-des-clefs)
+    - [Conservation des Backups](#conservation-des-backups)
+      - [Sur papier](#sur-papier)
+      - [Chiffré via GPG](#chiffré-via-gpg)
+    - [Configuration de la Yubikey](#configuration-de-la-yubikey)
+    - [Transfer de la clef](#transfer-de-la-clef)
+    - [Vérification](#vérification)
+    - [Configuration de la clef additionnel](#configuration-de-la-clef-additionnel)
+    - [Nettoyage](#nettoyage)
+    - [Utilisation des clefs](#utilisation-des-clefs)
+    - [Réinitialisation des clefs](#réinitialisation-des-clefs)
+    - [Git Commits](#git-commits)
+    - [Ajout dans Github](#ajout-dans-github)
+  - [VPN](#vpn)
+    - [Pré-requis](#pré-requis-1)
+    - [Extraction des certficats](#extraction-des-certficats)
+    - [Importation des certificats dans Yubikey](#importation-des-certificats-dans-yubikey)
+    - [Configuration du profil OpenVPN](#configuration-du-profil-openvpn)
+    - [Clef addtionnel](#clef-addtionnel)
+    - [Cleanup](#cleanup)
+
 ## Pré-requis
 
 - [GnuPG](https://www.gnupg.org/) version 2.0.2 or later.
