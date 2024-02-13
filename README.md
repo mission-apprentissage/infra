@@ -23,4 +23,5 @@ git merge master
 
 - [Pré-requis](./docs/pre-requisites.md)
 - [Gpg](./docs/gpg.md)
+- [Yubikey](./docs/yubikey.md)
 - [Provisionning](./docs/provisionning.md)
