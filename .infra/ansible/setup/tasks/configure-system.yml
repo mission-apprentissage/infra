@@ -36,13 +36,18 @@
           disable: true
         promtail_config_clients:
           - url: "{{ vault.PROMTAIL_URL }}"
+            basic_auth:
+              username: "monitoring"
+              password: "{{ vault.MONITORING_PASSWORD }}"
+            external_labels:
+              product: "{{ product_name }}"
+              env: "{{ env_type }}"
         promtail_config_scrape_configs:
           - job_name: journal
             journal:
               labels:
                 job: systemd-journal
-                product: "{{ product_name }}"
-                env: "{{ env_type }}"
+                service: journal
             relabel_configs:
               - source_labels: ["__journal__hostname"]
                 target_label: "hostname"
