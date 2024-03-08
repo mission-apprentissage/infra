@@ -70,7 +70,7 @@ services:
 
   nodeexporter:
     <<: *default
-    image: prom/node-exporter:v1.5.0
+    image: prom/node-exporter:v1.7.0
     hostname: {{host_name}}
     user: root
     deploy:
@@ -98,7 +98,7 @@ services:
 
   cadvisor:
     <<: *default
-    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     deploy:
       <<: *deploy-default
       resources:

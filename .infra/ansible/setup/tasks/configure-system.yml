@@ -31,7 +31,7 @@
     name: patrickjahns.promtail
     apply:
       vars:
-        promtail_version: "2.7.5"
+        promtail_version: "latest"
         promtail_config_server:
           disable: true
         promtail_config_clients:
