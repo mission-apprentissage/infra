@@ -31,7 +31,8 @@
     name: patrickjahns.promtail
     apply:
       vars:
-        promtail_version: "latest"
+        # promtail_version: "latest" // TODO to reactivate when fixed
+        promtail_version: "2.9.5"
         promtail_config_server:
           disable: true
         promtail_config_clients:
