@@ -1,12 +1,8 @@
 require("dotenv").config();
 const { program: cli } = require("commander");
 const { getClient } = require("./api");
-const {
-  configureFirewall,
-  activateMitigation,
-  closeService,
-  getAllIp,
-} = require("./firewall");
+const { configureFirewall, activateMitigation, closeService, getAllIp } = require("./firewall");
+const { uploadFileToS3 } = require("./s3");
 
 function handleError(e) {
   console.error(e.constructor.name === "EnvVarError" ? e.message : e);
@@ -54,6 +50,14 @@ cli
       await closeService(client, ipV4);
       console.log(`Service closed on port for VPS ${ipV4}.`);
     }
+  });
+
+cli
+  .command("uploadFileToS3")
+  .description("Permet d'uploader un fichier sur un bucket de type S3 OVH")
+  .requiredOption("--filepath <string>", "le chemin du ficher en local")
+  .action(async ({ filepath }) => {
+    await uploadFileToS3(filepath);
   });
 
 cli.parse(process.argv);
