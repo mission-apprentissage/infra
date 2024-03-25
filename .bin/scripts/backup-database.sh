@@ -18,6 +18,7 @@ function backup() {
 function uploadToS3(){
   # upload gpg file to S3
   echo "Uploading backup to S3..."
+  bash "${SCRIPT_DIR}/ovh/upload-file-s3.sh" "$BACKUP_FILE"
 }
 
 function deleteLocalFile(){
