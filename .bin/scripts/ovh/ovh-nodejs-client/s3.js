@@ -13,8 +13,9 @@ AWS.config.update({
 
 const repository = new AWS.S3({ endpoint, region });
 
-export async function uploadFileToS3(client, pathToFile) {
+export async function uploadFileToS3(filePath) {
   const blob = fs.readFileSync(filePath);
+  const key = filePath.split("/").pop();
 
   await repository
     .upload({
