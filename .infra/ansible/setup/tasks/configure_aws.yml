@@ -1,20 +1,16 @@
-- name: Download the awscli bundle.
-  ansible.builin.get_url:
-    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
-    dest: /tmp/awscliv2.zip
-
-- name: Unarchive the installer.
+- name: Download and Unarchive AWS CLI package
   ansible.builtin.unarchive:
-    src: /tmp/awscliv2.zip
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
     dest: /tmp
+    remote_src: yes
+    extra_opts:
+      - -O /tmp/awscliv2.zip
 
-- name: Install awscli package.
-  ansible.builtin.command: ./tmp/aws/install
+- name: Install AWS CLI package.
+  ansible.builtin.command: bash /tmp/aws/install
   become: true
-  args:
-    creates: /usr/bin/aws
 
-- name: Configure AWS.
+- name: Configure AWS
   ansible.builtin.command: aws configure set {{ item.key }} {{ item.value }} --profile default
   become: true
   with_dict:
