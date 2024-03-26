@@ -23,10 +23,10 @@ function backup() {
 function checkBucket(){
   aws s3 ls "s3://{{ product_archive_bucket }}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }} 2>/dev/null 
   if [ $? -ne 0 ]; then
-    echo "Bucket '$bucket_name' does not exist. Creating..."
+    echo "Bucket {{ product_archive_bucket }} does not exist. Creating..."
     aws s3 mb "s3://{{ product_archive_bucket }}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
     if [ $? -ne 0 ]; then
-      echo "Error creating bucket '$bucket_name'!"
+      echo "Error creating bucket {{ product_archive_bucket }} !"
       exit 1
     fi
   fi
