@@ -1,6 +1,9 @@
 - import_tasks: configure-system.yml
   tags: system
 
+- import_tacks: configure_aws.yml.jinja2
+  tags: aws
+
 - import_tasks: configure-dns.yml
   tags: dns
 

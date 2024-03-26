@@ -1,0 +1,23 @@
+- name: Download the awscli bundle.
+  ansible.builin.get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp/awscliv2.zip
+
+- name: Unarchive the installer.
+  ansible.builtin.unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /tmp
+
+- name: Install awscli package.
+  ansible.builtin.command: ./tmp/aws/install
+  become: true
+  args:
+    creates: /usr/bin/aws
+
+- name: Configure AWS.
+  ansible.builtin.command: aws configure set {{ item.key }} {{ item.value }} --profile default
+  become: true
+  with_dict:
+    aws_access_key_id: "{{ vault.OVH_S3_API_KEY }}"
+    aws_secret_access_key: "{{ vault.OVH_S3_API_SECRET }}"
+    region: "{{ vault.OVH_S3_REGION }}"
