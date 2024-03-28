@@ -2,12 +2,10 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly VAULT_FILE="${ROOT_DIR}/.infra/vault/vault.yml"
 readonly BACKUP_LOCAL_DIR="/opt/app/mongodb/backups"
 readonly FILENAME="mongodb_{{ product_name }}_{{ env_type }}_$(date +%Y-%m-%d_%H-%M-%S).gpg"
 readonly BACKUP_FILE="${BACKUP_LOCAL_DIR}/${FILENAME}"
 
-source env.ini  
 if [ -z {{ product_archive_bucket }} ]; then
   echo "Error: 'product_archive_bucket' not found in env.ini!"
   exit 1
@@ -17,19 +15,7 @@ function backup() {
   echo "Creating backup..."
   mkdir -p "${BACKUP_LOCAL_DIR}"
   docker run --rm mongo:6 mongodump --uri="{{ vault[product_name].MONGODB_URI }}" -j=2 --gzip --archive \
-  | bash "${SCRIPT_DIR}/gpg/encrypt.sh.jinja2" "$BACKUP_FILE"
-}
-
-function checkBucket(){
-  aws s3 ls "s3://{{ product_archive_bucket }}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }} 2>/dev/null 
-  if [ $? -ne 0 ]; then
-    echo "Bucket {{ product_archive_bucket }} does not exist. Creating..."
-    aws s3 mb "s3://{{ product_archive_bucket }}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
-    if [ $? -ne 0 ]; then
-      echo "Error creating bucket {{ product_archive_bucket }} !"
-      exit 1
-    fi
-  fi
+  | bash "${SCRIPT_DIR}/gpg/encrypt.sh" > "$BACKUP_FILE"
 }
 
 function upload(){
@@ -43,7 +29,6 @@ function delete(){
   rm "${BACKUP_LOCAL_DIR}"
 }
 
-checkBucket
 backup
 upload
 delete
