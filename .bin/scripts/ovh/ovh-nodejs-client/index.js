@@ -1,12 +1,7 @@
 require("dotenv").config();
 const { program: cli } = require("commander");
 const { getClient } = require("./api");
-const {
-  configureFirewall,
-  activateMitigation,
-  closeService,
-  getAllIp,
-} = require("./firewall");
+const { configureFirewall, activateMitigation, closeService, getAllIp } = require("./firewall");
 
 function handleError(e) {
   console.error(e.constructor.name === "EnvVarError" ? e.message : e);
