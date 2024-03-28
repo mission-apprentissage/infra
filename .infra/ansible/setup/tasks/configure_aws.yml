@@ -40,3 +40,4 @@
     minute: "0"
     hour: "7"
     job: "bash /opt/app/tools/backup-database >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Backup database {{ env_type }}' -v $?"
+  when: backup_enable == true
