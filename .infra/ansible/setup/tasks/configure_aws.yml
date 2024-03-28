@@ -24,3 +24,12 @@
     aws_access_key_id: "{{ vault.OVH_S3_API_KEY }}"
     aws_secret_access_key: "{{ vault.OVH_S3_API_SECRET }}"
     region: "{{ vault.OVH_S3_REGION }}"
+
+- name: Check if bucket exist
+  shell: "aws s3 ls s3://{{ product_archive_bucket }} --endpoint-url {{ vault.OVH_S3_ENDPOINT }}"
+  register: s3_bucket_check
+  ignore_errors: true
+
+- name: Create S3 bucket if it does not exist
+  command: "aws s3 mb s3://{{ product_archive_bucket }} --endpoint-url {{ vault.OVH_S3_ENDPOINT }}"
+  when: "'NoSuchBucket' in s3_bucket_check.stderr"
