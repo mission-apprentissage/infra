@@ -21,7 +21,7 @@ function backup() {
 function upload(){
   # upload gpg file to S3
   echo "Uploading backup to S3..."
-  aws s3 cp "$BACKUP_FILE" "s3://{{ product_archive_bucket }}/${FILENAME}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
+  aws s3 cp "$BACKUP_FILE" "s3://{{ product_archive_bucket }}-{{ env_type }}/${FILENAME}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
 }
 
 function delete(){
