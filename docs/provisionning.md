@@ -32,7 +32,8 @@ Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variab
 ### Création du vault password & habilitations
 
 Création des habilitations initiales
-```bash 
+
+```bash
 .bin/mna product:access:update <nom_produit>
 ```
 
@@ -40,9 +41,9 @@ Un fichier vide s'ouvre dans VsCode, veuillez compléter les habilitations avec 
 
 ```yaml
 habilitations:
-  - username: 
-    name: 
-    gpg_key: 
+  - username:
+    name:
+    gpg_key:
     authorized_keys:
       - "https://github.com/mission-apprentissage.keys"
 
@@ -113,3 +114,15 @@ Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubun
 ## Mise à jour des Github Action
 
 Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les cas d'exclusions).
+
+## Sauvegarde automatique de la base de données sur un bucket S3
+
+Dans le `env.ini` du produit concerné, ajouter sous `[all:vars]`
+
+    product_archive_bucket=<product_trigramme>-backup
+
+puis, pour chaque environnement concerné :
+
+    backup_enable=true
+
+Cela va créer un bucket par environnement et stocker les archives encryptés. Toutes les personnes présentes dans les autorisations ont la possibilité de déchiffrer les données.
