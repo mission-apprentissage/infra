@@ -1,7 +1,7 @@
 - import_tasks: configure-system.yml
   tags: system
 
-- import_tasks: configure_aws.yml
+- import_tasks: configure_mongodb-backup.yml
   tags: mongodb-backup
 
 - import_tasks: configure-dns.yml
