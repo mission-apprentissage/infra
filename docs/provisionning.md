@@ -117,11 +117,7 @@ Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les c
 
 ## Sauvegarde automatique de la base de données sur un bucket S3
 
-Dans le `env.ini` du produit concerné, ajouter sous `[all:vars]`
-
-    product_archive_bucket=<product_trigramme>-backup
-
-puis, pour chaque environnement concerné :
+Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concerné :
 
     backup_enable=true
 
