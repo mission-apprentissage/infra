@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BACKUP_LOCAL_DIR="/opt/app/mongodb/backups"
+readonly FILENAME="mongodb_{{ product_name }}_{{ env_type }}_$(date +%Y-%m-%d_%H-%M-%S).gpg"
+readonly BACKUP_FILE="${BACKUP_LOCAL_DIR}/${FILENAME}"
+
+function backup() {
+  echo "Creating backup..."
+  mkdir -p "${BACKUP_LOCAL_DIR}"
+  docker run --rm mongo:6 mongodump --uri="{{ vault[product_name][env_type].MONGODB_URI }}" -j=2 --gzip --archive \
+  | bash "${SCRIPT_DIR}/gpg/encrypt.sh" > "$BACKUP_FILE"
+}
+
+function upload(){
+  # upload gpg file to S3
+  echo "Uploading backup to S3..."
+  aws s3 cp "$BACKUP_FILE" "s3://{{ product_name }}-{{ env_type }}-backups/${FILENAME}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
+}
+
+function delete(){
+  echo "Removing MongoDB backups..."
+  rm "${BACKUP_FILE}"
+}
+
+backup
+upload
+delete
