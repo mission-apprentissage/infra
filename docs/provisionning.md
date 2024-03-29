@@ -122,3 +122,7 @@ Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concer
     backup_enable=true
 
 Cela va créer un bucket par environnement et stocker les archives encryptés. Toutes les personnes présentes dans les autorisations ont la possibilité de déchiffrer les données.
+
+## Restoration d'un sauvegarde (...)
+
+todo
