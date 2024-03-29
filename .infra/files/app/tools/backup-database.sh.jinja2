@@ -6,11 +6,6 @@ readonly BACKUP_LOCAL_DIR="/opt/app/mongodb/backups"
 readonly FILENAME="mongodb_{{ product_name }}_{{ env_type }}_$(date +%Y-%m-%d_%H-%M-%S).gpg"
 readonly BACKUP_FILE="${BACKUP_LOCAL_DIR}/${FILENAME}"
 
-if [ -z {{ product_archive_bucket }} ]; then
-  echo "Error: 'product_archive_bucket' not found in env.ini!"
-  exit 1
-fi
-
 function backup() {
   echo "Creating backup..."
   mkdir -p "${BACKUP_LOCAL_DIR}"
@@ -21,7 +16,7 @@ function backup() {
 function upload(){
   # upload gpg file to S3
   echo "Uploading backup to S3..."
-  aws s3 cp "$BACKUP_FILE" "s3://{{ product_archive_bucket }}-{{ env_type }}/${FILENAME}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
+  aws s3 cp "$BACKUP_FILE" "s3://{{ product_name }}-{{ env_type }}-backups/${FILENAME}" --endpoint-url {{ vault.OVH_S3_ENDPOINT }}
 }
 
 function delete(){
