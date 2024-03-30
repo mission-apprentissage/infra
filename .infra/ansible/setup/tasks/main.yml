@@ -3,6 +3,7 @@
 
 - import_tasks: configure-mongodb-backup.yml
   tags: mongodb-backup
+  when: backup_enable | default(false) | bool
 
 - import_tasks: configure-dns.yml
   tags: dns
