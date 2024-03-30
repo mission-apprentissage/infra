@@ -167,6 +167,6 @@ Dans le vault, ajouter le champ `MONGODB_URI` sous le produit concerné pour **t
 
 Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concerné :
 
-backup_enable=true
+    backup_enable=true
 
 Cela va créer un bucket par environnement et stocker les archives encryptés. Toutes les personnes présentes dans les autorisations ont la possibilité de déchiffrer les données.
