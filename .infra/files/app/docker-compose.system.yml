@@ -1,6 +1,6 @@
 version: "3.8"
 
-# The following variables define reusable configurations for deployment, providing consistent and predefined 
+# The following variables define reusable configurations for deployment, providing consistent and predefined
 # behaviors for updating, rolling back, and restarting services.
 
 x-deploy-default: &deploy-default
@@ -71,19 +71,19 @@ services:
   nodeexporter:
     <<: *default
     image: prom/node-exporter:v1.7.0
-    hostname: {{host_name}}
+    hostname: { { host_name } }
     user: root
     deploy:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--collector.textfile.directory=/var/cron-exporter'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--collector.textfile.directory=/var/cron-exporter"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -103,8 +103,8 @@ services:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '0.50'
-    hostname: {{host_name}}
+          cpus: "0.50"
+    hostname: "{{host_name}}"
     privileged: true
     devices:
       - /dev/kmsg
@@ -127,7 +127,7 @@ services:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '1.00'
+          cpus: "1.00"
     image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
@@ -144,13 +144,13 @@ services:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
       LOKI_URL: "https://monitoring.apprentissage.beta.gouv.fr/loki"
-      LOKI_USERNAME: "monitoring" 
-      LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
-      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}" 
-      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}" 
-      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}" 
-      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}" 
-      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}" 
+      LOKI_USERNAME: "monitoring"
+      LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}"
+      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}"
+      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}"
+      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}"
+      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}"
+      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}"
     logging:
       driver: "local"
 
