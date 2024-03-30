@@ -117,6 +117,15 @@ Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les c
 
 ## Sauvegarde automatique de la base de données sur un bucket S3
 
+Dans le vault, ajouter le champ `MONGODB_URI` sous le produit concerné pour **tous les environnement** définit dans le `env.ini`. Si un environnement ne doit pas être concerné par la sauvegarde, mettre une chaine de caractère vide.
+
+    production:
+        MONGODB_URI: <URI_STRING>
+    recette:
+        MONGODB_URI: <URI_STRING>
+    <env>:
+        MONGODB_URI: ""
+
 Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concerné :
 
     backup_enable=true
