@@ -6,7 +6,7 @@ on:
         description: JSON product array
         type: string
         required: true
-        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn"]'
+        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat"]'
       environments:
         description: JSON environment array
         type: string
