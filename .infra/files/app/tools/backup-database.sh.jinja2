@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+{% if backup_enable is defined and backup_enable %}
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly BACKUP_LOCAL_DIR="/opt/app/mongodb/backups"
 readonly FILENAME="mongodb_{{ product_name }}_{{ env_type }}_$(date +%Y-%m-%d_%H-%M-%S).gpg"
@@ -21,9 +22,16 @@ function upload(){
 
 function delete(){
   echo "Removing MongoDB backups..."
-  rm "${BACKUP_FILE}"
+  rm -f "${BACKUP_FILE}"
 }
+
+trap delete EXIT
 
 backup
 upload
 delete
+{% else %}
+  echo "Not supported"
+  exit 1;
+{% endif %}
+
