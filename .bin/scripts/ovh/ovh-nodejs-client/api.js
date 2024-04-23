@@ -1,7 +1,6 @@
-const env = require("env-var");
-const { promisify } = require("util");
-const open = require("open");
-const ovh = require("ovh");
+import env from "env-var";
+import open from "open";
+import ovh from "ovh";
 
 function newOvhClient(consumerKey) {
   let client = ovh({
@@ -13,7 +12,7 @@ function newOvhClient(consumerKey) {
   return client;
 }
 
-async function getClient(key) {
+export async function getClient(key) {
   if (key) {
     return newOvhClient(key);
   }
@@ -31,6 +30,8 @@ async function getClient(key) {
       { method: "POST", path: "/dedicated/*" },
       { method: "GET", path: "/vps" },
       { method: "GET", path: "/vps/*" },
+      { method: "GET", path: "/cloud" },
+      { method: "GET", path: "/cloud/*" },
     ],
   });
 
@@ -43,7 +44,3 @@ async function getClient(key) {
     }, 20000);
   });
 }
-
-module.exports = {
-  getClient,
-};

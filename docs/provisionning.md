@@ -1,26 +1,16 @@
 # Provisionnement d'un VPS
 
 - [Provisionnement d'un VPS](#provisionnement-dun-vps)
-
-- [Prérequis](#prérequis)
-
-- [Création d'un produit (optionnel)](#création-dun-produit-optionnel)
-
-- [Création du env.ini](#création-du-envini)
-
-- [Création du vault password \& habilitations](#création-du-vault-password--habilitations)
-
-- [Mise à jour du vault](#mise-à-jour-du-vault)
-
-- [Déclaration de l'environnement](#déclaration-de-lenvironnement)
-
-- [Création du nom de domaine](#création-du-nom-de-domaine)
-
-- [Configuration de l'environnement](#configuration-de-lenvironnement)
-
-- [Mise à jour des Github Action](#mise-à-jour-des-github-action)
-
-- [Sauvegarde de la base de données](#sauvegarde-de-la-base-de-données)
+  - [Prérequis](#prérequis)
+  - [Création d'un produit (optionnel)](#création-dun-produit-optionnel)
+    - [Création du env.ini](#création-du-envini)
+    - [Création du vault password \& habilitations](#création-du-vault-password--habilitations)
+    - [Mise à jour du vault](#mise-à-jour-du-vault)
+  - [Déclaration de l'environnement](#déclaration-de-lenvironnement)
+  - [Création du nom de domaine](#création-du-nom-de-domaine)
+  - [Configuration de l'environnement](#configuration-de-lenvironnement)
+  - [Mise à jour des Github Action](#mise-à-jour-des-github-action)
+  - [Sauvegarde de la base de données](#sauvegarde-de-la-base-de-données)
 
 ## Prérequis
 
