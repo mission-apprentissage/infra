@@ -197,8 +197,6 @@ async function configureFirewall(client, ip, product, env) {
     sources.forEach(source => {
       rules.push(allowTcpOnPort(4, 27017, `${source}/32`))
     });
-
-    console.log(rules)
   }
 
   await updateRules(client, ip, rules);
