@@ -3,7 +3,7 @@ import { __dirname } from './utils.js';
 import { join } from 'path';
 import { parse } from 'ini';
 
-
+// Récupération des associations de produits et de leurs IPs
 export default async function getConfig() {
     const productDir = join(__dirname(import.meta.url), '..', '..', '..', '..', 'products');
     const files = await readdir(productDir, { withFileTypes: true });
