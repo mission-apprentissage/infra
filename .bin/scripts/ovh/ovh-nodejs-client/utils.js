@@ -1,3 +1,6 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 async function resourceExists(client, sendRequest) {
   try {
     await sendRequest();
@@ -7,7 +10,7 @@ async function resourceExists(client, sendRequest) {
       return false;
     }
     console.error(e);
-    throw new Error('Error from OVH API');
+    throw new Error("Error from OVH API");
   }
 }
 
@@ -20,7 +23,7 @@ async function resourceOrNull(client, sendRequest) {
       return null;
     }
     console.error(e);
-    throw new Error('Error from OVH API');
+    throw new Error("Error from OVH API");
   }
 }
 
@@ -46,8 +49,9 @@ function waitReady(callback, options = {}) {
   });
 }
 
-module.exports = {
-  resourceExists,
-  waitReady,
-  resourceOrNull,
+function __dirname(filePath) {
+  const __filename = fileURLToPath(filePath);
+  return path.dirname(__filename);
 };
+
+export { resourceExists, waitReady, resourceOrNull, __dirname };

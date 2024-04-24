@@ -71,7 +71,7 @@ services:
   nodeexporter:
     <<: *default
     image: prom/node-exporter:v1.7.0
-    hostname: {{host_name}}
+    hostname: "{{ host_name }}"
     user: root
     deploy:
       <<: *deploy-default
@@ -104,7 +104,7 @@ services:
       resources:
         limits:
           cpus: '0.50'
-    hostname: {{host_name}}
+    hostname: "{{ host_name }}"
     privileged: true
     devices:
       - /dev/kmsg

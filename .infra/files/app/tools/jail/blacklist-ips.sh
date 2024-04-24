@@ -17,7 +17,7 @@ ips+=(82.165.82.41)
 # specific blacklist
 bash /opt/app/tools/jail/ban-ip.sh "${ips[@]}"
 
-bash /opt/app/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been renewed."
+# bash /opt/app/tools/send-to-slack.sh "[IPTABLES] IPs blacklist has been renewed."
 
 # Temp to remove old lists
 iptables -D INPUT -m set --match-set ipsum src -j DROP 2>/dev/null || true

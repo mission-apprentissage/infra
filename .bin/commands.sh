@@ -64,7 +64,18 @@ function system:setup:initial() {
 
   export ANSIBLE_HOST_KEY_CHECKING=False
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
-  system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass 
+
+  # Le serveur MongoDb est hébergé sur le service Public Cloud Compute d'OVH
+  # Il n'est pas possible de se connecter en SSH avec un mot de passe, il faut utiliser une clé SSH
+  if [[ "$PRODUCT_NAME" == "mongodb" ]]; then
+    "$SCRIPT_DIR/deploy_ssh_keyfile.sh"
+    export ANSIBLE_PRIVATE_KEY_FILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
+    export ANSIBLE_BECOME_PASS="-"
+    system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
+    rm -f "${ANSIBLE_PRIVATE_KEY_FILE}"
+  else
+    system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
+  fi;
 }
 
 function system:user:remove() {

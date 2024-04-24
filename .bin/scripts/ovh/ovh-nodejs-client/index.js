@@ -1,7 +1,6 @@
-require("dotenv").config();
-const { program: cli } = require("commander");
-const { getClient } = require("./api");
-const { configureFirewall, activateMitigation, closeService, getAllIp } = require("./firewall");
+import { program as cli } from "commander";
+import { getClient } from "./api.js";
+import { configureFirewall, activateMitigation, closeService, getAllIp } from "./firewall.js";
 
 function handleError(e) {
   console.error(e.constructor.name === "EnvVarError" ? e.message : e);
@@ -27,7 +26,7 @@ cli
   .action(async (ip, product, env, { key }) => {
     let client = await getClient(key);
 
-    const ips = await getAllIp(client, ip);
+    const ips = await getAllIp(client, ip, product);
 
     for (const ipV4 of ips) {
       await configureFirewall(client, ipV4, product, env);
@@ -37,7 +36,7 @@ cli
   });
 
 cli
-  .command("closeService <ip>")
+  .command("closeService <ip> <product>")
   .description("Permet de créer/configurer le firewall pour fermer le service sur les ports 80 et 443")
   .option("--key <key>", "La consumer key")
   .action(async (ip, { key }) => {

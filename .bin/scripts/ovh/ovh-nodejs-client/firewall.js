@@ -1,4 +1,5 @@
-const { resourceExists, resourceOrNull } = require("./utils");
+import getConfig from "./getConfig.js";
+import { resourceExists, resourceOrNull } from "./utils.js";
 
 const allowTcpConnection = (sequence) => {
   return {
@@ -12,13 +13,13 @@ const allowTcpConnection = (sequence) => {
   };
 };
 
-const allowTcpOnPort = (sequence, port) => {
+const allowTcpOnPort = (sequence, port, source = null) => {
   return {
     sequence,
     action: "permit",
     protocol: "tcp",
     destinationPort: port,
-    source: null,
+    source,
     sourcePort: null,
     tcpOption: {},
   };
@@ -74,7 +75,7 @@ const ruleNeedsUpdate = (def, currentRule = null) => {
     def.sequence !== currentRule.sequence ||
     def.action !== currentRule.action ||
     def.protocol !== currentRule.protocol ||
-    !["ok", 'creationPending'].includes(currentRule.state) ||
+    !["ok", "creationPending"].includes(currentRule.state) ||
     def.sourcePort !== currentRule.sourcePort ||
     defDestPort !== currentRule.destinationPort ||
     currentRule.fragments ||
@@ -125,7 +126,7 @@ async function updateRule(client, ip, def) {
   const currentRule = await getRule(client, ip, def.sequence);
   if (currentRule) {
     if (!ruleNeedsUpdate(def, currentRule)) {
-      console.log(`Rule ${def.sequence} is already configured`)
+      console.log(`Rule ${def.sequence} is already configured`);
       return;
     }
 
@@ -163,7 +164,7 @@ async function updateRules(client, ip, defs) {
 
 async function updateIpDescription(client, ip, product, env) {
   const resp = await client.requestPromised("GET", `/ip/${asIpBlock(ip)}`);
-  const description = `${product}-${env}`
+  const description = `${product}-${env}`;
   if (resp.description !== description) {
     await client.requestPromised("PUT", `/ip/${asIpBlock(ip)}`, { description: description });
   }
@@ -183,9 +184,20 @@ async function configureFirewall(client, ip, product, env) {
     denyAllTcp(19),
   ];
 
-  // if (product === 'vpn') {
-  //   rules.push(5, allowUdpOnPort(3, 1194))
-  // }
+  if (product === "mongodb") {
+    const config = await getConfig();
+    const sources = [
+      ...config['vpn-production'],
+    ];
+    if (env.startsWith("recette")) {
+        const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preview"));
+        sources.push(...keys.map((key) => config[key]).flat());
+      }
+
+    sources.forEach(source => {
+      rules.push(allowTcpOnPort(4, 27017, `${source}/32`))
+    });
+  }
 
   await updateRules(client, ip, rules);
   console.log(`Firewall for ${ip} configured`);
@@ -210,16 +222,17 @@ async function closeService(client, ip) {
   }
 }
 
-async function getAllIp(client, ip) {
+async function getAllIp(client, ip, product) {
   const ipData = await client.requestPromised("GET", `/ip/${ip}`);
-  const ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+  let ips = [];
+  if (product === "mongodb") {
+    const instances = await client.requestPromised("GET", `/cloud/project/${ipData.routedTo.serviceName}/instance`);
+    ips = instances.flatMap((instance) => instance.ipAddresses.flatMap((i) => i.ip));
+  } else {
+    ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+  }
   // Returns all ipv4
   return ips.filter((i) => i.includes("."));
 }
 
-module.exports = {
-  configureFirewall,
-  activateMitigation,
-  closeService,
-  getAllIp,
-};
+export { configureFirewall, activateMitigation, closeService, getAllIp };
