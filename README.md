@@ -1,27 +1,51 @@
-# infra
+# Configuration Serveurs - Mission Apprentissage
 
-## Vault git diff & merge
+Le dépot contient la configuration de base des serveurs de la mission apprentissage ainsi que les images dockers personnalisées.
 
-Pour résoudre les conflits git sur le vault, il est possible de configurer git avec un mergetool custom. L'idée du custom merge tool est de décrypter le fichier pour appliquer le merge automatique de fichier.
+## Reverse Proxy
 
-Pour l'installer il faut exécuter les commandes suivantes
+Le reverse proxy est un serveur nginx, le code se trouve dans le dossier `reverse_proxy`.
 
-```bash
-git config --local merge.merge-vault.driver ".bin/scripts/merge-vault.sh %O %A %B"
-git config --local merge.merge-vault.name "ansible-vault merge driver"
-git config --local diff.diff-vault.textconv "ansible-vault decrypt --vault-password-file='./setup/vault/get-vault-password-client.sh' --output -"
-git config --local diff.diff-vault.cachetextconv "false"
-```
+L'image est basée sur l'image officielle de nginx et ajoute:
+- le module `headers-more-nginx-module`
+- le waf `modsecurity`
+- les fichiers de configuration de base pour:
+  - le support ACME (letsencrypt)
+  - l'ajout d'un mode de maintenance
+  - les routes nécessaire au monitoring (nodeexporter, cadvisor, fluentd)
 
-Ensuite lors du merge, vous serez invité à entrer votre passphrase (3 fois) pour décrypter les fichiers (distant, local et resultat). Il sera également affiché un le `git diff` dans le stdout.
+## Fluendt
 
-```bash
-git merge master
-```
+Fluentd est un collecteur de logs, le code se trouve dans le dossier `fluentd`.
 
-### Documentation
+L'image est basée sur l'image officielle de fluentd et ajoute:
+- le plugin `fluent-plugin-grafana-loki` pour l'envoi des logs vers loki
+- le plugin `fluent-plugin-prometheus` pour l'exposition des métriques fluentd vers prometheus
+- le plugin `fluent-plugin-s3` pour l'archivage des logs vers s3
+- une configuration de base pour la collecte des logs:
+  - des containers docker
+  - du reverse proxy
+  - du firewall applicatif (fail2ban)
+  - du firewall OVH
+  - d'accès ssh (auth.log)
+  - système (syslog)
 
-- [Pré-requis](./docs/pre-requisites.md)
-- [Gpg](./docs/gpg.md)
-- [Yubikey](./docs/yubikey.md)
-- [Provisionning](./docs/provisionning.md)
+## Configuration des serveurs
+
+La configuration des serveurs est gérée par ansible, le code se trouve dans le dossier `.infra`.
+
+La configuration de base contient la configuration:
+- des accès ssh (habilitations, password policy, sudoers)
+- du firewall (fail2ban, blacklist IPs)
+- du DNS
+- de la rotation des logs (logrotate)
+- du backup des bases de données
+- de Docker (installation, configuration, mise à jour)
+- du monitoring (promtail, nodeexporter, cadvisor, fluentd)
+- des certificats SSL (letsencrypt)
+- des containers de base (reverse proxy, fluentd, nodeexporter, cadvisor)
+
+## Documentation
+
+- [Ajouter un produit/environnement](./docs/provisionning.md)
+- [Gestion des accès d'un produit](./docs/manage_access.md)

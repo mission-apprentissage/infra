@@ -34,31 +34,7 @@ Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variab
 
 ### Création du vault password & habilitations
 
-Création des habilitations initiales
-
-```bash
-
-.bin/mna  product:access:update  <nom_produit>
-
-```
-
-Un fichier vide s'ouvre dans VsCode, veuillez compléter les habilitations avec le model suivant:
-
-```yaml
-habilitations:
-  - username:
-
-name:
-
-gpg_key:
-
-authorized_keys:
-  - "https://github.com/mission-apprentissage.keys"
-
-gpg_keys: "{{ habilitations | map(attribute='gpg_key', default='') | select() | join(',')}}"
-```
-
-Fermez le fichier
+Suivre la documentation relative à la [Gestion des accès d'un produit](./manage_access.md)
 
 ### Mise à jour du vault
 
@@ -109,13 +85,9 @@ Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/re
 Pour configurer l'environnement, il faut lancer la commande suivante :
 
 ```bash
-
-.bin/mna  ssh:known_hosts:update  <nom_produit>
-
-.bin/mna  system:setup:initial  <nom_produit>  <nom_environnement>
-
-.bin/mna  ssh:config  <nom_produit>
-
+.bin/mna ssh:known_hosts:update <nom_produit>
+.bin/mna system:setup:initial <nom_produit> <nom_environnement>
+.bin/mna ssh:config <nom_produit>
 ```
 
 L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à
