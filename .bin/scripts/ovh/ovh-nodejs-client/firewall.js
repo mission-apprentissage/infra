@@ -204,6 +204,10 @@ async function configureFirewall(client, ip, product, env) {
     });
   }
 
+  if (product === "monitoring") {
+    rules.push(allowTcpOnPort(4, 444));
+  }
+
   await updateRules(client, ip, rules);
   console.log(`Firewall for ${ip} configured`);
 }
