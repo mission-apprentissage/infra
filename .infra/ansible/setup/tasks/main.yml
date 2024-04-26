@@ -34,3 +34,6 @@
 
 - import_tasks: configure-logrotate.yml
   tags: logrotate
+
+- import_tasks: configure-swap.yml
+  tags: swap

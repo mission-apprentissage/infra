@@ -25,9 +25,7 @@ Si vous voulez simplement ajouter un nouvel environnement à un produit existant
 ### Création du env.ini
 
 ```bash
-
-.bin/mna  product:create  <nom_produit>
-
+.bin/mna product:create <nom_produit>
 ```
 
 Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variables `product_name` & `repo`
@@ -43,9 +41,7 @@ Récupérez le slack webhook depuis https://api.slack.com/apps/A01JENR8874
 Mettre à jour le vault
 
 ```bash
-
-.bin/mna  vault:edit
-
+.bin/mna vault:edit
 ```
 
 ## Déclaration de l'environnement
@@ -55,19 +51,12 @@ Le fichier `/products/<nom_produit>/env.ini` définit les environnements de l'ap
 dans ce fichier en renseignant les informations suivantes :
 
 ```ini
-
 [<nom_environnement>]
-
 <IP>
-
 [<nom de l'environnement>:vars]
-
 dns_name=<nom_produit>-<nom_environnement>.apprentissage.beta.gouv.fr
-
 host_name=<nom_produit>-<nom_environnement>
-
 env_type=recette
-
 ```
 
 Pour information, vous pouvez obtenir l'adresse ip du vps en consultant les emails de
@@ -99,17 +88,13 @@ service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 Pour finaliser le création de l'environnement, vous devez vous connecter pour initialiser votre utilisateur :
 
 ```bash
-
-ssh  <nom_produit>-<nom_environnement>
-
+ssh <nom_produit>-<nom_environnement>
 ```
 
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
 
 ```bash
-
-.bin/mna  system:user:remove  <nom_produit>  <nom_environnement>  ubuntu  --user  <votre_nom_utilisateur>
-
+.bin/mna system:user:remove <nom_produit> <nom_environnement> ubuntu --user <votre_nom_utilisateur>
 ```
 
 ## Mise à jour des Github Action
@@ -120,12 +105,14 @@ Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les c
 
 Dans le vault, ajouter le champ `MONGODB_URI` sous le produit concerné pour **tous les environnement** définit dans le `env.ini`. Si un environnement ne doit pas être concerné par la sauvegarde, mettre une chaine de caractère vide.
 
+```yml
     production:
         MONGODB_URI: <URI_STRING>
     recette:
         MONGODB_URI: <URI_STRING>
     <env>:
         MONGODB_URI: ""
+```
 
 Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concerné :
 

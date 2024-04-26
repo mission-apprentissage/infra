@@ -123,3 +123,23 @@
     state: present
     regexp: '^(127\.0\.1\.1\tvps-[a-z0-9]+.vps.ovh.net(?:\.novalocal)?\tvps-[a-z0-9]+)( {{host_name}})?$'
     line: '\1 {{ host_name }}'
+
+# https://www.mongodb.com/docs/manual/administration/production-notes/#system-c-library
+- name: Mise à jour de libc6
+  apt:
+    name: libc6
+    state: latest
+
+- name: Configuration de ulimit open files
+  community.general.pam_limits:
+    domain: "*"
+    limit_type: '-'
+    limit_item: 'nofile'
+    value: '64000'
+
+- name: Configuration de ulimit processes
+  community.general.pam_limits:
+    domain: "*"
+    limit_type: '-'
+    limit_item: 'nproc'
+    value: '64000'

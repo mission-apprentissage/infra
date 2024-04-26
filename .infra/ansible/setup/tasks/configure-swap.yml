@@ -1,0 +1,40 @@
+---
+- name: Ensure swap file exists.
+  shell:
+    cmd: "dd if=/dev/zero of=/swapfile bs=1M count=4096"
+    creates: /swapfile
+  register: swap_file_create
+
+- name: Set permissions on swap file.
+  file:
+    path: "/swapfile"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Make swap file if necessary.
+  shell:
+    cmd: mkswap /swapfile
+  when: swap_file_create is changed
+  register: mkswap_result
+
+- name: Run swapon on the swap file.
+  shell:
+    cmd: swapon /swapfile
+  when: mkswap_result is changed
+
+- name: Set swappiness.
+  sysctl:
+    name: vm.swappiness
+    # Swap only when necessary https://www.mongodb.com/docs/manual/administration/production-notes/#std-label-set-swappiness
+    value: "1"
+    state: present
+
+- name: Manage swap file entry in fstab.
+  ansible.posix.mount:
+    backup: true
+    src: "/swapfile"
+    fstype: swap
+    opts: "sw"
+    state: present
+    path: none
