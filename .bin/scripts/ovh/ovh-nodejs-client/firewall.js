@@ -126,7 +126,6 @@ async function updateRule(client, ip, def) {
   const currentRule = await getRule(client, ip, def.sequence);
   if (currentRule) {
     if (!ruleNeedsUpdate(def, currentRule)) {
-      console.log(`Rule ${def.sequence} is already configured`);
       return;
     }
 
@@ -190,12 +189,18 @@ async function configureFirewall(client, ip, product, env) {
       ...config['vpn-production'],
     ];
     if (env.startsWith("recette")) {
-        const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preview"));
+        const keys = Object.keys(config).filter((key) => key.endsWith("recette"));
         sources.push(...keys.map((key) => config[key]).flat());
       }
 
-    sources.forEach(source => {
-      rules.push(allowTcpOnPort(4, 27017, `${source}/32`))
+    sources.forEach((source, i) => {
+      let n = i + 4;
+      if (n >= 10) {
+        // Avoid conflict with existing rules 10
+        n++;
+      }
+
+      rules.push(allowTcpOnPort(n, 27017, `${source}/32`))
     });
   }
 
@@ -232,7 +237,7 @@ async function getAllIp(client, ip, product) {
     ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
   }
   // Returns all ipv4
-  return ips.filter((i) => i.includes("."));
+  return ips.filter((i) => i.includes(".") && !i.startsWith("10."));
 }
 
 export { configureFirewall, activateMitigation, closeService, getAllIp };
