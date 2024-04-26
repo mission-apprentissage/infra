@@ -1,4 +1,5 @@
 listen ${SSL_PORT} ssl;
+http2 on;
 
 ssl_session_timeout 4h;
 ssl_session_cache shared:MozSSL:100m;

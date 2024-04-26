@@ -15,6 +15,7 @@ map $request_uri $https_only {
 
 server {
     listen ${PORT} default_server;
+    http2 on;
 
     server_name ${SERVER_NAME};
 
