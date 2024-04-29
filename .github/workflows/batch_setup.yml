@@ -25,9 +25,11 @@ jobs:
             environment: pentest
           - product: bal
             environment: pentest
-          - product: tdb
+          - product: contrat
             environment: pentest
           - product: monitoring
+            environment: pentest
+          - product: tdb
             environment: pentest
           - product: vpn
             environment: pentest
