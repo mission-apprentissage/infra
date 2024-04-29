@@ -20,7 +20,8 @@ Voir [Prérequis](./pre-requisites.md)
 
 ## Création d'un produit (optionnel)
 
-Si vous voulez simplement ajouter un nouvel environnement à un produit existant vous pouvez ignorer cette étape
+> [!WARNING]
+> Si vous voulez simplement ajouter un nouvel environnement à un produit existant vous pouvez ignorer cette étape
 
 ### Création du env.ini
 

@@ -48,7 +48,7 @@
   when: env_type != 'preview'
 
 - name: initialisation de docker swarm
-  ansible.builtin.shell: docker swarm init
+  ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
   when:
     - env_type != 'preview'
     - docker_swarm_status.stdout.find('inactive') != -1

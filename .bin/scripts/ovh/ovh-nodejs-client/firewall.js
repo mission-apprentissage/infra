@@ -185,13 +185,17 @@ async function configureFirewall(client, ip, product, env) {
 
   if (product === "mongodb") {
     const config = await getConfig();
-    const sources = [
-      ...config['vpn-production'],
-    ];
+    const sources = [...config["vpn-production"]];
     if (env.startsWith("recette")) {
-        const keys = Object.keys(config).filter((key) => key.endsWith("recette"));
-        sources.push(...keys.map((key) => config[key]).flat());
-      }
+      const keys = Object.keys(config).filter((key) => key.endsWith("recette"));
+      sources.push(...keys.map((key) => config[key]).flat());
+    }
+    if (env.startsWith("bal")) {
+      sources.push(config["bal-production"]);
+    }
+    if (env.startsWith("contrat")) {
+      sources.push(config["contrat-production"]);
+    }
 
     sources.forEach((source, i) => {
       let n = i + 4;
@@ -200,7 +204,7 @@ async function configureFirewall(client, ip, product, env) {
         n++;
       }
 
-      rules.push(allowTcpOnPort(n, 27017, `${source}/32`))
+      rules.push(allowTcpOnPort(n, 27017, `${source}/32`));
     });
   }
 
@@ -233,13 +237,22 @@ async function closeService(client, ip) {
 
 async function getAllIp(client, ip, product) {
   const ipData = await client.requestPromised("GET", `/ip/${ip}`);
-  let ips = [];
+  
   if (product === "mongodb") {
     const instances = await client.requestPromised("GET", `/cloud/project/${ipData.routedTo.serviceName}/instance`);
-    ips = instances.flatMap((instance) => instance.ipAddresses.flatMap((i) => i.ip));
-  } else {
-    ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+    const instance = instances.find(instance => instance.ipAddresses.some(i => i.ip === ip));
+
+    if (!instance) {
+      throw new Error(`Instance not found for ip ${ip}`);
+    }
+
+    return instance.ipAddresses
+      .filter(i => i.version === 4 && i.type === "public")
+      .map(i => i.ip);
   }
+    
+  const ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
+
   // Returns all ipv4
   return ips.filter((i) => i.includes(".") && !i.startsWith("10."));
 }
