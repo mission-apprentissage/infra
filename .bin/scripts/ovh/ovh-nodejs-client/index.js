@@ -26,7 +26,7 @@ cli
   .action(async (ip, product, env, { key }) => {
     let client = await getClient(key);
 
-    const ips = await getAllIp(client, ip, product);
+    const ips = await getAllIp(client, ip);
 
     for (const ipV4 of ips) {
       await configureFirewall(client, ipV4, product, env);

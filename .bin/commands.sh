@@ -65,17 +65,21 @@ function system:setup:initial() {
   export ANSIBLE_HOST_KEY_CHECKING=False
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
-  # Le serveur MongoDb est hébergé sur le service Public Cloud Compute d'OVH
-  # Il n'est pas possible de se connecter en SSH avec un mot de passe, il faut utiliser une clé SSH
-  if [[ "$PRODUCT_NAME" == "mongodb" ]]; then
-    "$SCRIPT_DIR/deploy_ssh_keyfile.sh"
-    export ANSIBLE_PRIVATE_KEY_FILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
-    export ANSIBLE_BECOME_PASS="-"
-    system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
-    rm -f "${ANSIBLE_PRIVATE_KEY_FILE}"
-  else
-    system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
-  fi;
+  read -p "Do you want to setup the server with a RSA key? [Y/n]" response
+
+  case $response in
+    [yY][eE][sS]|[yY]|"")
+      "$SCRIPT_DIR/deploy_ssh_keyfile.sh"
+      export ANSIBLE_PRIVATE_KEY_FILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
+      export ANSIBLE_BECOME_PASS="-"
+      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
+      rm -f "${ANSIBLE_PRIVATE_KEY_FILE}"
+      ;;
+    *)
+      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
+      return
+      ;;
+  esac
 }
 
 function system:user:remove() {
@@ -84,7 +88,6 @@ function system:user:remove() {
   local USERNAME=${1:?"Merci de préciser l'utilisateur à supprimer"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
 }
@@ -225,7 +228,6 @@ function ssh:config() {
   if [ -z "$ips" ]; then exit 1; fi
 
   local hostnames=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name"))
-
   read -p "What is your username? " username
 
   local config=""

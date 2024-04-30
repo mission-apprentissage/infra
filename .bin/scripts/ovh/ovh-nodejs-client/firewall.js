@@ -187,7 +187,7 @@ async function configureFirewall(client, ip, product, env) {
     const config = await getConfig();
     const sources = [...config["vpn-production"]];
     if (env.startsWith("recette")) {
-      const keys = Object.keys(config).filter((key) => key.endsWith("recette"));
+      const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preprod"));
       sources.push(...keys.map((key) => config[key]).flat());
     }
     if (env.startsWith("bal")) {
@@ -235,10 +235,12 @@ async function closeService(client, ip) {
   }
 }
 
-async function getAllIp(client, ip, product) {
+async function getAllIp(client, ip) {
   const ipData = await client.requestPromised("GET", `/ip/${ip}`);
+
+  const cloudProjects =  await client.requestPromised("GET", `/cloud/project`);
   
-  if (product === "mongodb") {
+  if (cloudProjects.includes(ipData.routedTo.serviceName)) {
     const instances = await client.requestPromised("GET", `/cloud/project/${ipData.routedTo.serviceName}/instance`);
     const instance = instances.find(instance => instance.ipAddresses.some(i => i.ip === ip));
 
