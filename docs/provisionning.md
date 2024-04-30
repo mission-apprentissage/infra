@@ -80,11 +80,10 @@ Pour configurer l'environnement, il faut lancer la commande suivante :
 .bin/mna ssh:config <nom_produit>
 ```
 
-L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à
+L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à l'administrateur du compte OVH et est également disponible dans les emails de service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 
-l'administrateur du compte OVH et est également disponible dans les emails de
-
-service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
+> ![INFORMATION]
+> Dans le cas d'une instance Public Cloud, la connection se fait via la clé ssh contenu dans le vault. Vous n'aurez donc pas besoin du mot de passe.
 
 Pour finaliser le création de l'environnement, vous devez vous connecter pour initialiser votre utilisateur :
 
