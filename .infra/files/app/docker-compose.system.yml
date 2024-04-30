@@ -136,6 +136,7 @@ services:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:rw
       - /var/log/:/var/log/host/:rw
+      - /opt/app/configs/fluentd/:/fluentd/etc/extra-conf.d/:ro
       # Container needs to have same localtime as host
       # It's mandatory to intreprete correctly localtime from syslog
       - /etc/localtime:/etc/localtime:ro
