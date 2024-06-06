@@ -12,20 +12,37 @@
   shell:
     cmd: sshd -t
 
-- name: Install pam packages
-  apt:
-    name: [ 'libpam-cracklib' ]
-
 - name: Ensure group "mna" exists
   group:
     name: mna
     state: present
 
-- name: Set password policy
-  lineinfile:
-    path: /etc/pam.d/common-password
-    regexp: "pam_cracklib.so"
-    line: "password   requisite   pam_cracklib.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
+- name: Setup password policy in Ubuntu 22.04
+  when: ansible_facts['distribution_major_version'] == '22'
+  block:
+    - name: Install pam packages
+      apt:
+        name: [ 'libpam-cracklib' ]
+
+    - name: Set password policy
+      lineinfile:
+        path: /etc/pam.d/common-password
+        regexp: "pam_cracklib.so"
+        line: "password   requisite   pam_cracklib.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
+
+# cracklib is deprecated and removed in Ubuntu 24.04
+- name: Setup password policy in Ubuntu 24.04
+  when: ansible_facts['distribution_major_version'] == '24'
+  block:
+    - name: Install pam packages
+      apt:
+        name: [ 'libpam-pwquality' ]
+
+    - name: Set password policy
+      lineinfile:
+        path: /etc/pam.d/common-password
+        regexp: "pam_pwquality.so"
+        line: "password   requisite   pam_pwquality.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
 
 - name: Set umask=077 for root user
   lineinfile:

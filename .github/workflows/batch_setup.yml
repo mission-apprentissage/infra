@@ -6,7 +6,7 @@ on:
         description: JSON product array
         type: string
         required: true
-        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat"]'
+        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]'
       environments:
         description: JSON environment array
         type: string
@@ -33,13 +33,19 @@ jobs:
             environment: pentest
           - product: vpn
             environment: pentest
+          - product: data
+            environment: pentest
           - product: monitoring
             environment: recette
           - product: vpn
+            environment: recette
+          - product: data
             environment: recette
           - product: monitoring
             environment: preview
           - product: vpn
+            environment: preview
+          - product: data
             environment: preview
     name: Setup ${{ matrix.product }} on ${{ matrix.environment }}
     uses: "./.github/workflows/_setup.yml"
