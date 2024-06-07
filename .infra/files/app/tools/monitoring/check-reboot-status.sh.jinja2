@@ -4,5 +4,5 @@ set -euo pipefail
 # Check if the file /var/run/reboot-required exists
 if [ -f /var/run/reboot-required ]; then
     # If it exists, send slack notification
-    bash /opt/app/tools/send-to-slack.sh "[SYSTEM][{{ host_name }}] Server reboot is needed"
+    bash /opt/app/tools/send-to-slack.sh "[SYSTEM][{{ host_name }}] Server reboot is required"
 fi
