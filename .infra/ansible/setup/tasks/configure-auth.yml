@@ -18,7 +18,7 @@
     state: present
 
 - name: Setup password policy in Ubuntu 22.04
-  when: ansible_facts['distribution_major_version'] == '22'
+  when: ansible_facts['distribution_major_version'] != '24'
   block:
     - name: Install pam packages
       apt:
