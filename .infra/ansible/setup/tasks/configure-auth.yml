@@ -6,7 +6,7 @@
     group: root
     mode: 0640
   notify:
-    - restart-sshd
+    - restart-ssh
 
 - name: Validate sshd Config
   shell:
