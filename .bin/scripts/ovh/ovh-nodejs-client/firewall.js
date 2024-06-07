@@ -186,15 +186,12 @@ async function configureFirewall(client, ip, product, env) {
   if (product === "mongodb") {
     const config = await getConfig();
     const sources = [...config["vpn-production"]];
-    if (env.startsWith("recette")) {
-      const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preprod"));
+    const envType = env.split("_")[0];
+    if (envType === "recette") {
+      const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preprod") || key.endsWith("pentest"));
       sources.push(...keys.map((key) => config[key]).flat());
-    }
-    if (env.startsWith("bal")) {
-      sources.push(config["bal-production"]);
-    }
-    if (env.startsWith("contrat")) {
-      sources.push(config["contrat-production"]);
+    } else {
+      sources.push(config[`${envType}-production`]);
     }
 
     sources.forEach((source, i) => {
