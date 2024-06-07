@@ -3,6 +3,5 @@ set -euo pipefail
 
 # Check if the file /var/run/reboot-required exists
 if [ -f /var/run/reboot-required ]; then
-    # If it exists, send slack notification
     exit 1
 fi
