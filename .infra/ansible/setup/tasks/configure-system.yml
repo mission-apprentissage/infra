@@ -68,7 +68,7 @@
 - name: Installation ctop
   when: ctop.stat.exists == False
   shell: "wget https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop"
-  
+
 - name: Installation node 20
   shell: "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
   when: env_type == 'preview'
@@ -133,13 +133,20 @@
 - name: Configuration de ulimit open files
   community.general.pam_limits:
     domain: "*"
-    limit_type: '-'
-    limit_item: 'nofile'
-    value: '64000'
+    limit_type: "-"
+    limit_item: "nofile"
+    value: "64000"
 
 - name: Configuration de ulimit processes
   community.general.pam_limits:
     domain: "*"
-    limit_type: '-'
-    limit_item: 'nproc'
-    value: '64000'
+    limit_type: "-"
+    limit_item: "nproc"
+    value: "64000"
+
+- name: Add cron to check if system reboot is required
+  ansible.builtin.cron:
+    name: "reboot-required"
+    minute: "0"
+    hour: "10"
+    job: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
