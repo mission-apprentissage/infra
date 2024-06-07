@@ -148,5 +148,5 @@
   ansible.builtin.cron:
     name: "reboot-required"
     minute: "0"
-    hour: "*"
+    hour: "10"
     job: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
