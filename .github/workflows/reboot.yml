@@ -2,18 +2,25 @@ name: Reboot Batch
 on:
   workflow_dispatch:
     inputs:
-      ip:
+      products:
+        description: JSON product array
         type: string
         required: true
+        default: '["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]'
+      environments:
+        description: JSON environment array
+        type: string
+        required: true
+        default: '["production", "recette", "preview", "pentest", "preprod"]'
 
 jobs:
   setup:
     strategy:
       fail-fast: false
       matrix:
-        product: ["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]
-        environment: ["production", "recette", "preview", "pentest", "preprod"]
-    name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
+        product: ${{ fromJSON(inputs.products) }}
+        environment: ${{ fromJSON(inputs.environments) }}
+    name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
