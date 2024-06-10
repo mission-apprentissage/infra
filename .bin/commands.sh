@@ -10,6 +10,7 @@ function Help() {
    echo "  release:fluentd                            Release fluentd reverse proxy image"
    echo "  system:setup                               Setup server"
    echo "  system:unban                               Unban IP from server"
+   echo "  system:reboot                              Reboot server if needed"
    echo "  system:setup:initial                       Initial setup server"
    echo "  system:user:remove                         Remove user from server"
    echo "  vault:edit                                 Edit vault file"
@@ -56,6 +57,16 @@ function system:setup() {
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+}
+
+function system:reboot() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+
+  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+
+  "$SCRIPT_DIR/run-playbook.sh" "reboot.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 function system:setup:initial() {
@@ -153,7 +164,14 @@ function product:validate:env() {
   # If we're able to get ip then we're good
   local env_ip=$(product:env:ip "$@")
 
-  if [ -z $env_ip ]; then exit 1; fi
+  if [ -z $env_ip ]; then
+    if [[ -z "${CI:-}" ]]; then
+      exit 1;
+    else
+      # If we are in CI just exit 0 to allow batch
+      exit 0;
+    fi;
+  fi;
 }
 
 function product:create() {

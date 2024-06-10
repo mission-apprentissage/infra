@@ -1,4 +1,4 @@
-name: Unban Batch
+name: Reboot Batch
 on:
   workflow_dispatch:
     inputs:
@@ -35,7 +35,7 @@ jobs:
           VAULT_PWD: ${{ secrets.VAULT_PWD }}
 
       - name: Run playbook
-        run: ".bin/mna system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
+        run: ".bin/mna system:reboot ${{ matrix.product }} ${{ matrix.environment }}"
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
@@ -59,7 +59,7 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          notification_title: "Unban ip ${{ inputs.ip }} en ${{ matrix.product }}-${{ matrix.environment }} a échoué"
+          notification_title: "Reboot en ${{ matrix.product }}-${{ matrix.environment }} a échoué"
           message_format: "{emoji} *[${{ matrix.product }}-${{ matrix.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
           notify_when: "failure"
           mention_groups: "!channel"

@@ -12,6 +12,7 @@ _mna-infra_completion() {
    "system\:setup\:initial:Initial setup server"
    "system\:user\:remove:Remove user from server"
    "system\:unban:'Unban IP from server'"
+   "system\:reboot:'Reboot server if needed'"
    "vault\:edit:Edit vault file"
    "vault\:password:Get vault password"
    "deploy\:log\:encrypt:Encrypt Github ansible logs"
