@@ -18,6 +18,10 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
