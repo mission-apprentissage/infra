@@ -1,4 +1,4 @@
-name: Unban Batch
+name: Reboot Batch
 on:
   workflow_dispatch:
     inputs:
