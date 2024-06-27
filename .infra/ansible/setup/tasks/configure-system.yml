@@ -144,6 +144,22 @@
     limit_item: "nproc"
     value: "64000"
 
+- name: unable packages auto-upgrade
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure /etc/apt/apt.conf.d/20auto-upgrades has the correct content
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Download-Upgradeable-Packages "1";
+          APT::Periodic::AutocleanInterval "7";
+          APT::Periodic::Unattended-Upgrade "1";
+      owner: root
+      group: root
+      mode: "0644"
+
 - name: Add cron to check if system reboot is required
   ansible.builtin.cron:
     name: "reboot-required"
