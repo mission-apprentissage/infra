@@ -103,19 +103,4 @@ Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les c
 
 ## Sauvegarde de la base de données
 
-Dans le vault, ajouter le champ `MONGODB_URI` sous le produit concerné pour **tous les environnement** définit dans le `env.ini`. Si un environnement ne doit pas être concerné par la sauvegarde, mettre une chaine de caractère vide.
-
-```yml
-    production:
-        MONGODB_URI: <URI_STRING>
-    recette:
-        MONGODB_URI: <URI_STRING>
-    <env>:
-        MONGODB_URI: ""
-```
-
-Dans le `env.ini` du produit concerné, ajouter pour chaque environnement concerné :
-
-    backup_enable=true
-
-Cela va créer un bucket par environnement et stocker les archives encryptés. Toutes les personnes présentes dans les autorisations ont la possibilité de déchiffrer les données.
+Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/mission-apprentissage/mongodb]
