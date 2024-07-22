@@ -1,0 +1,35 @@
+name: Reboot Cluster
+on:
+  workflow_dispatch:
+    inputs:
+      cluster:
+        type: string
+        required: true
+      numbers:
+        description: JSON environment array
+        type: string
+        required: true
+        default: '["1", "2", "3"]'
+
+jobs:
+  setup:
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        n: ${{ fromJSON(inputs.numbers) }}
+    name: Reboot mongodb on "${{ inputs.cluster }}_${{ matrix.n }}"
+    uses: "./.github/workflows/_reboot.yml"
+    with:
+      product: mongodb
+      environment: "${{ inputs.cluster }}_${{ matrix.n }}"
+      SSH_KNOWN_HOSTS: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', 'mongodb')] }}
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', 'mongodb')] }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
