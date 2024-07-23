@@ -1,4 +1,4 @@
-FROM fluent/fluentd:v1.16-debian
+FROM fluent/fluentd:v1.17-debian
 USER root
 
 RUN set -eux; \
