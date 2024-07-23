@@ -11,8 +11,8 @@
 - name: "Création utilisateur deploy"
   user:
     name: "deploy"
-    password: "{{ vault.MNA_GH_USER_PASS_CLEAR | password_hash }}"
-    update_password: on_create
+    password: "{{ vault.MNA_GH_USER_PASS_HASH }}"
+    update_password: always
     shell: /bin/bash
     groups: sudo,mna
     append: yes
