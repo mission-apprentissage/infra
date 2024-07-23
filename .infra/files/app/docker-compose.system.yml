@@ -134,9 +134,10 @@ services:
       - "24224:24224/udp"
     volumes:
       - fluentd:/var/log/fluent
-      - /opt/app/system/nginx/:/var/log/nginx/:rw
+      - /opt/app/system/nginx/:/var/log/nginx/:ro
       - /var/log/:/var/log/host/:rw
       - /opt/app/configs/fluentd/:/fluentd/etc/extra-conf.d/:ro
+      - /opt/app/system/fluentd/:/pos_file/:ro
       # Container needs to have same localtime as host
       # It's mandatory to intreprete correctly localtime from syslog
       - /etc/localtime:/etc/localtime:ro
