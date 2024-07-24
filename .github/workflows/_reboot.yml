@@ -76,18 +76,22 @@ jobs:
           ANSIBLE_REMOTE_USER: deploy
           ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
 
-      - name: Encrypt Error log on failure
+      - name: Encrypt logs
         run: .bin/mna deploy:log:encrypt
-        if: failure()
+        if: always()
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
 
-      - name: Upload failure artifacts on failure
-        if: failure()
+      - name: Upload logs artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: error-logs
-          path: /tmp/deploy_error.log.gpg
+          name: logs-${{ inputs.product }}-${{ inputs.environment }}
+          path: /tmp/deploy.log.gpg
+
+      - name: Add Job summary
+        if: always()
+        run: echo 'You can get logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
         uses: ravsamhq/notify-slack-action@v2
@@ -95,7 +99,7 @@ jobs:
         with:
           status: ${{ job.status }}
           notification_title: "Reboot en ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }}`"
+          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:
