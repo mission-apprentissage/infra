@@ -10,6 +10,31 @@ on:
         type: string
         required: true
         default: '["1", "2", "3"]'
+  workflow_call:
+    inputs:
+      cluster:
+        type: string
+        required: true
+      numbers:
+        type: string
+        required: true
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY:
+        required: true
+      DEPLOY_PASS:
+        required: true
+      SLACK_WEBHOOK:
+        required: true
+      VAULT_PWD:
+        required: true
+      OVH_APP_TOKEN:
+        required: true
+      OVH_APP_KEY:
+        required: true
+      OVH_APP_SECRET:
+        required: true
+      MONGODB_HABILITATIONS:
+        required: true
 
 jobs:
   setup:
