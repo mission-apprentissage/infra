@@ -122,11 +122,11 @@ function vault:password() {
 }
 
 function deploy:log:encrypt() {
-  "${SCRIPT_DIR}/deploy-log-encrypt.sh" "$@"
+  (cd "$ROOT_DIR" && "${SCRIPT_DIR}/deploy-log-encrypt.sh" "$@")
 }
 
 function deploy:log:decrypt() {
-  "${SCRIPT_DIR}/deploy-log-decrypt.sh" "$@"
+  (cd "$ROOT_DIR" && "${SCRIPT_DIR}/deploy-log-decrypt.sh" "$@")
 }
 
 function product:ini_file() {
