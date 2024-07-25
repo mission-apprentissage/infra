@@ -1,5 +1,5 @@
 ARG NGINX_VERSION="1.27.0"
-FROM nginx:${NGINX_VERSION} as nginxModules
+FROM nginx:${NGINX_VERSION} AS nginx_modules
 
 ARG HEADERS_MORE_VERSION="v0.37"
 
@@ -44,7 +44,7 @@ RUN set -eux; \
 
 FROM owasp/modsecurity-crs:4.3.0-nginx-202406090906
 
-COPY --from=nginxModules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
+COPY --from=nginx_modules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
 #Nginx
 COPY files/templates /etc/nginx/templates
@@ -62,5 +62,7 @@ ENV MODSEC_AUDIT_LOG_FORMAT="JSON"
 ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
 ENV ALLOWED_REQUEST_CONTENT_TYPE="|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |text/plain|"
 
+
 HEALTHCHECK CMD curl -sk -A healthcheck "http://localhost/healthz"
+RUN chown -R nginx:nginx /var/log/nginx
 VOLUME [ "/var/log/nginx" ]
