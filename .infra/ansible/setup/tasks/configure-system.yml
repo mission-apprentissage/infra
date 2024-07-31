@@ -18,6 +18,7 @@
         fluentd-address: localhost:24224
         tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
         fluentd-async: "true"
+      dns: ["172.17.0.1"]
   when: env_type != 'preview'
 
 - include_role:
@@ -25,6 +26,7 @@
   vars:
     docker_daemon_options:
       log-driver: local
+      dns: ["172.17.0.1"]
   when: env_type == 'preview'
 
 - include_role:
