@@ -12,11 +12,9 @@ x-deploy-default: &deploy-default
     parallelism: 1
     delay: 10s
   restart_policy:
-    condition: on-failure
+    condition: always
     window: 360s
     delay: 30s
-    # Max 24hours
-    max_attempts: 240
 
 x-default: &default
   networks:
@@ -29,6 +27,7 @@ services:
     deploy:
       <<: *deploy-default
       restart_policy:
+        condition: always
         window: 5s
         delay: 5s
       resources:
