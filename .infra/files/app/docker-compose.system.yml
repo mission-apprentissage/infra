@@ -12,11 +12,14 @@ x-deploy-default: &deploy-default
     parallelism: 1
     delay: 10s
   restart_policy:
-    condition: always
+    condition: on-failure
     window: 360s
     delay: 30s
+    # Max 24hours
+    max_attempts: 240
 
 x-default: &default
+  restart: on-failure:50
   networks:
     - mna_network
 
@@ -27,7 +30,7 @@ services:
     deploy:
       <<: *deploy-default
       restart_policy:
-        condition: always
+        condition: any
         window: 5s
         delay: 5s
       resources:
