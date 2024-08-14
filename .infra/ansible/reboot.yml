@@ -10,3 +10,7 @@
     - name: Reboot if required
       reboot:
       when: reboot_required_file.stat.exists == true
+
+    - name: Update reboot status cron
+      shell: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
+      when: reboot_required_file.stat.exists == true
