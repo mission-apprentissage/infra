@@ -614,7 +614,8 @@ gpg/carte> quit
 
 Mettez à jour la configuration du touch:
 
-> Ubuntu : La connection ykman à la yubikey peut nécessiter de jouer les deux instructions suivante
+> [!IMPORTANT]
+> Ubuntu : La connection ykman à la yubikey peut nécessiter de jouer les deux instructions suivantes :
 > sudo wget -O /etc/udev/rules.d/70-yubikey.rules https://raw.githubusercontent.com/Yubico/libu2f-host/master/70-u2f.rules
 > sudo udevadm control --reload-rules
 > débrancher rebrancher la yubikey
