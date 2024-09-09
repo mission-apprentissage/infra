@@ -303,6 +303,8 @@ Actions actuellement permises : Signer
 
 Quel est votre choix ? s
 
+Alan ? certaines de ces opérations semblent faire puis défaire puis refaire la même conf.
+
 Possible actions for this ECC key: Signer Authentifier 
 Actions actuellement permises : 
 
@@ -573,6 +575,8 @@ gpg/carte> quit
 ```
 
 Activer KDF:
+
+Alan ? l'activation de cette commande après le changement de PIN semble avoir invalidé lesdits changements.
 
 ```console
 $ gpg --card-edit
