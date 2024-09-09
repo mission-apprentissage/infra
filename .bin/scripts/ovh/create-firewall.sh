@@ -13,13 +13,13 @@ function main() {
   yarn --silent install
 
   if [[ -z "${APP_KEY:-}" ]]; then
-    export APP_KEY=$(op item get "API OVH" --vault "devsops" --fields username)
+    export APP_KEY=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields username)
   fi;
   if [[ -z "${APP_SECRET:-}" ]]; then
-    export APP_SECRET=$(op item get "API OVH" --vault "devsops" --fields credential)
+    export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential)
   fi;
   if [[ -z "${APP_TOKEN:-}" ]]; then
-    export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --fields token)
+    export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields token)
   fi;
 
   yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${APP_TOKEN}"
