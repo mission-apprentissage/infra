@@ -22,20 +22,20 @@ function create_password_file() {
   echo "Generating vault password..."
   echo "${password}" | gpg --quiet --always-trust --armor ${recipients[*]} -e -o "${VAULT_PASSWORD_FILE}"
 
-  local pass_exist=$(op document list --vault "mna-vault-passwords-common" | grep ".vault-password-infra")
+  local pass_exist=$(op document list --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com | grep ".vault-password-infra")
   if [[ "$pass_exist" != "" ]]; then
-    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-infra" - --file-name ".vault-password-infra.gpg" --vault "mna-vault-passwords-common"
+    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-infra" - --file-name ".vault-password-infra.gpg" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
   else
-    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-infra" --file-name ".vault-password-infra.gpg" --vault "mna-vault-passwords-common"
+    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-infra" --file-name ".vault-password-infra.gpg" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
   fi;
 
   gh secret set "VAULT_PWD" --body "$password"
 
-  local habilitations_exist=$(op document list --vault "mna-vault-passwords-common" | grep "habilitations-infra")
+  local habilitations_exist=$(op document list --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com | grep "habilitations-infra")
   if [[ "$habilitations_exist" != "" ]]; then
-    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-infra" - --file-name "habilitations-infra.yml" --vault "mna-vault-passwords-common"
+    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-infra" - --file-name "habilitations-infra.yml" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
   else
-    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-infra" --file-name "habilitations-infra.yml" --vault "mna-vault-passwords-common"
+    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-infra" --file-name "habilitations-infra.yml" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
   fi;
 
   rm "${VAULT_PASSWORD_FILE}"
@@ -43,7 +43,7 @@ function create_password_file() {
 }
 
 if [ ! -f "$HABILITATIONS_FILE" ]; then
-    DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "mna-vault-passwords-common" || echo "") 
+    DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com || echo "") 
     echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 fi
 
