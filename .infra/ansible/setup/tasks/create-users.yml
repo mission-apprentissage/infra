@@ -17,6 +17,20 @@
     groups: sudo,mna
     append: yes
 
+- name: Ensure .bash_logout file exists and has the required content
+  copy:
+    dest: "/home/deploy/.bash_logout"
+    content: |
+      # Clear the history
+      history -c
+      # Write the changes to the history file
+      history -w
+      # Remove the history file
+      rm -f ~/.bash_history
+    owner: "deploy"
+    group: "deploy"
+    mode: "0644"
+
 - name: "Ajout des clés d'autorisation à l'utilisateur deploy"
   authorized_key:
     user: "deploy"

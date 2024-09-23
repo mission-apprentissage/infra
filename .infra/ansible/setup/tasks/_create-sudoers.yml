@@ -25,3 +25,17 @@
   loop: "{{ habilitation.authorized_keys }}"
   loop_control:
     loop_var: key
+
+- name: Ensure .bash_logout file exists and has the required content
+  copy:
+    dest: "/home/{{ habilitation.username }}/.bash_logout"
+    content: |
+      # Clear the history
+      history -c
+      # Write the changes to the history file
+      history -w
+      # Remove the history file
+      rm -f ~/.bash_history
+    owner: "{{ habilitation.username }}"
+    group: "{{ habilitation.username }}"
+    mode: "0644"
