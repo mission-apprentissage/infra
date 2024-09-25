@@ -16,6 +16,8 @@
     shell: /bin/bash
     groups: sudo,mna
     append: yes
+    password_expire_max: 90
+    password_expire_min: 1
 
 - name: Ensure .bash_logout file exists and has the required content for deploy user
   copy:
