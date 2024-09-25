@@ -25,3 +25,11 @@
   loop: "{{ habilitation.authorized_keys }}"
   loop_control:
     loop_var: key
+
+- name: Ensure .bash_logout file exists and has the required content for sudo users
+  copy:
+    src: files/homedir/bash_logout
+    dest: "/home/{{ habilitation.username }}/.bash_logout"
+    owner: "{{ habilitation.username }}"
+    group: "{{ habilitation.username }}"
+    mode: "0644"

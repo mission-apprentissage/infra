@@ -1,0 +1,6 @@
+# Clear the history
+history -c
+# Write the changes to the history file
+history -w
+# Remove the history file
+rm -f ~/.bash_history
