@@ -11,6 +11,8 @@
     shell: /bin/bash
     groups: sudo,mna
     append: yes
+    password_expire_max: 90
+    password_expire_min: 1
   register: user
 
 - name: Force password update
