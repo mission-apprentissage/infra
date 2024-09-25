@@ -22,8 +22,8 @@ X11Forwarding no
 PrintMotd no
 PrintLastLog yes
 AcceptEnv LANG LC_*                                             #Allow client to pass locale environment variables
-ClientAliveInterval 900                                         #Client timeout (15 minutes)
-ClientAliveCountMax 0                                           #This way enforces timeouts on the server side
+ClientAliveInterval 300                                         #Client timeout (15 minutes)
+ClientAliveCountMax 3                                           #This way enforces timeouts on the server side
 LoginGraceTime 30                                               #Authentication must happen within 30 seconds
 #MaxStartups 2                                                   #Max concurrent SSH sessions
 TCPKeepAlive yes
