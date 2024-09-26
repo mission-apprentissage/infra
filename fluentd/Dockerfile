@@ -11,5 +11,7 @@ RUN fluent-gem install fluent-plugin-prometheus
 RUN fluent-gem install fluent-plugin-s3
 COPY ./fluent.conf /fluentd/etc/fluent.conf
 COPY ./conf.d /fluentd/etc/conf.d
+
+USER fluent adm
 VOLUME [ "/var/log/fluent" ]
 EXPOSE 24231

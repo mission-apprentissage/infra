@@ -20,6 +20,16 @@
 - name: Ensure nginx error.log exists
   ansible.builtin.shell: touch /opt/app/system/nginx/error.log
 
+- name: Ensure nginx error.log permission
+  file:
+    path: /opt/app/system/nginx/error.log
+    group: adm
+    mode: 0644
+
+- name: Ensure pos file permission
+  shell:
+    cmd: chown -R root:adm /opt/app/system/fluentd && chmod -R 664 /opt/app/system/fluentd
+
 - name: Copy fail2ban actions
   copy:
     src: "{{ item }}"
