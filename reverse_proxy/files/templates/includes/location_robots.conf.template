@@ -1,4 +1,10 @@
 location = /robots.txt {
-  add_header  Content-Type  text/plain;
-  return 200 "User-agent: *\nDisallow: /\n";
+
+  set $disallow_robots ${DISALLOW_ROBOTS};
+
+  if ($disallow_robots = true) {
+    add_header  Content-Type  text/plain;
+    return 200 "User-agent: *\nDisallow: /\n";
+  }
+  
 }

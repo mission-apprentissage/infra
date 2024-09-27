@@ -21,17 +21,14 @@ server {
 
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
+    include includes/location_robots.*.conf;
 
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
-    set $disallow_robots ${DISALLOW_ROBOTS};
 
     if ($https_only = false) {
       set $always_redirect false;
     }
 
-    if ($disallow_robots = true) {
-      include includes/location_robots.conf
-    }
 
     if ($always_redirect = true) {
       return 301 https://$host$request_uri;
