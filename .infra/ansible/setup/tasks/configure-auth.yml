@@ -44,6 +44,19 @@
         regexp: "pam_pwquality.so"
         line: "password   requisite   pam_pwquality.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
 
+- name: Setup password expiration policy
+  block:
+    - name: Set maximum password age to 90 days
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "^PASS_MAX_DAYS"
+        line: "PASS_MAX_DAYS 90"
+    - name: Set minimum password age to 1 day
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "^PASS_MIN_DAYS"
+        line: "PASS_MIN_DAYS 1"
+
 - name: Set umask=077 for root user
   lineinfile:
     path: /root/.bashrc

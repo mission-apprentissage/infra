@@ -13,7 +13,7 @@ function main() {
   yarn --silent install
 
   export APP_KEY=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields username)
-  export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential)
+  export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential --reveal)
 
   yarn --silent cli closeService "${env_ip}" "$PRODUCT_NAME" "$@"
   cd - >/dev/null
