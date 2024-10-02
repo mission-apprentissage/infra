@@ -1,6 +1,6 @@
 import env from "env-var";
 import open from "open";
-import ovh from "ovh";
+import ovh from "@ovhcloud/node-ovh";
 
 function newOvhClient(consumerKey) {
   let client = ovh({

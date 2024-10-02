@@ -16,10 +16,10 @@ function main() {
     export APP_KEY=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields username)
   fi;
   if [[ -z "${APP_SECRET:-}" ]]; then
-    export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential)
+    export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential --reveal)
   fi;
   if [[ -z "${APP_TOKEN:-}" ]]; then
-    export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields token)
+    export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields token --reveal)
   fi;
 
   yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${APP_TOKEN}"

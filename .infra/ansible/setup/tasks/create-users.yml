@@ -16,10 +16,12 @@
     shell: /bin/bash
     groups: sudo,mna
     append: yes
+    password_expire_max: 90
+    password_expire_min: 1
 
 - name: Ensure .bash_logout file exists and has the required content for deploy user
   copy:
-    src: files/homedir/bash_logout
+    src: "{{playbook_dir}}/../files/homedir/bash_logout"
     dest: /home/deploy/.bash_logout
     owner: deploy
     group: deploy
@@ -27,7 +29,7 @@
 
 - name: Ensure .bash_logout file exists and has the required content for root user
   copy:
-    src: files/homedir/bash_logout
+    src: "{{playbook_dir}}/../files/homedir/bash_logout"
     dest: /root/.bash_logout
     owner: root
     group: root
