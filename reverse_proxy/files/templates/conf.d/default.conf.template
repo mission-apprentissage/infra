@@ -56,5 +56,6 @@ server {
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
     include includes/location_monitoring.conf;
+    include includes/location_robots.conf;
     include locations/*.conf;
 }
