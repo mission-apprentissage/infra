@@ -46,6 +46,11 @@ map $host $privkey {
     default       /etc/nginx/ssl/live/${SERVER_NAME}/privkey.pem;
 }
 
+map $DISALLOW_ROBOTS $robots_disallow {
+    default 0;
+    "true" 1;
+}
+
 server {
     include includes/ssl.conf;
     ssl_certificate $fullchain;
