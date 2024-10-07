@@ -1,3 +1,6 @@
+- import_tasks: configure-kernel.yml
+  tags: kernel
+
 - import_tasks: configure-system.yml
   tags: system
 
