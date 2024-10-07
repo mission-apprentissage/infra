@@ -54,6 +54,7 @@ services:
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
       - MODSEC_REQ_BODY_NOFILES_LIMIT={{modsec_body_limit}}
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
+      - DISALLOW_ROBOTS={{disallow_robots}}
     volumes:
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
