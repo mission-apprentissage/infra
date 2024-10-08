@@ -4,53 +4,40 @@
     name: kernel.kptr_restrict
     value: "2"
     state: present
-    reload: yes
 
 - name: Update kernel.perf_cpu_time_max_percent to 1
   ansible.posix.sysctl:
     name: kernel.perf_cpu_time_max_percent
     value: "1"
     state: present
-    reload: yes
 
 - name: Update kernel.perf_event_max_sample_rate to 1
   ansible.posix.sysctl:
     name: kernel.perf_event_max_sample_rate
     value: "1"
     state: present
-    reload: yes
 
 - name: Update kernel.perf_event_paranoid to 2
   ansible.posix.sysctl:
     name: kernel.perf_event_paranoid
     value: "2"
     state: present
-    reload: yes
 
 - name: Update kernel.sysrq to 0
   ansible.posix.sysctl:
     name: kernel.sysrq
     value: "0"
     state: present
-    reload: yes
 
 - name: Update kernel.unprivileged_bpf_disabled to 1
   ansible.posix.sysctl:
     name: kernel.unprivileged_bpf_disabled
     value: "1"
     state: present
-    reload: yes
 
 - name: Update kernel.panic_on_oops to 1
   ansible.posix.sysctl:
     name: kernel.panic_on_oops
-    value: "1"
-    state: present
-    reload: yes
-
-- name: Update kernel.modules_disabled to 1
-  ansible.posix.sysctl:
-    name: kernel.modules_disabled
     value: "1"
     state: present
     reload: yes
