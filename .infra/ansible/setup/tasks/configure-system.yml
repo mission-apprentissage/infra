@@ -6,7 +6,7 @@
 
 - name: Remove unused package
   apt:
-    name: ["tcpdump", "gdb", "libX11", "telnet", "gcc"]
+    name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
 
 - include_role:
