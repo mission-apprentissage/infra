@@ -19,12 +19,12 @@ x-deploy-default: &deploy-default
 x-default: &default
   restart: on-failure:50
   networks:
-    - mna_network
+    - ij_network
 
 services:
   reverse_proxy:
     <<: *default
-    image: ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}
+    image: ghcr.io/mission-apprentissage/ij_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       restart_policy:
@@ -129,7 +129,7 @@ services:
       resources:
         limits:
           cpus: '1.00'
-    image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
+    image: ghcr.io/mission-apprentissage/ij_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"
@@ -146,7 +146,7 @@ services:
     environment:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
-      LOKI_URL: "https://monitoring.apprentissage.beta.gouv.fr/loki"
+      LOKI_URL: "https://monitoring.inserjeunes.beta.gouv.fr/loki"
       LOKI_USERNAME: "monitoring" 
       LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
       OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}" 
@@ -161,8 +161,8 @@ volumes:
   fluentd:
 
 networks:
-  mna_network:
-    name: mna_network
+  ij_network:
+    name: ij_network
     attachable: true
     external: true
     driver: overlay

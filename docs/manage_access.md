@@ -7,7 +7,7 @@ Donner accès à un produit revient à donner l'accès:
 ## Mise à jour des habilitations
 
 ```bash
-.bin/mna product:access:update <nom_produit>
+.bin/infra product:access:update <nom_produit>
 ```
 
 Un fichier vide s'ouvre dans VsCode, veuillez compléter les habilitations avec le model suivant:
@@ -28,4 +28,4 @@ Fermez le fichier.
 > [!WARNING]
 > Les habilitations sont mise à jours, et stockées dans 1password. Par contre à ce stade elles ne sont pas appliquées, il faut pour cela:
 > - lancer la configuration de l'environnement pour mettre à jour les accès SSH
-> - ouvrir le vault du produit via `.bin/mna vault:edit` et commiter le changement du vault.
+> - ouvrir le vault du produit via `.bin/infra vault:edit` et commiter le changement du vault.

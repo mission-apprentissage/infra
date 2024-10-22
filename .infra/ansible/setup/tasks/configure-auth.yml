@@ -12,9 +12,9 @@
   shell:
     cmd: sshd -t
 
-- name: Ensure group "mna" exists
+- name: Ensure group "ij" exists
   group:
-    name: mna
+    name: ij
     state: present
 
 - name: Setup password policy in Ubuntu 22.04

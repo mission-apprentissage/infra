@@ -5,7 +5,7 @@ set -euo pipefail
 function Help() {
    # Display Help
    echo "Commands"
-   echo "  bin:setup                                  Installs mna-infra binary with zsh completion on system"
+   echo "  bin:setup                                  Installs ij-infra binary with zsh completion on system"
    echo "  release:proxy                              Release docker reverse proxy image"
    echo "  release:fluentd                            Release fluentd reverse proxy image"
    echo "  system:setup                               Setup server"
@@ -34,10 +34,10 @@ function Help() {
 }
 
 function bin:setup() {
-  sudo ln -fs "${ROOT_DIR}/.bin/mna" "/usr/local/bin/mna-infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/infra" "/usr/local/bin/ij-infra"
 
   sudo mkdir -p /usr/local/share/zsh/site-functions
-  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_mna-infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_ij-infra"
   sudo rm -f ~/.zcompdump*
 }
 
@@ -50,7 +50,7 @@ function release:fluentd() {
 }
 
 function system:setup() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -60,7 +60,7 @@ function system:setup() {
 }
 
 function system:reboot() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -69,7 +69,7 @@ function system:reboot() {
 }
 
 function system:setup:initial() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   export ANSIBLE_HOST_KEY_CHECKING=False
@@ -93,7 +93,7 @@ function system:setup:initial() {
 }
 
 function system:user:remove() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
   local USERNAME=${1:?"Merci de préciser l'utilisateur à supprimer"}; shift;
 
@@ -103,7 +103,7 @@ function system:user:remove() {
 }
 
 function system:unban() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
   local IP=${1:?"Merci de préciser l'ip à unban"}; shift;
 
@@ -130,7 +130,7 @@ function deploy:log:decrypt() {
 }
 
 function product:ini_file() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
 
   if [ ! -f "${env_ini}" ]; then
@@ -142,7 +142,7 @@ function product:ini_file() {
 }
 
 function product:env:ip() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
   if [[ -z $env_ini ]]; then exit 1; fi
@@ -151,7 +151,7 @@ function product:env:ip() {
 }
 
 function product:repo() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
   if [[ -z $env_ini ]]; then exit 1; fi
@@ -186,7 +186,7 @@ function infra:access:update() {
 }
 
 function firewall:setup() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -195,7 +195,7 @@ function firewall:setup() {
 }
 
 function firewall:service:close() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -204,14 +204,14 @@ function firewall:service:close() {
 }
 
 function ssh:known_hosts:print() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
   ssh-keyscan ${ips}
 }
 
 function ssh:known_hosts:update() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
   for ip in ${ips}; do
@@ -236,11 +236,11 @@ function ssh:known_hosts:update() {
 
   SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
   gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
-  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "https://github.com/mission-apprentissage/infra"
+  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "https://github.com/mission-apprentissage/ij-infra"
 }
 
 function ssh:config() {
-  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
   local ips=($("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
   if [ -z "$ips" ]; then exit 1; fi
 

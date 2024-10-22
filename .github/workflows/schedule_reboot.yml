@@ -8,16 +8,10 @@ jobs:
         strategy:
           fail-fast: false
           matrix:
-            product: ["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]
+            product: ["sirius", "monitoring"]
             environment: ["production", "recette", "preview", "pentest", "preprod"]
             exclude:
-              - product: "api"
-                environment: "production"
-              - product: "bal"
-                environment: "production"
-              - product: "lba"
-                environment: "production"
-              - product: "tdb"
+              - product: "sirius"
                 environment: "production"
         name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
         uses: "./.github/workflows/_reboot.yml"
@@ -38,7 +32,7 @@ jobs:
         strategy:
           fail-fast: false
           matrix:
-            cluster: ['api', 'bal', 'contrat', 'recette']
+            cluster: ['sirius']
         name: Cluster Reboot ${{ matrix.cluster }}
         uses: "./.github/workflows/cluster_reboot.yml"
         with:

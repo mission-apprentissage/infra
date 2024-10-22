@@ -1,6 +1,6 @@
-- name: Ensure group "mna" exists
+- name: Ensure group "ij" exists
   group:
-    name: mna
+    name: ij
     state: present
 
 - include_tasks: _create-sudoers.yml
@@ -11,10 +11,10 @@
 - name: "Création utilisateur deploy"
   user:
     name: "deploy"
-    password: "{{ vault.MNA_GH_USER_PASS_HASH }}"
+    password: "{{ vault.GH_USER_PASS_HASH }}"
     update_password: always
     shell: /bin/bash
-    groups: sudo,mna
+    groups: sudo,ij
     append: yes
     password_expire_max: 90
     password_expire_min: 1
@@ -39,12 +39,12 @@
   authorized_key:
     user: "deploy"
     state: present
-    key: "{{ vault.MNA_GH_USER_PUBLIC_KEY }}"
+    key: "{{ vault.GH_USER_PUBLIC_KEY }}"
 
 - name: "Ajout de la SSH private key"
   copy:
     dest: "~/.ssh/id_ed25519"
-    content: "{{ vault.MNA_GH_USER_PRIVATE_KEY }}"
+    content: "{{ vault.GH_USER_PRIVATE_KEY }}"
     owner: root
     mode: "700"
 

@@ -1,6 +1,6 @@
-# Configuration Serveurs - Mission Apprentissage
+# Configuration Serveurs - InserJeunes
 
-Le dépot contient la configuration de base des serveurs de la mission apprentissage ainsi que les images dockers personnalisées.
+Le dépot contient la configuration de base des serveurs d'inserJeunes ainsi que les images dockers personnalisées.
 
 ## Reverse Proxy
 

@@ -6,7 +6,7 @@ on:
         description: JSON cluster array
         type: string
         required: true
-        default: '["api", "bal", "lba", "tdb", "contrat", "recette"]'
+        default: '["sirius"]'
 
 jobs:
   setup:
