@@ -1,50 +1,49 @@
 name: Scheduled Reboot
 on:
   schedule:
-    - cron: '0 20 * * *'
+    - cron: "0 20 * * *"
 
 jobs:
-    reboot_servers:
-        strategy:
-          fail-fast: false
-          matrix:
-            product: ["sirius", "monitoring"]
-            environment: ["production", "recette", "preview", "pentest", "preprod"]
-            exclude:
-              - product: "sirius"
-                environment: "production"
-        name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
-        uses: "./.github/workflows/_reboot.yml"
-        with:
-          product: "${{ matrix.product }}"
-          environment: "${{ matrix.environment }}"
-          SSH_KNOWN_HOSTS: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', matrix.product)] }}
-        secrets:
-          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          VAULT_PWD: ${{ secrets.VAULT_PWD }}
-          HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', matrix.product)] }}
-          OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
-          OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
-          OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-    reboot_mongodb:
-        strategy:
-          fail-fast: false
-          matrix:
-            cluster: ['sirius']
-        name: Cluster Reboot ${{ matrix.cluster }}
-        uses: "./.github/workflows/cluster_reboot.yml"
-        with:
-          cluster: ${{ matrix.cluster }}
-          numbers: '[3, 2, 1]'
-        secrets:
-          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          VAULT_PWD: ${{ secrets.VAULT_PWD }}
-          OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
-          OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
-          OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-          MONGODB_HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
-        
+  reboot_servers:
+    strategy:
+      fail-fast: false
+      matrix:
+        product: ["sirius", "orion", "monitoring"]
+        environment: ["production", "recette", "preview", "pentest", "preprod"]
+        exclude:
+          - product: "sirius"
+            environment: "production"
+    name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
+    uses: "./.github/workflows/_reboot.yml"
+    with:
+      product: "${{ matrix.product }}"
+      environment: "${{ matrix.environment }}"
+      SSH_KNOWN_HOSTS: ${{ vars[format('{0}_SSH_KNOWN_HOSTS', matrix.product)] }}
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', matrix.product)] }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+  reboot_mongodb:
+    strategy:
+      fail-fast: false
+      matrix:
+        cluster: ["sirius", "orion"]
+    name: Cluster Reboot ${{ matrix.cluster }}
+    uses: "./.github/workflows/cluster_reboot.yml"
+    with:
+      cluster: ${{ matrix.cluster }}
+      numbers: "[3, 2, 1]"
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+      MONGODB_HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}

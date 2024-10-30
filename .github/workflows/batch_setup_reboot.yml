@@ -6,7 +6,7 @@ on:
         description: JSON cluster array
         type: string
         required: true
-        default: '["sirius"]'
+        default: '["sirius","orion"]'
 
 jobs:
   setup:
@@ -18,7 +18,7 @@ jobs:
     uses: "./.github/workflows/cluster_reboot.yml"
     with:
       cluster: ${{ matrix.cluster }}
-      numbers: '[3, 2, 1]'
+      numbers: "[3, 2, 1]"
     secrets:
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}

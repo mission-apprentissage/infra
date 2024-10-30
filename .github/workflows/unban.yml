@@ -11,14 +11,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["sirius", "monitoring"]
+        product: ["sirius", "orion", "monitoring"]
         environment: ["production", "recette", "preview", "pentest", "preprod"]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-        
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
