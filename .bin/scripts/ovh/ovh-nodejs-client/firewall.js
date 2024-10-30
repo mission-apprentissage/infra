@@ -211,7 +211,7 @@ async function configureFirewall(client, ip, product, env) {
     rules.push(allowTcpOnPort(4, 444));
   }
 
-  if (product === "sirius") {
+  if (product === "sirius" || product === "orion") {
     const envType = env.split("_")[0];
     if (envType === "recette") {
       rules.push(allowTcpOnPort(4, 5432));
