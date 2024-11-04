@@ -28,7 +28,7 @@
 
 - name: Ensure pos file permission
   shell:
-    cmd: chown -R root:adm /opt/app/system/fluentd && chmod -R 664 /opt/app/system/fluentd
+    cmd: chown -R root:adm /opt/app/system/fluentd && chmod 664 /opt/app/system/fluentd/* && chmod 775 /opt/app/system/fluentd
 
 - name: Copy fail2ban actions
   copy:
