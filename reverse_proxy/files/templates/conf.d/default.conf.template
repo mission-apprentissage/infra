@@ -21,12 +21,14 @@ server {
 
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
+    include includes/location_robots.conf;
 
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
     if ($https_only = false) {
       set $always_redirect false;
     }
+
 
     if ($always_redirect = true) {
       return 301 https://$host$request_uri;
@@ -44,6 +46,11 @@ map $host $privkey {
     default       /etc/nginx/ssl/live/${SERVER_NAME}/privkey.pem;
 }
 
+map $DISALLOW_ROBOTS $robots_disallow {
+    default 0;
+    "true" 1;
+}
+
 server {
     include includes/ssl.conf;
     ssl_certificate $fullchain;
@@ -54,5 +61,6 @@ server {
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
     include includes/location_monitoring.conf;
+    include includes/location_robots.conf;
     include locations/*.conf;
 }

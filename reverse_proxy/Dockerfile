@@ -1,5 +1,5 @@
 ARG NGINX_VERSION="1.25.3"
-FROM nginx:${NGINX_VERSION} as nginxModules
+FROM nginx:${NGINX_VERSION} AS nginx_module
 
 ARG HEADERS_MORE_VERSION="v0.37"
 
@@ -44,7 +44,7 @@ RUN set -eux; \
 
 FROM owasp/modsecurity-crs:3.3.5-nginx-202401080101
 
-COPY --from=nginxModules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
+COPY --from=nginx_module /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
 #Nginx
 COPY files/templates /etc/nginx/templates
