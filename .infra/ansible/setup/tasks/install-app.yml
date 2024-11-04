@@ -29,6 +29,30 @@
     - item.path | basename != '.gitkeep'
     - item.path | basename != '.DS_Store'
 
+
+- name: Création du fichier /opt/app/system/nginx/error.log # Requis pour la config fail2ban
+  file:
+    path: /opt/app/system/nginx/error.log
+    group: adm
+    user: 101 # 101 is the user id of the nginx user
+    state: touch
+
+- name: Mise à jour des permissions /opt/app/system/nginx
+  file:
+    path: /opt/app/system/nginx
+    group: adm
+    user: 101 # 101 is the user id of the nginx user
+    mode: 'u=rwX,g=rX,o=rX'
+    recurse: yes
+
+- name: Mise à jour des permissions /opt/app/system/fluentd
+  file:
+    path: /opt/app/system/fluentd
+    group: adm
+    user: root
+    mode: 'u=rwX,g=rwX,o=rX'
+    recurse: yes
+
 - name: Nettoyage des permissions sudo pour le groupe 'mna'
   lineinfile:
     path: /etc/sudoers
