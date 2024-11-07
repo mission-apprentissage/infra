@@ -34,14 +34,14 @@
   file:
     path: /opt/app/system/nginx/error.log
     group: adm
-    user: 101 # 101 is the user id of the nginx user
+    owner: 101 # 101 is the user id of the nginx user
     state: touch
 
 - name: Mise à jour des permissions /opt/app/system/nginx
   file:
     path: /opt/app/system/nginx
     group: adm
-    user: 101 # 101 is the user id of the nginx user
+    owner: 101 # 101 is the user id of the nginx user
     mode: 'u=rwX,g=rX,o=rX'
     recurse: yes
 
@@ -49,7 +49,7 @@
   file:
     path: /opt/app/system/fluentd
     group: adm
-    user: root
+    owner: root
     mode: 'u=rwX,g=rwX,o=rX'
     recurse: yes
 
