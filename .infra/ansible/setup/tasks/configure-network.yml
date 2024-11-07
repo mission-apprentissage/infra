@@ -75,9 +75,9 @@
     value: "1"
     sysctl_set: yes
 
-- name: Disable IPv4 paquets routing
+# Required for docker networking
+- name: Enable IPv4 paquets routing
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
-    value: "0"
+    value: "1"
     sysctl_set: yes
-  when: product_name != 'vpn'
