@@ -106,7 +106,6 @@ services:
         limits:
           cpus: '0.50'
     hostname: "{{ host_name }}"
-    privileged: true
     devices:
       - /dev/kmsg
     volumes:
@@ -136,7 +135,7 @@ services:
     volumes:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:ro
-      - /var/log/:/var/log/host/:rw
+      - /var/log/:/var/log/host/:ro
       - /opt/app/configs/fluentd/:/fluentd/etc/extra-conf.d/:ro
       - /opt/app/system/fluentd/:/pos_file/:rw
       # Container needs to have same localtime as host

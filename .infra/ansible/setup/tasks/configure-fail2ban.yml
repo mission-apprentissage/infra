@@ -17,9 +17,6 @@
     enabled: true
     state: started
 
-- name: Ensure nginx error.log exists
-  ansible.builtin.shell: touch /opt/app/system/nginx/error.log
-
 - name: Copy fail2ban actions
   copy:
     src: "{{ item }}"

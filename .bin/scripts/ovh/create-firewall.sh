@@ -10,7 +10,7 @@ function main() {
   if [ -z $env_ip ]; then exit 1; fi
 
   cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"
-  yarn --silent install
+  npm install --quiet
 
   if [[ -z "${APP_KEY:-}" ]]; then
     export APP_KEY=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields username)
@@ -22,7 +22,7 @@ function main() {
     export APP_TOKEN=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields token --reveal)
   fi;
 
-  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${APP_TOKEN}"
+  node ./index.js createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${APP_TOKEN}"
   cd - >/dev/null
 }
 
