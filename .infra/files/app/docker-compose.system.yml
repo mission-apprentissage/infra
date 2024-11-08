@@ -71,9 +71,8 @@ services:
 
   nodeexporter:
     <<: *default
-    image: prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.8.2
     hostname: "{{ host_name }}"
-    user: root
     deploy:
       <<: *deploy-default
       resources:
