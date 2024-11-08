@@ -152,3 +152,10 @@
     minute: "0"
     hour: "10"
     job: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
+
+# https://bugs.launchpad.net/ubuntu/+source/apt/+bug/2003851
+- name: Add cron to fix apt.systemd.daily BUG
+  ansible.builtin.cron:
+    name: "apt-systemd-bug"
+    minute: "30"
+    job: "bash /opt/app/tools/workaround/apt-daily.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Apt Daily Workaround' -v $?"
