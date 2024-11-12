@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Check if lock file exists
+if [ ! -f /var/lib/apt/lists/lock ]; then
+  exit 0
+fi
+
 # Check if apt is locked
-PID=$(lsof -t /var/lib/apt/lists/lock)
+PID=$(lsof -t /var/lib/apt/lists/lock || true)
 
 # If apt is not locked, exit
 if [ -z "$PID" ]; then
