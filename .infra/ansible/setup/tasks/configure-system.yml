@@ -29,6 +29,11 @@
       dns: ["172.17.0.1"]
   when: env_type == 'preview'
 
+- name: Docker login
+  shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
+  environment:
+    PASS: "{{ vault.DOCKER_LOGIN.token }}"
+
 - include_role:
     name: patrickjahns.promtail
     apply:
