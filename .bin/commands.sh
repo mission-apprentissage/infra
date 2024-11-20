@@ -35,7 +35,7 @@ function Help() {
 }
 
 function bin:setup() {
-  sudo ln -fs "${ROOT_DIR}/.bin/mna" "/usr/local/bin/mna-infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/infra" "/usr/local/bin/mna-infra"
 
   sudo mkdir -p /usr/local/share/zsh/site-functions
   sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_mna-infra"
