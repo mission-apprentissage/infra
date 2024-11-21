@@ -6,6 +6,7 @@ export BIN_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
 export ROOT_DIR="$(dirname "${BIN_DIR}")"
 export SCRIPT_DIR="$BIN_DIR/scripts"
 
+source "${BIN_DIR}/infra-meta.sh"
 source "${BIN_DIR}/commands.sh"
 
 ################################################################################

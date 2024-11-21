@@ -1,15 +1,15 @@
-- name: Vérification de l'existence du groupe "mna"
+- name: Vérification de l'existence du groupe "{{user_group}}"
   group:
-    name: mna
+    name: { { user_group } }
     state: present
 
 - name: "Création utilisateur {{ habilitation.username }}"
   user:
     name: "{{ habilitation.username }}"
-    password: "{{ vault.MNA_HABILITATION_PASSWORD }}"
+    password: "{{ vault.HABILITATION_PASSWORD }}"
     update_password: on_create
     shell: /bin/bash
-    groups: sudo,mna
+    groups: sudo,{{user_group}}
     append: yes
     password_expire_max: 90
     password_expire_min: 1
