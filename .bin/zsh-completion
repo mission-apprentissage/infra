@@ -1,11 +1,11 @@
-#compdef -d infra
+#compdef -d mna-infra
 
-_infra_completion() {
+_mna-infra_completion() {
   local curcontext="$curcontext" state line
   typeset -A opt_args
   local -a commands=(
    "help:Show help message"
-   "bin\:setup:Installs infra binary with zsh completion on system"
+   "bin\:setup:Installs mna-infra binary with zsh completion on system"
    "release\:proxy:Release docker reverse proxy image"
    "release\:fluentd:Release fluentd reverse proxy image"
    "system\:setup:Setup server"
@@ -45,4 +45,4 @@ _infra_completion() {
   # _describe 'command' commands
 }
 
-_infra_completion "$@"
+_mna-infra_completion "$@"
