@@ -5,7 +5,7 @@ set -euo pipefail
 function Help() {
    # Display Help
    echo "Commands"
-   echo "  bin:setup                                  Installs infra binary with zsh completion on system"
+   echo "  bin:setup                                  Installs mna-infra binary with zsh completion on system"
    echo "  release:proxy                              Release docker reverse proxy image"
    echo "  release:fluentd                            Release fluentd reverse proxy image"
    echo "  system:setup                               Setup server"
@@ -35,10 +35,10 @@ function Help() {
 }
 
 function bin:setup() {
-  sudo ln -fs "${ROOT_DIR}/.bin/infra" "/usr/local/bin/infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/infra" "/usr/local/bin/mna-infra"
 
   sudo mkdir -p /usr/local/share/zsh/site-functions
-  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_mna-infra"
   sudo rm -f ~/.zcompdump*
 }
 
