@@ -87,7 +87,7 @@ jobs:
           HABILITATIONS: ${{ secrets.HABILITATIONS }}
 
       - name: Run playbook
-        run: ".bin/mna system:setup ${{ inputs.product }} ${{ inputs.environment }}"
+        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
@@ -97,7 +97,7 @@ jobs:
           APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
 
       - name: Encrypt logs
-        run: .bin/mna deploy:log:encrypt
+        run: .bin/infra deploy:log:encrypt
         if: always()
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
@@ -111,7 +111,7 @@ jobs:
 
       - name: Add Job summary
         if: always()
-        run: echo 'You can get logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
         uses: ravsamhq/notify-slack-action@v2
@@ -119,7 +119,7 @@ jobs:
         with:
           status: ${{ job.status }}
           notification_title: "Le setup ${{ inputs.product }} en ${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:

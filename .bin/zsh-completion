@@ -5,7 +5,7 @@ _mna-infra_completion() {
   typeset -A opt_args
   local -a commands=(
    "help:Show help message"
-   "bin\:setup:Installs mna-bal binary with zsh completion on system"
+   "bin\:setup:Installs mna-infra binary with zsh completion on system"
    "release\:proxy:Release docker reverse proxy image"
    "release\:fluentd:Release fluentd reverse proxy image"
    "system\:setup:Setup server"

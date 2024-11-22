@@ -6,7 +6,7 @@ readonly PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
 readonly ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
 function main() {
-  local env_ip=$("${BIN_DIR}/mna" product:env:ip "${PRODUCT_NAME}" "${ENV_NAME}")
+  local env_ip=$("${BIN_DIR}/infra" product:env:ip "${PRODUCT_NAME}" "${ENV_NAME}")
   if [ -z $env_ip ]; then exit 1; fi
 
   cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"

@@ -11,14 +11,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]
+        product:
+          ["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]
         environment: ["production", "recette", "preview", "pentest", "preprod"]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-        
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -39,14 +40,14 @@ jobs:
           VAULT_PWD: ${{ secrets.VAULT_PWD }}
 
       - name: Run playbook
-        run: ".bin/mna system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
+        run: ".bin/infra system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
           ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
 
       - name: Encrypt logs
-        run: .bin/mna deploy:log:encrypt
+        run: .bin/infra deploy:log:encrypt
         if: always()
         env:
           ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
@@ -60,7 +61,7 @@ jobs:
 
       - name: Add Job summary
         if: always()
-        run: echo 'You can get logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ matrix.product }}-${{ matrix.environment }}`' >> $GITHUB_STEP_SUMMARY
+        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ matrix.product }}-${{ matrix.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
         uses: ravsamhq/notify-slack-action@v2
@@ -68,7 +69,7 @@ jobs:
         with:
           status: ${{ job.status }}
           notification_title: "Unban ip ${{ inputs.ip }} en ${{ matrix.product }}-${{ matrix.environment }} a échoué"
-          message_format: "{emoji} *[${{ matrix.product }}-${{ matrix.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/mna deploy:log:decrypt ${{ github.run_id }} ${{ matrix.product }}-${{ matrix.environment }}`"
+          message_format: "{emoji} *[${{ matrix.product }}-${{ matrix.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ matrix.product }}-${{ matrix.environment }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:
