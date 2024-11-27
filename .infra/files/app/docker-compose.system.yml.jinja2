@@ -19,7 +19,7 @@ x-deploy-default: &deploy-default
 x-default: &default
   restart: on-failure:50
   networks:
-    - { { docker_network } }
+    - {{ docker_network }}
 
 services:
   reverse_proxy:
@@ -159,8 +159,8 @@ volumes:
   fluentd:
 
 networks:
-  { { docker_network } }:
-    name: { { docker_network } }
+  {{docker_network}}:
+    name: {{docker_network}}
     attachable: true
     external: true
     driver: overlay

@@ -63,7 +63,7 @@
     src: "{{ item }}"
     dest: "/opt/app/docker-compose.system.yml"
   with_fileglob:
-    - "{{playbook_dir}}/../files/app/docker-compose.system.yml"
+    - "{{playbook_dir}}/../files/app/docker-compose.system.yml.jinja2"
 
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}

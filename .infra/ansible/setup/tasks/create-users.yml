@@ -1,6 +1,6 @@
 - name: Ensure group "{{user_group}}" exists
   group:
-    name: { { user_group } }
+    name: "{{user_group}}"
     state: present
 
 - include_tasks: _create-sudoers.yml

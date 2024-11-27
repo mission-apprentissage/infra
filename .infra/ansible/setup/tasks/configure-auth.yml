@@ -14,7 +14,7 @@
 
 - name: Ensure group "{{user_group}}" exists
   group:
-    name: { { user_group } }
+    name: "{{user_group}}"
     state: present
 
 - name: Setup password policy in Ubuntu 22.04
