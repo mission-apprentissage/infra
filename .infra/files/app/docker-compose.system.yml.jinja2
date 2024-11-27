@@ -24,7 +24,7 @@ x-default: &default
 services:
   reverse_proxy:
     <<: *default
-    image: ghcr.io/mission-apprentissage/infra_reverse_proxy:{{reverse_proxy_version}}
+    image: ghcr.io/{{github_organization}}/infra_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       restart_policy:
@@ -127,7 +127,7 @@ services:
       resources:
         limits:
           cpus: "1.00"
-    image: ghcr.io/mission-apprentissage/infra_fluentd:{{fluentd_version}}
+    image: ghcr.io/{{github_organization}}/infra_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"

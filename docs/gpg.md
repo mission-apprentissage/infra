@@ -22,7 +22,7 @@ Voici les étapes pour créer votre clé GPG :
 
    L'identifiant de votre clé correspond à la valeur `sec ed25519/<identifiant>`.
 
-3. Pour utiliser votre clé au sein de la mission apprentissage, vous devez la publier en exécutant la commande suivante :
+3. Pour utiliser votre clé, vous devez la publier en exécutant la commande suivante :
 
    ```bash
    gpg --send-key <identifiant>
@@ -53,6 +53,7 @@ bash ./setup/scripts/vault/update-product-access.sh <product_name>
 --> Le script va ouvrir en edition le fichier d'habilitations il faudra le modifier et fermer le fichier.
 
 > En cas d'erreur `gpg: keyserver receive failed: No route to host`, cela signifie que GPG essaie de se connecter au keyserveur via IPv4. Pour résoudre le problème, il faut changer le mode de résolution DNS via:
+
 ```bash
 echo standard-resolver >> $HOME/.gnupg/dirmngr.conf;
 pkill dirmngr

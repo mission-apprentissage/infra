@@ -6,7 +6,7 @@ readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fl
 shift
 readonly VERSION=$(${SCRIPT_DIR}/release/get-version.sh $TAG_PREFIX)
 
-echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/mission-apprentissage/)"
+echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/${GITHUB_ORGANIZATION}/)"
 
 get_channel() {
   local version="$1"
@@ -110,10 +110,10 @@ set -e
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
-      --tag ghcr.io/mission-apprentissage/infra_$TAG_PREFIX:"$NEXT_VERSION" \
-      --tag ghcr.io/mission-apprentissage/infra_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
-      --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
-      --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/infra_$TAG_PREFIX:"$NEXT_VERSION" \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/infra_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
+      --label "org.opencontainers.image.source=$REPO_INFRA" \
+      --label "org.opencontainers.image.description=$TAG_PREFIX Infra" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
       --label "org.opencontainers.image.licenses=MIT" \
       --builder infra \

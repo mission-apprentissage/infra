@@ -33,7 +33,7 @@ function create_password_file() {
   cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
 
 #  # ===> set dans infra
-  gh secret set "${PRODUCT_NAME}_VAULT_PWD" --body "${password}" --repo "https://github.com/mission-apprentissage/infra"
+  gh secret set "${PRODUCT_NAME}_VAULT_PWD" --body "${password}" --repo "${REPO_INFRA}"
 #   # ===> set dans bal (utile pour le deploy)
   gh secret set "VAULT_PWD" --body "$password" --repo "https://github.com/${REPO_NAME}" 
 
@@ -44,7 +44,7 @@ function create_password_file() {
   cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
 
   cat "${HABILITATIONS_FILE}" | gh secret set "HABILITATIONS" --repo "https://github.com/${REPO_NAME}"
-  cat "${HABILITATIONS_FILE}" | gh secret set "${PRODUCT_NAME}_HABILITATIONS" --repo "https://github.com/mission-apprentissage/infra"
+  cat "${HABILITATIONS_FILE}" | gh secret set "${PRODUCT_NAME}_HABILITATIONS" --repo "${REPO_INFRA}"
 
   rm "${VAULT_PASSWORD_FILE}"
   rm "${HABILITATIONS_FILE}"
