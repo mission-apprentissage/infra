@@ -13,7 +13,7 @@ else
 fi
 
 readonly KEYFILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
-readonly VAULT_FILE="${ROOT_DIR}/.infra/vault/vault.yml"
+readonly VAULT_FILE="${ROOT_DIR}/products/infra/vault/vault.yml"
 
 ansible-vault view "${ansible_extra_opts[@]}" "$VAULT_FILE" | yq '.vault.GH_USER_PRIVATE_KEY' > "$KEYFILE"
 chmod 600 "$KEYFILE"

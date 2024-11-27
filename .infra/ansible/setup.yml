@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   vars_files:
-    - "{{playbook_dir}}/../vault/vault.yml"
+    - "{{playbook_dir}}/../../products/infra/vault/vault.yml"
     - "{{playbook_dir}}/../../products/{{ product_name }}/habilitations.yml"
   roles:
     - setup

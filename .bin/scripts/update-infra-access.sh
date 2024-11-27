@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly HABILITATIONS_FILE="${ROOT_DIR}/.infra/vault/habilitations.yml"
-readonly VAULT_PASSWORD_FILE="${ROOT_DIR}/.infra/vault/.vault-password-next.gpg"
+readonly HABILITATIONS_FILE="${ROOT_DIR}/products/infra/vault/habilitations.yml"
+readonly VAULT_PASSWORD_FILE="${ROOT_DIR}/products/infra/vault/.vault-password-next.gpg"
 
 function create_password_file() {
   local recipients=()

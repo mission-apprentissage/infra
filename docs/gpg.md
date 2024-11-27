@@ -41,8 +41,8 @@ Voici les étapes pour créer votre clé GPG :
 
 **Une fois autorisé, vous aurez accès aux fichiers suivants :**
 
-- `.infra/vault/.vault-password.gpg`
-- `.infra/vault/habilitations.yml`
+- `products/infra/vault/.vault-password.gpg`
+- `products/infra/vault/habilitations.yml`
 
 ## Ajout d'un accès
 

@@ -7,7 +7,7 @@ set -euo pipefail
 
 ## CHECK UPDATES AND RENEW
 
-readonly VAULT_DIR="${ROOT_DIR}/.infra/vault"
+readonly VAULT_DIR="${ROOT_DIR}/products/infra/vault"
 readonly VAULT_FILE="${VAULT_DIR}/vault.yml"
 
 DOCUMENT_CONTENT=$(op document get ".vault-password-infra" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")

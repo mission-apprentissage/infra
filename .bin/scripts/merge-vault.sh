@@ -2,7 +2,7 @@
 
 set -e
 
-readonly VAULT_DIR="${ROOT_DIR}/.infra/vault"
+readonly VAULT_DIR="${ROOT_DIR}/products/infra/vault"
 readonly VAULT_FILE="${VAULT_DIR}/vault.yml"
 
 ancestor_version=$1
