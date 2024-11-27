@@ -61,6 +61,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   fi
 
   ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible/ansible.cfg" ansible-playbook \
+    -i "${PRODUCT_DIR}/../infra-env.ini" \
     -i "${PRODUCT_DIR}/env.ini" \
     --limit "${ENV_FILTER}" \
     "${ansible_extra_opts[@]}" \
