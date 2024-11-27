@@ -17,7 +17,7 @@ function runPlaybook() {
   local ansible_extra_opts=()
 if [[ -z "${ANSIBLE_BECOME_PASS:-}" ]]; then
   if [[ $* != *"pass"* ]]; then
-      local become_pass=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/password --account mission-apprentissage.1password.com 2> /dev/null);
+      local become_pass=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/password --account "${OP_ACCOUNT}" 2> /dev/null);
       if [ -z $become_pass ]; then
         echo "Si vous avez 1password CLI, il est possible de récupérer le password automatiquement"
         echo "Pour cela, ajouter le dans le vault "Private" l'item ${PRODUCT_NAME}-$ENV_FILTER avec le champs password"
@@ -33,7 +33,7 @@ fi
 
 if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   if [[ $* != *"--user"* ]]; then
-      local username=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/username --account mission-apprentissage.1password.com 2> /dev/null);
+      local username=$(op read op://Private/${PRODUCT_NAME}-$ENV_FILTER/username --account "${OP_ACCOUNT}" 2> /dev/null);
       if [ -z $username ]; then
         echo "Si vous avez 1password CLI, il est possible de récupérer le username automatiquement"
         echo "Pour cela, ajouter le dans le vault "Private" l'item ${PRODUCT_NAME}-$ENV_FILTER avec le champs username"
