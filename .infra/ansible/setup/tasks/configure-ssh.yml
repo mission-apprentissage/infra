@@ -1,6 +1,6 @@
 ---
 # recommandation from https://www.sshaudit.com/hardening_guides.html#ubuntu_22_04_lts
-# keys configuration is skipped (first 4 steps of the documentation above)
+# keys configuration is skipped (first 2 steps of the documentation above)
 - name: Check if moduli file has been modified
   stat:
     path: /etc/ssh/moduli
