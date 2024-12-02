@@ -29,12 +29,13 @@ function Help() {
    echo "  ssh:known_hosts:print                      Print SSH known host for a product including all servers"
    echo "  ssh:known_hosts:update                     Update SSH known host for a product including all servers"
    echo "  ssh:config                                 Update your local SSH config for a product including all servers"
+   echo "  password:rotate                            Rotate password of the deploy user"                          
    echo 
    echo
 }
 
 function bin:setup() {
-  sudo ln -fs "${ROOT_DIR}/.bin/mna" "/usr/local/bin/mna-infra"
+  sudo ln -fs "${ROOT_DIR}/.bin/infra" "/usr/local/bin/mna-infra"
 
   sudo mkdir -p /usr/local/share/zsh/site-functions
   sudo ln -fs "${ROOT_DIR}/.bin/zsh-completion" "/usr/local/share/zsh/site-functions/_mna-infra"
@@ -266,4 +267,13 @@ Host ${hostnames[$i]}
 
   mkdir -p ~/.ssh/config.d
   echo "$config" > ~/.ssh/config.d/${PRODUCT_NAME}.config
+}
+
+function password:rotate() {
+  local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+  local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+
+  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+
+  "$SCRIPT_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }

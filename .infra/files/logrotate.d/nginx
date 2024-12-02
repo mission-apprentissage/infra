@@ -10,7 +10,7 @@
       /opt/app/tools/reload-proxy.sh
     endscript
 
-    create 640 root root
+    create 640 101 adm
 }
 /opt/app/system/nginx/modsec_audit.log {
     daily
@@ -23,5 +23,5 @@
     # see https://github.com/SpiderLabs/ModSecurity-nginx/issues/121
     copytruncate
 
-    create 640 root root
+    create 640 101 adm
 }

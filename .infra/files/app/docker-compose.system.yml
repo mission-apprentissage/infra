@@ -1,5 +1,3 @@
-version: "3.8"
-
 # The following variables define reusable configurations for deployment, providing consistent and predefined 
 # behaviors for updating, rolling back, and restarting services.
 
@@ -73,9 +71,8 @@ services:
 
   nodeexporter:
     <<: *default
-    image: prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.8.2
     hostname: "{{ host_name }}"
-    user: root
     deploy:
       <<: *deploy-default
       resources:
@@ -108,14 +105,13 @@ services:
         limits:
           cpus: '0.50'
     hostname: "{{ host_name }}"
-    privileged: true
     devices:
       - /dev/kmsg
     volumes:
-      - /:/rootfs:ro
+      - /:/rootfs:ro,rshared
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/lib/docker/:/var/lib/docker:ro,rshared
       - /dev/disk/:/dev/disk:ro
     logging:
       driver: "fluentd"
@@ -138,7 +134,7 @@ services:
     volumes:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:ro
-      - /var/log/:/var/log/host/:rw
+      - /var/log/:/var/log/host/:ro
       - /opt/app/configs/fluentd/:/fluentd/etc/extra-conf.d/:ro
       - /opt/app/system/fluentd/:/pos_file/:rw
       # Container needs to have same localtime as host
