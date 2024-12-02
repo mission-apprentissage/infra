@@ -1,0 +1,92 @@
+---
+# recommandation from https://www.sshaudit.com/hardening_guides.html#ubuntu_22_04_lts
+# keys configuration is skipped (first 4 steps of the documentation above)
+- name: Check if moduli file has been modified
+  stat:
+    path: /etc/ssh/moduli
+  register: moduli_stat
+
+- name: Create safe moduli file
+  command: "awk '$5 >= 3071' /etc/ssh/moduli > /etc/ssh/moduli.safe"
+  args:
+    creates: /etc/ssh/moduli.safe
+  when: moduli_stat.stat.exists and moduli_stat.stat.checksum != lookup('file', '/etc/ssh/moduli')
+
+- name: Move moduli.safe to moduli
+  command: mv /etc/ssh/moduli.safe /etc/ssh/moduli
+  args:
+    creates: /etc/ssh/moduli
+  when: moduli_stat.stat.exists and moduli_stat.stat.checksum != lookup('file', '/etc/ssh/moduli')
+
+- name: Check if SSH hardening configuration is already applied
+  stat:
+    path: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
+  register: sshd_config_stat
+
+- name: Create SSH hardening configuration
+  copy:
+    dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
+    content: |
+      # Restrict key exchange, cipher, and MAC algorithms, as per sshaudit.com
+      # hardening guide.
+      KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,gss-curve25519-sha256-,diffie-hellman-group16-sha512,gss-group16-sha512-,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-gcm@openssh.com,aes128-ctr
+
+      MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+
+      HostKeyAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+
+      CASignatureAlgorithms sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sh2-256
+
+      GSSAPIKexAlgorithms gss-curve25519-sha256-,gss-group16-sha512-
+
+      HostbasedAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
+
+      PubkeyAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
+  when: sshd_config_stat.stat.exists == false
+
+- name: Check if iptables rules are already set (IPv4)
+  command: iptables -C INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+  ignore_errors: true
+  register: iptables_check_ipv4
+  failed_when: false
+
+- name: Add iptables rules for SSH flood protection (IPv4)
+  command: iptables -I INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+  when: iptables_check_ipv4.rc != 0
+
+- name: Check if ip6tables rules are already set (IPv6)
+  command: ip6tables -C INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+  ignore_errors: true
+  register: ip6tables_check_ipv6
+  failed_when: false
+
+- name: Add ip6tables rules for SSH flood protection (IPv6)
+  command: ip6tables -I INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+  when: ip6tables_check_ipv6.rc != 0
+
+- name: Install netfilter-persistent and iptables-persistent packages
+  apt:
+    name:
+      - netfilter-persistent
+      - iptables-persistent
+    state: present
+    update_cache: yes
+
+- name: Save iptables rules
+  command: service netfilter-persistent save
+
+- name: Restart SSH service
+  service:
+    name: ssh
+    state: restarted
+  when: sshd_config_stat.stat.exists == false or iptables_check_ipv4.rc != 0 or ip6tables_check_ipv6.rc != 0
+
+- name: Wait for SSH service to be fully restarted
+  wait_for:
+    port: 22
+    state: started
+    delay: 10 # Wait for 10 seconds to ensure SSH service is fully up
+    timeout: 60 # Timeout after 60 seconds if the port is not open
+
