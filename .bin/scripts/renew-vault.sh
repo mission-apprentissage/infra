@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly VAULT_FILE="${ROOT_DIR}/.infra/vault/vault.yml"
+readonly VAULT_FILE="${ROOT_DIR}/products/infra/vault/vault.yml"
 
 function renew() {
-  local previous_vault_password_file="${ROOT_DIR}/.infra/vault/.vault-password-previous.gpg"
-  local vault_password_file="${ROOT_DIR}/.infra/vault/.vault-password.gpg"
+  local previous_vault_password_file="${ROOT_DIR}/products/infra/vault/.vault-password-previous.gpg"
+  local vault_password_file="${ROOT_DIR}/products/infra/vault/.vault-password.gpg"
 
   if [ -f "$vault_password_file" ]; then
     echo "Backuping previous vault password..."
