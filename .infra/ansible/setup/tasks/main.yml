@@ -1,3 +1,7 @@
+- import_tasks: configure-kernel.yml
+  tags: kernel
+  when: add_kernel_modification == true
+
 - import_tasks: configure-system.yml
   tags: system
 
