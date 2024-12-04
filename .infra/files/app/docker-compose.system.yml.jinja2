@@ -24,7 +24,7 @@ x-default: &default
 services:
   reverse_proxy:
     <<: *default
-    image: ghcr.io/{{github_organization}}/infra_reverse_proxy:{{reverse_proxy_version}}
+    image: ghcr.io/{{github_organization}}/{{user_group}}_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       restart_policy:
