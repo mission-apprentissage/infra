@@ -126,7 +126,7 @@ services:
       resources:
         limits:
           cpus: "1.00"
-    image: ghcr.io/{{github_organization}}/infra_fluentd:{{fluentd_version}}
+    image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"
