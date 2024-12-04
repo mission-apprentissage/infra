@@ -47,6 +47,9 @@ done
 
 set -e
 
+# Ensure correct permissions for privkey.pem
+chmod 0440 /opt/app/system/certbot/conf/live/${SERVER_NAME}/privkey.pem
+
 # Allow Nginx container to access certificates
 chgrp -R www-data /opt/app/system/certbot/
 find /opt/app/system/certbot/conf/ -type d -exec chmod 755 {} +
