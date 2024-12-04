@@ -21,7 +21,6 @@ server {
 
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
-    include includes/location_robots.conf;
 
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
 
