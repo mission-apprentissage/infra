@@ -4,7 +4,9 @@ port = http,https
 filter = nginx-req-limit
 logpath = /opt/app/system/nginx/error.log
 findtime=1h
-banaction = iptables-multiport[name=nginx-req-limit, port="http,https", protocol=tcp, chain=DOCKER-USER]
+chain = DOCKER-USER
+banaction = iptables-ipset-proto6
+banaction_allports=iptables-ipset-proto6-allports
 logtimezone = UTC
 bantime=1h
 maxretry=50
@@ -15,7 +17,9 @@ port = http,https
 filter = nginx-conn-limit
 logpath = /opt/app/system/nginx/error.log
 findtime=1h
-banaction = iptables-multiport[name=nginx-conn-limit, port="http,https", protocol=tcp, chain=DOCKER-USER]
+chain = DOCKER-USER
+banaction = iptables-ipset-proto6
+banaction_allports=iptables-ipset-proto6-allports
 logtimezone = UTC
 bantime=1h
 maxretry=50
@@ -27,5 +31,7 @@ filter = nginx-conn-limit-long
 logpath = /opt/app/system/nginx/error.log
 bantime = 30d
 findtime=1h
-banaction = iptables-multiport[name=nginx-conn-limit-long, port="http,https", protocol=tcp, chain=DOCKER-USER]
+chain = DOCKER-USER
+banaction = iptables-ipset-proto6
+banaction_allports=iptables-ipset-proto6-allports
 logtimezone = UTC

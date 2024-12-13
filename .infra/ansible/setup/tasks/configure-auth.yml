@@ -12,9 +12,9 @@
   shell:
     cmd: sshd -t
 
-- name: Ensure group "mna" exists
+- name: Ensure group "{{user_group}}" exists
   group:
-    name: mna
+    name: "{{user_group}}"
     state: present
 
 - name: Setup password policy in Ubuntu 22.04
@@ -22,7 +22,7 @@
   block:
     - name: Install pam packages
       apt:
-        name: [ 'libpam-cracklib' ]
+        name: ["libpam-cracklib"]
 
     - name: Set password policy
       lineinfile:
@@ -36,7 +36,7 @@
   block:
     - name: Install pam packages
       apt:
-        name: [ 'libpam-pwquality' ]
+        name: ["libpam-pwquality"]
 
     - name: Set password policy
       lineinfile:
@@ -44,11 +44,24 @@
         regexp: "pam_pwquality.so"
         line: "password   requisite   pam_pwquality.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
 
+- name: Setup password expiration policy
+  block:
+    - name: Set maximum password age to 90 days
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "^PASS_MAX_DAYS"
+        line: "PASS_MAX_DAYS 90"
+    - name: Set minimum password age to 1 day
+      lineinfile:
+        path: /etc/login.defs
+        regexp: "^PASS_MIN_DAYS"
+        line: "PASS_MIN_DAYS 1"
+
 - name: Set umask=077 for root user
   lineinfile:
     path: /root/.bashrc
-    regexp: '^umask$'
-    line: 'umask 0077'
+    regexp: "^umask$"
+    line: "umask 0077"
 
 - name: Enable color in sudo
   shell:
@@ -57,11 +70,11 @@
 - name: Set default umask
   lineinfile:
     path: /etc/pam.d/common-session
-    regexp: '^session optional			pam_umask.so$'
-    line: 'session optional pam_umask.so umask=0027'
+    regexp: "^session optional			pam_umask.so$"
+    line: "session optional pam_umask.so umask=0027"
 
 - name: Set default directory /opt/app
   lineinfile:
     path: /root/.bashrc
-    regexp: '^cd /opt/app$'
-    line: 'cd /opt/app'
+    regexp: "^cd /opt/app$"
+    line: "cd /opt/app"

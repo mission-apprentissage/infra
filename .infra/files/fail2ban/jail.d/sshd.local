@@ -5,6 +5,7 @@ filter = sshd[mode=aggressive]
 logpath = /var/log/auth.log
 maxretry = 10
 bantime = 30d
-banaction = iptables-multiport
+banaction = iptables-ipset-proto6
+banaction_allports=iptables-ipset-proto6-allports
 findtime=3600
 logtimezone = UTC

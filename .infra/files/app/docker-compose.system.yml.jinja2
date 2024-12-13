@@ -1,6 +1,4 @@
-version: "3.8"
-
-# The following variables define reusable configurations for deployment, providing consistent and predefined 
+# The following variables define reusable configurations for deployment, providing consistent and predefined
 # behaviors for updating, rolling back, and restarting services.
 
 x-deploy-default: &deploy-default
@@ -19,16 +17,18 @@ x-deploy-default: &deploy-default
     max_attempts: 240
 
 x-default: &default
+  restart: on-failure:50
   networks:
-    - mna_network
+    - {{ docker_network }}
 
 services:
   reverse_proxy:
     <<: *default
-    image: ghcr.io/mission-apprentissage/mna_reverse_proxy:{{reverse_proxy_version}}
+    image: ghcr.io/{{github_organization}}/infra_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       restart_policy:
+        condition: any
         window: 5s
         delay: 5s
       resources:
@@ -52,6 +52,7 @@ services:
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
       - MODSEC_REQ_BODY_NOFILES_LIMIT={{modsec_body_limit}}
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
+      - DISALLOW_ROBOTS={{disallow_robots}}
     volumes:
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
@@ -70,20 +71,19 @@ services:
 
   nodeexporter:
     <<: *default
-    image: prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.8.2
     hostname: "{{ host_name }}"
-    user: root
     deploy:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-      - '--collector.textfile.directory=/var/cron-exporter'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--collector.textfile.directory=/var/cron-exporter"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -103,16 +103,15 @@ services:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
     hostname: "{{ host_name }}"
-    privileged: true
     devices:
       - /dev/kmsg
     volumes:
-      - /:/rootfs:ro
+      - /:/rootfs:ro,rshared
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/lib/docker/:/var/lib/docker:ro,rshared
       - /dev/disk/:/dev/disk:ro
     logging:
       driver: "fluentd"
@@ -127,16 +126,17 @@ services:
       <<: *deploy-default
       resources:
         limits:
-          cpus: '1.00'
-    image: ghcr.io/mission-apprentissage/mna_fluentd:{{fluentd_version}}
+          cpus: "1.00"
+    image: ghcr.io/{{github_organization}}/infra_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"
     volumes:
       - fluentd:/var/log/fluent
-      - /opt/app/system/nginx/:/var/log/nginx/:rw
-      - /var/log/:/var/log/host/:rw
+      - /opt/app/system/nginx/:/var/log/nginx/:ro
+      - /var/log/:/var/log/host/:ro
       - /opt/app/configs/fluentd/:/fluentd/etc/extra-conf.d/:ro
+      - /opt/app/system/fluentd/:/pos_file/:rw
       # Container needs to have same localtime as host
       # It's mandatory to intreprete correctly localtime from syslog
       - /etc/localtime:/etc/localtime:ro
@@ -145,13 +145,13 @@ services:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
       LOKI_URL: "https://monitoring.apprentissage.beta.gouv.fr/loki"
-      LOKI_USERNAME: "monitoring" 
-      LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}" 
-      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}" 
-      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}" 
-      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}" 
-      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}" 
-      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}" 
+      LOKI_USERNAME: "monitoring"
+      LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}"
+      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}"
+      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}"
+      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}"
+      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}"
+      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}"
     logging:
       driver: "local"
 
@@ -159,8 +159,8 @@ volumes:
   fluentd:
 
 networks:
-  mna_network:
-    name: mna_network
+  {{docker_network}}:
+    name: {{docker_network}}
     attachable: true
     external: true
     driver: overlay

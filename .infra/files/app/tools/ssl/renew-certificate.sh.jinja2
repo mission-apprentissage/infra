@@ -13,18 +13,42 @@ shift
 mkdir -p /opt/app/system/certbot/www/.well-known/acme-challenge/
 find /opt/app/system/certbot/www/ -type d -exec chmod 755 {} +
 
-docker run \
-  -i \
-  -v /opt/app/system/certbot/www/:/var/www/certbot/:rw \
-  -v /opt/app/system/certbot/conf/:/etc/letsencrypt/:rw \
-  --rm certbot/certbot:latest \
-  certonly \
-    --webroot --webroot-path /var/www/certbot/ \
-    --email misson.apprentissage.devops@gmail.com \
-    --agree-tos \
-    --non-interactive \
-    --domain ${SERVER_NAME} \
-    "$@"
+retries=3
+
+set +e
+
+while [ $retries -gt 0 ]; do
+  docker run \
+    -i \
+    -v /opt/app/system/certbot/www/:/var/www/certbot/:rw \
+    -v /opt/app/system/certbot/conf/:/etc/letsencrypt/:rw \
+    --rm certbot/certbot:latest \
+    certonly \
+      --webroot --webroot-path /var/www/certbot/ \
+      --email misson.apprentissage.devops@gmail.com \
+      --agree-tos \
+      --non-interactive \
+      --domain ${SERVER_NAME} \
+      "$@"
+
+  if [ $? -eq 0 ]; then
+    break
+  fi
+
+  retries=$((retries - 1))
+
+  if [ $retries -eq 0 ]; then
+    echo "Failed to renew certificate"
+    exit 1
+  fi
+
+  sleep 60
+done
+
+set -e
+
+# Ensure correct permissions for privkey.pem
+chmod 0440 /opt/app/system/certbot/conf/live/${SERVER_NAME}/privkey.pem
 
 # Allow Nginx container to access certificates
 chgrp -R www-data /opt/app/system/certbot/

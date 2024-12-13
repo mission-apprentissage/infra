@@ -13,6 +13,10 @@ http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
     keepalive_timeout ${KEEPALIVE_TIMEOUT};
+    send_timeout 10s;
+    client_body_timeout 10s;
+    client_header_timeout 10s;
+    
     sendfile on;
 
     resolver ${DNS_SERVER} valid=5s;

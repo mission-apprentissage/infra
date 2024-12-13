@@ -29,18 +29,41 @@
     - item.path | basename != '.gitkeep'
     - item.path | basename != '.DS_Store'
 
-- name: Nettoyage des permissions sudo pour le groupe 'mna'
+- name: Création du fichier /opt/app/system/nginx/error.log # Requis pour la config fail2ban
+  file:
+    path: /opt/app/system/nginx/error.log
+    group: adm
+    owner: 101 # 101 is the user id of the nginx user
+    state: touch
+
+- name: Mise à jour des permissions /opt/app/system/nginx
+  file:
+    path: /opt/app/system/nginx
+    group: adm
+    owner: 101 # 101 is the user id of the nginx user
+    mode: "u=rwX,g=rX,o=rX"
+    recurse: yes
+
+- name: Mise à jour des permissions /opt/app/system/fluentd
+  file:
+    path: /opt/app/system/fluentd
+    group: adm
+    owner: root
+    mode: "u=rwX,g=rwX,o=rX"
+    recurse: yes
+
+- name: Nettoyage des permissions sudo pour le groupe '{{user_group}}'
   lineinfile:
     path: /etc/sudoers
     state: absent
-    regexp: "mna"
+    regexp: "{{user_group}}"
 
 - name: copy du fichier docker compose
   ansible.builtin.template:
     src: "{{ item }}"
     dest: "/opt/app/docker-compose.system.yml"
   with_fileglob:
-    - "{{playbook_dir}}/../files/app/docker-compose.system.yml"
+    - "{{playbook_dir}}/../files/app/docker-compose.system.yml.jinja2"
 
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
@@ -56,7 +79,7 @@
 - name: check du docker network
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network ls --filter name=mna_network -q
+    cmd: docker network ls --filter name={{docker_network}} -q
   register: network
 
 - debug:
@@ -65,7 +88,7 @@
 - name: création du docker network en swarm mode
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network create -d overlay --attachable mna_network
+    cmd: docker network create -d overlay --attachable {{docker_network}}
   when:
     - network.stdout == ""
     - env_type != 'preview'
@@ -73,7 +96,7 @@
 - name: création du docker network en compose mode
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network create --attachable mna_network
+    cmd: docker network create --attachable {{docker_network}}
   when:
     - network.stdout == ""
     - env_type == 'preview'
