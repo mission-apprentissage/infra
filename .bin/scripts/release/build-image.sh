@@ -110,8 +110,8 @@ set -e
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
-      --tag ghcr.io/$GITHUB_ORGANIZATION/infra_$TAG_PREFIX:"$NEXT_VERSION" \
-      --tag ghcr.io/$GITHUB_ORGANIZATION/infra_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:"$NEXT_VERSION" \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
       --label "org.opencontainers.image.source=$REPO_INFRA" \
       --label "org.opencontainers.image.description=$TAG_PREFIX Infra" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \

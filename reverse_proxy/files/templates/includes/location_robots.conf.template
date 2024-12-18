@@ -1,8 +1,0 @@
-location = /robots.txt {
-
-  if ($robots_disallow) {
-    add_header  Content-Type  text/plain;
-    return 200 "User-agent: *\nDisallow: /\n";
-  }
-  
-}
