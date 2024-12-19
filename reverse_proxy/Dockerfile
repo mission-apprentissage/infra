@@ -1,4 +1,4 @@
-ARG NGINX_VERSION="1.27.3"
+ARG NGINX_VERSION="1.27.0"
 FROM nginx:${NGINX_VERSION} AS nginx_modules
 
 ARG HEADERS_MORE_VERSION="v0.37"
@@ -42,7 +42,8 @@ RUN set -eux; \
   strip objs/ngx_http_headers_more_filter_module.so; \
   cp objs/ngx_http_headers_more_filter_module.so /etc/nginx/modules/;
 
-FROM owasp/modsecurity-crs:4.9-nginx-202412120712
+# FROM owasp/modsecurity-crs:4.9-nginx-202412120712
+FROM owasp/modsecurity-crs:4.3.0-nginx-202406090906
 
 COPY --from=nginx_modules /etc/nginx/modules/ngx_http_headers_more_filter_module.so /etc/nginx/modules/ngx_http_headers_more_filter_module.so
 
