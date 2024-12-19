@@ -64,10 +64,10 @@ ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
 ENV ALLOWED_REQUEST_CONTENT_TYPE="|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |text/plain|"
 
 # Ensure nginx has write permissions to /var/run/nginx.pid
-# USER root
-# RUN touch /var/run/nginx.pid && \
-#     chown nginx:nginx /var/run/nginx.pid
-
+USER root
+RUN touch /var/run/nginx.pid && \
+    chown nginx:nginx /var/run/
+USER nginx
 
 HEALTHCHECK CMD curl -sk -A healthcheck "http://localhost/healthz"
 VOLUME [ "/var/log/nginx" ]
