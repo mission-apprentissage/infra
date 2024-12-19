@@ -7,7 +7,7 @@ SecAuditLog ${MODSEC_AUDIT_LOG}
 SecAuditLogFormat ${MODSEC_AUDIT_LOG_FORMAT}
 SecAuditLogParts ${MODSEC_AUDIT_LOG_PARTS}
 SecAuditLogRelevantStatus "^5"
-SecAuditLogStorageDir ${MODSEC_AUDIT_STORAGE}
+SecAuditLogStorageDir ${MODSEC_AUDIT_STORAGE_DIR}
 SecAuditLogType ${MODSEC_AUDIT_LOG_TYPE}
 SecCookieFormat 0
 SecDataDir ${MODSEC_DATA_DIR}

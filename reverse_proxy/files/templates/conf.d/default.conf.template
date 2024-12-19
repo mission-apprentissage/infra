@@ -18,7 +18,8 @@ server {
     http2 on;
 
     server_name ${SERVER_NAME};
-
+    
+    include includes/location_common.conf;
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
 
@@ -52,6 +53,7 @@ server {
 
     server_name ${SERVER_NAME};
 
+    include includes/location_common.conf;
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
     include includes/location_monitoring.conf;
