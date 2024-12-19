@@ -39,11 +39,11 @@ services:
     # In order to bypass this, we need to use mode host port mapping
     # But we cannot replicate the service on a single node
     ports:
-      - target: 80
+      - target: 8080
         published: 80
         protocol: tcp
         mode: host
-      - target: 443
+      - target: 8443
         published: 443
         protocol: tcp
         mode: host
