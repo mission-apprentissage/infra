@@ -51,6 +51,8 @@ FROM owasp/modsecurity-crs:4.9-nginx-202412120712
 COPY files/templates /etc/nginx/templates
 COPY files/reload.sh /reload.sh
 
+ENV PORT=80
+ENV SSL_PORT=443
 ENV NGINX_ALWAYS_TLS_REDIRECT=true
 ENV PARANOIA=1
 ENV ANOMALY_INBOUND=5
