@@ -62,4 +62,6 @@ ENV MODSEC_AUDIT_LOG_FORMAT="JSON"
 ENV MODSEC_AUDIT_LOG="/var/log/nginx/modsec_audit.log"
 ENV ALLOWED_REQUEST_CONTENT_TYPE="|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |text/plain|"
 
+
+HEALTHCHECK CMD curl -sk -A healthcheck "http://localhost:8080/healthz"
 VOLUME [ "/var/log/nginx" ]
