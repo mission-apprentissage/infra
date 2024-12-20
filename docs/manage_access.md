@@ -19,7 +19,7 @@ habilitations:
     name: "John Doe"
     gpg_key: XXXXXX
     authorized_keys:
-      - "https://github.com/mission-apprentissage.keys"
+      - "https://github.com/XXXX.keys"
 
 gpg_keys: "{{ habilitations | map(attribute='gpg_key', default='') | select() | join(',')}}"
 ```

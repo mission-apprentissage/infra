@@ -26,32 +26,32 @@ function create_password_file() {
   echo "Generating vault password..."
   echo "${password}" | gpg --quiet --always-trust --armor ${recipients[*]} -e -o "${VAULT_PASSWORD_FILE}"
 
-  local pass_exist=$(op document list --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com | grep ".vault-password-${PRODUCT_NAME}")
+  local pass_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep ".vault-password-${PRODUCT_NAME}")
   if [[ "$pass_exist" != "" ]]; then
-    op document delete ".vault-password-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
+    op document delete ".vault-password-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   fi;
-  cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
+  cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
 
 #  # ===> set dans infra
-  gh secret set "${PRODUCT_NAME}_VAULT_PWD" --body "${password}" --repo "https://github.com/mission-apprentissage/infra"
+  gh secret set "${PRODUCT_NAME}_VAULT_PWD" --body "${password}" --repo "${REPO_INFRA}"
 #   # ===> set dans bal (utile pour le deploy)
   gh secret set "VAULT_PWD" --body "$password" --repo "https://github.com/${REPO_NAME}" 
 
-  local habilitations_exist=$(op document list --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com | grep "habilitations-${PRODUCT_NAME}")
+  local habilitations_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep "habilitations-${PRODUCT_NAME}")
   if [[ "$habilitations_exist" != "" ]]; then
-    op document delete "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
+    op document delete "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   fi;
-  cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com
+  cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
 
   cat "${HABILITATIONS_FILE}" | gh secret set "HABILITATIONS" --repo "https://github.com/${REPO_NAME}"
-  cat "${HABILITATIONS_FILE}" | gh secret set "${PRODUCT_NAME}_HABILITATIONS" --repo "https://github.com/mission-apprentissage/infra"
+  cat "${HABILITATIONS_FILE}" | gh secret set "${PRODUCT_NAME}_HABILITATIONS" --repo "${REPO_INFRA}"
 
   rm "${VAULT_PASSWORD_FILE}"
   rm "${HABILITATIONS_FILE}"
 }
 
 if [ ! -f "$HABILITATIONS_FILE" ]; then
-    DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "mna-vault-passwords-common" --account mission-apprentissage.1password.com || echo "") 
+    DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "") 
     echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 fi
 

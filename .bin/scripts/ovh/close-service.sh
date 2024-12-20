@@ -12,8 +12,8 @@ function main() {
   cd "${MODULE_DIR}"
   npm install --quiet
 
-  export APP_KEY=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields username)
-  export APP_SECRET=$(op item get "API OVH" --vault "devsops" --account mission-apprentissage.1password.com --fields credential --reveal)
+  export APP_KEY=$(op item get "API OVH" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --fields username)
+  export APP_SECRET=$(op item get "API OVH" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --fields credential --reveal)
 
   node ./index.js closeService "${env_ip}" "$PRODUCT_NAME" "$@"
   cd - >/dev/null

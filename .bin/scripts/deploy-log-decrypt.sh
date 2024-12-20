@@ -23,7 +23,7 @@ else
 fi
 
 readonly PASSPHRASE="$ROOT_DIR/.bin/DEPLOY_GPG_PASSPHRASE.txt"
-readonly VAULT_FILE="${ROOT_DIR}/.infra/vault/vault.yml"
+readonly VAULT_FILE="${ROOT_DIR}/products/infra/vault/vault.yml"
 
 delete_cleartext() {
   rm -f "$PASSPHRASE"

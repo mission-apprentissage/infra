@@ -1,12 +1,13 @@
-# Configuration Serveurs - Mission Apprentissage
+# Configuration Serveurs - INFRASTRUCTURE
 
-Le dépot contient la configuration de base des serveurs de la mission apprentissage ainsi que les images dockers personnalisées.
+Le dépot contient la configuration de base des serveurs ainsi que les images dockers personnalisées.
 
 ## Reverse Proxy
 
 Le reverse proxy est un serveur nginx, le code se trouve dans le dossier `reverse_proxy`.
 
 L'image est basée sur l'image officielle de nginx et ajoute:
+
 - le module `headers-more-nginx-module`
 - le waf `modsecurity`
 - les fichiers de configuration de base pour:
@@ -19,6 +20,7 @@ L'image est basée sur l'image officielle de nginx et ajoute:
 Fluentd est un collecteur de logs, le code se trouve dans le dossier `fluentd`.
 
 L'image est basée sur l'image officielle de fluentd et ajoute:
+
 - le plugin `fluent-plugin-grafana-loki` pour l'envoi des logs vers loki
 - le plugin `fluent-plugin-prometheus` pour l'exposition des métriques fluentd vers prometheus
 - le plugin `fluent-plugin-s3` pour l'archivage des logs vers s3
@@ -35,6 +37,7 @@ L'image est basée sur l'image officielle de fluentd et ajoute:
 La configuration des serveurs est gérée par ansible, le code se trouve dans le dossier `.infra`.
 
 La configuration de base contient la configuration:
+
 - des accès ssh (habilitations, password policy, sudoers)
 - du firewall (fail2ban, blacklist IPs)
 - du DNS
