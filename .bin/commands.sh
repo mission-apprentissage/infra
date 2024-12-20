@@ -237,7 +237,7 @@ function ssh:known_hosts:update() {
 
   SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
   gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
-  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "https://github.com/mission-apprentissage/infra"
+  gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "${REPO_INFRA}"
 }
 
 function ssh:config() {
