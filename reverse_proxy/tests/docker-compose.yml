@@ -5,7 +5,7 @@ version: "3.8"
 
 services:
   reverse_proxy:
-    image: ghcr.io/mission-apprentissage/infra_reverse_proxy:0.0.7-beta.1
+    image: ghcr.io/mission-apprentissage/mna_reverse_proxy:0.0.7-beta.1
     ports:
       - target: 80
         published: 80
