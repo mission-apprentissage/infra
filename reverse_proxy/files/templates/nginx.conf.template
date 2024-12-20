@@ -17,6 +17,8 @@ http {
     
     sendfile on;
 
+    server_tokens off;
+
     resolver ${DNS_SERVER} valid=5s;
 
     client_body_buffer_size 256k;
