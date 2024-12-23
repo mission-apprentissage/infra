@@ -2,6 +2,9 @@
   tags: kernel
   when: add_kernel_modification == true
 
+- import_tasks: configure-ssh.yml
+  tags: ssh
+
 - import_tasks: configure-system.yml
   tags: system
 
