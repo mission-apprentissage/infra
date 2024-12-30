@@ -35,8 +35,32 @@
 
 - [GnuPG](https://www.gnupg.org/) version 2.0.2 or later.
   - Sur OSX `brew install gnupg`
+  - Sur Windows [gpg4win](https://gpg4win.org/download.html)
 - [Yubikey Manager CLI](https://developers.yubico.com/yubikey-manager/)
   - Sur OSX `brew install ykman`
+
+### WSL
+  L'accès aux interfaces USB depuis WSL étant restreintes, une solution de contournement est d'utiliser l'instance Windows de gpg depuis WSL. 
+
+- Si vos clés sont stockés coté WSL, alors il est nécessaire d'exporter vos clés pour les importer coté Windows. Voir [ce gist](https://gist.github.com/Killeroid/6361944d0694e474fb94cc42a3b119d1) pour l'export et l'import de clé
+> [!IMPORTANT]  
+> Veillez à bien éxécuter l'export depuis WSL (ubuntu), et l'import depuis powershell.  
+> Le chemin d'import depuis windows étant ``\\wsl.localhost\Ubuntu\root\...``
+
+
+- Identifiez où se trouve l'exéctuable coté windows (via Powershell)
+  ```console
+  > where.exe gpg
+  C:\Program Files (x86)\GnuPG\bin\gpg.exe
+  ```
+ - Dans WSL, créez l'alias suivant dans le fichier de votre choix ( ``.bash_aliases``, ``.zshrc``, ...)
+ ```bash
+ alias gpg='/mnt/c/Program\ Files\ \(x86\)/GnuPG/bin/gpg.exe'
+ ```
+  
+
+
+
 
 ## Clef GPG
 
