@@ -100,7 +100,3 @@ Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubun
 ## Mise à jour des Github Action
 
 Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les cas d'exclusions).
-
-## Sauvegarde de la base de données
-
-Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/mission-apprentissage/mongodb]
