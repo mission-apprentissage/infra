@@ -26,7 +26,7 @@ Voir [Prérequis](./pre-requisites.md)
 ### Création du env.ini
 
 ```bash
-.bin/mna product:create <nom_produit>
+.bin/infra product:create <nom_produit>
 ```
 
 Ouvrir le fichier `/products/<nom_produit>/env.ini` et mettre à jour les variables `product_name` & `repo`
@@ -42,7 +42,7 @@ Récupérez le slack webhook depuis https://api.slack.com/apps/A01JENR8874
 Mettre à jour le vault
 
 ```bash
-.bin/mna vault:edit
+.bin/infra vault:edit
 ```
 
 ## Déclaration de l'environnement
@@ -75,9 +75,9 @@ Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/re
 Pour configurer l'environnement, il faut lancer la commande suivante :
 
 ```bash
-.bin/mna ssh:known_hosts:update <nom_produit>
-.bin/mna system:setup:initial <nom_produit> <nom_environnement>
-.bin/mna ssh:config <nom_produit>
+.bin/infra ssh:known_hosts:update <nom_produit>
+.bin/infra system:setup:initial <nom_produit> <nom_environnement>
+.bin/infra ssh:config <nom_produit>
 ```
 
 L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à l'administrateur du compte OVH et est également disponible dans les emails de service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
@@ -94,7 +94,7 @@ ssh <nom_produit>-<nom_environnement>
 Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubuntu` :
 
 ```bash
-.bin/mna system:user:remove <nom_produit> <nom_environnement> ubuntu --user <votre_nom_utilisateur>
+.bin/infra system:user:remove <nom_produit> <nom_environnement> ubuntu --user <votre_nom_utilisateur>
 ```
 
 ## Mise à jour des Github Action
@@ -103,4 +103,4 @@ Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les c
 
 ## Sauvegarde de la base de données
 
-Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/mission-apprentissage/mongodb]
+Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/ORGA/mongodb]

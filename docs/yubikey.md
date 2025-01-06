@@ -48,12 +48,11 @@ Dans cette partie nous verrons comment configurer Yubikey pour stocker vos clefs
 
 La première clef a etre généré sera la clef maitre, qui sera utilisé pour certifier uniquement.
 
-**Important:** la clef maitre doit etre conservé hors-ligne et utilisé uniquement pour générer ou révoquer les sous-clefs. 
+**Important:** la clef maitre doit etre conservé hors-ligne et utilisé uniquement pour générer ou révoquer les sous-clefs.
 
 **Important:** Veuillez utiliser une phrase-secrete robuste.
 
-Généré une nouvelle clef GPG, en séléctionnant `(11) ECC (set your own capabilities)`, la capacité de `Certifier`  only and `4096` bit key size.
-
+Généré une nouvelle clef GPG, en séléctionnant `(11) ECC (set your own capabilities)`, la capacité de `Certifier` only and `4096` bit key size.
 
 ```console
 $ gpg --expert --full-generate-key
@@ -75,8 +74,8 @@ Sélectionnez le type de clef désiré :
   (14) Existing key from card
 Quel est votre choix ? 11
 
-Possible actions for this ECC key: Signer Certifier Authentifier 
-Actions actuellement permises : Signer Certifier 
+Possible actions for this ECC key: Signer Certifier Authentifier
+Actions actuellement permises : Signer Certifier
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -84,8 +83,8 @@ Actions actuellement permises : Signer Certifier
 
 Quel est votre choix ? S
 
-Possible actions for this ECC key: Signer Certifier Authentifier 
-Actions actuellement permises : Certifier 
+Possible actions for this ECC key: Signer Certifier Authentifier
+Actions actuellement permises : Certifier
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -93,8 +92,8 @@ Actions actuellement permises : Certifier
 
 Quel est votre choix ? A
 
-Possible actions for this ECC key: Signer Certifier Authentifier 
-Actions actuellement permises : Certifier Authentifier 
+Possible actions for this ECC key: Signer Certifier Authentifier
+Actions actuellement permises : Certifier Authentifier
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -102,8 +101,8 @@ Actions actuellement permises : Certifier Authentifier
 
 Quel est votre choix ? A
 
-Possible actions for this ECC key: Signer Certifier Authentifier 
-Actions actuellement permises : Certifier 
+Possible actions for this ECC key: Signer Certifier Authentifier
+Actions actuellement permises : Certifier
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -135,7 +134,7 @@ GnuPG doit construire une identité pour identifier la clef.
 
 Nom réel : Moroine Bentefrit
 Adresse électronique : moroine.bentefrit@beta.gouv.fr
-Commentaire : 
+Commentaire :
 Vous avez sélectionné cette identité :
     « Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr> »
 
@@ -161,13 +160,10 @@ $ export KEYID=9430B570051988403A178AB850F902F567461135
 
 ### Création des sous-clefs
 
-Éditez la clef maitre pour ajouter les sous-clefs:
-    - signature
-    - encryption
-    - authentification
+Éditez la clef maitre pour ajouter les sous-clefs: - signature - encryption - authentification
 
 ```console
-$ gpg --expert --edit-key $KEYID                       
+$ gpg --expert --edit-key $KEYID
 gpg (GnuPG) 2.4.3; Copyright (C) 2023 g10 Code GmbH
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -179,7 +175,7 @@ gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: profondeur : 0  valables :   1  signées :   0
      confiance : 0 i., 0 n.d., 0 j., 0 m., 0 t., 1 u.
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
@@ -224,10 +220,10 @@ pendant la génération de nombres premiers ; cela donne au générateur de
 nombres aléatoires une meilleure chance d'obtenir suffisamment d'entropie.
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> addkey
@@ -271,12 +267,12 @@ pendant la génération de nombres premiers ; cela donne au générateur de
 nombres aléatoires une meilleure chance d'obtenir suffisamment d'entropie.
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> addkey
@@ -294,8 +290,8 @@ Sélectionnez le type de clef désiré :
   (14) Existing key from card
 Quel est votre choix ? 11
 
-Possible actions for this ECC key: Signer Authentifier 
-Actions actuellement permises : Signer 
+Possible actions for this ECC key: Signer Authentifier
+Actions actuellement permises : Signer
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -303,19 +299,9 @@ Actions actuellement permises : Signer
 
 Quel est votre choix ? s
 
-Alan ? certaines de ces opérations semblent faire puis défaire puis refaire la même conf.
 
-Possible actions for this ECC key: Signer Authentifier 
-Actions actuellement permises : 
-
-   (S) Inverser la capacité de signature
-   (A) Inverser la capacité d'authentification
-   (Q) Terminé
-
-Quel est votre choix ? S
-
-Possible actions for this ECC key: Signer Authentifier 
-Actions actuellement permises : Signer 
+Possible actions for this ECC key: Signer Authentifier
+Actions actuellement permises :
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -323,8 +309,17 @@ Actions actuellement permises : Signer
 
 Quel est votre choix ? S
 
-Possible actions for this ECC key: Signer Authentifier 
-Actions actuellement permises : 
+Possible actions for this ECC key: Signer Authentifier
+Actions actuellement permises : Signer
+
+   (S) Inverser la capacité de signature
+   (A) Inverser la capacité d'authentification
+   (Q) Terminé
+
+Quel est votre choix ? S
+
+Possible actions for this ECC key: Signer Authentifier
+Actions actuellement permises :
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -332,8 +327,8 @@ Actions actuellement permises :
 
 Quel est votre choix ? A
 
-Possible actions for this ECC key: Signer Authentifier 
-Actions actuellement permises : Authentifier 
+Possible actions for this ECC key: Signer Authentifier
+Actions actuellement permises : Authentifier
 
    (S) Inverser la capacité de signature
    (A) Inverser la capacité d'authentification
@@ -367,14 +362,14 @@ pendant la génération de nombres premiers ; cela donne au générateur de
 nombres aléatoires une meilleure chance d'obtenir suffisamment d'entropie.
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> save
@@ -417,6 +412,7 @@ $ gpg --output revoke.asc --gen-revoke $KEYID
 ### Conservation des Backups
 
 Le fichier `secret-key.asc` est sensible, car ils représentent une copie sécurisée uniquement par votre phrase secrete. Pour archiver ces fichiers vous avez plusieurs possibilitées:
+
 - Sur une clef USB chiffrée: https://github.com/drduh/YubiKey-Guide?tab=readme-ov-file#backup
 - Sur papier: https://wiki.archlinux.org/title/Paperkey
 - Chiffré via votre clef GPG et stocké dans 1password (n'oubliez pas d'activer le 2FA sur votre compte 1password).
@@ -424,6 +420,7 @@ Le fichier `secret-key.asc` est sensible, car ils représentent une copie sécur
 #### Sur papier
 
 Pré-requis:
+
 - [Paperkey](https://wiki.archlinux.org/title/Paperkey)
   - OSX: `brew install paperkey`
 - [QrEncode](https://fukuchi.org/works/qrencode/index.html.en)
@@ -469,6 +466,7 @@ ssb#  ed25519 2024-01-30 [S]
 ```
 
 > [!IMPORTANT]
+>
 > - Imprimez votre QR Code
 > - Conservez votre phrase secrete sur 1password
 > - Conservez le fichier `public.crt` sur 1password
@@ -481,7 +479,8 @@ $ gpg --encrypt --armor --recipient $KEYID -o secret-key.asc.encrypted secret-ke
 ```
 
 > [!IMPORTANT]
-> - Conservez le fichier `secret-key.asc.encrypted` 
+>
+> - Conservez le fichier `secret-key.asc.encrypted`
 > - Conservez votre phrase secrete sur 1password
 > - Conservez le fichier `public.crt` sur 1password
 > - Conservez le fichier `revoke.asc` sur 1password
@@ -504,7 +503,7 @@ Manufacturer .....: Yubico
 Serial number ....: 25487057
 Name of cardholder: [non positionné]
 Language prefs ...: [non positionné]
-Salutation .......: 
+Salutation .......:
 URL of public key : [non positionné]
 Login data .......: [non positionné]
 Signature PIN ....: non forcé
@@ -532,11 +531,11 @@ Les commandes d'administration sont permises
 > 3 mauvais PIN successifs, bloquent la clef qui peut etre débloquée via le PIN Admin
 > 3 mauvais PIN Admin ou Reset successifs détruisent toutes les données GPG sur la clef
 
-Name       | Default Value | Use
------------|---------------|-------------------------------------------------------------
-PIN        | `123456`      | decrypt and authenticate (SSH)
-Admin PIN  | `12345678`    | reset *PIN*, change *Reset Code*, add keys and owner information
-Reset code | _**None**_    | reset *PIN* ([more information](https://forum.yubico.com/viewtopicd01c.html?p=9055#p9055))
+| Name       | Default Value | Use                                                                                        |
+| ---------- | ------------- | ------------------------------------------------------------------------------------------ |
+| PIN        | `123456`      | decrypt and authenticate (SSH)                                                             |
+| Admin PIN  | `12345678`    | reset _PIN_, change _Reset Code_, add keys and owner information                           |
+| Reset code | _**None**_    | reset _PIN_ ([more information](https://forum.yubico.com/viewtopicd01c.html?p=9055#p9055)) |
 
 > [!TIP]
 > Pour les PINS vous pouvez utiliser n'importe quel charactere.
@@ -622,13 +621,13 @@ Mettez à jour la configuration du touch:
 
 ```console
 $ ykman openpgp keys set-touch aut cached
-Enter Admin PIN: 
+Enter Admin PIN:
 Set touch policy of AUT key to cached? [y/N]: y
 $ ykman openpgp keys set-touch sig cached
-Enter Admin PIN: 
+Enter Admin PIN:
 Set touch policy of SIG key to cached? [y/N]: y
 $ ykman openpgp keys set-touch dec cached
-Enter Admin PIN: 
+Enter Admin PIN:
 Set touch policy of DEC key to cached? [y/N]: y
 ```
 
@@ -646,33 +645,33 @@ There is NO WARRANTY, to the extent permitted by law.
 La clef secrète est disponible.
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 ```
 
 > La clef selectionnée est identifiée par le charactere `*` (par exemple `ssb*` dans le code suivant).
 
-Clef de signature: 
+Clef de signature:
 
 ```console
 gpg> key 1
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb* ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> keytocard
@@ -682,14 +681,14 @@ Veuillez sélectionner l'endroit où stocker la clef :
 Quel est votre choix ? 1
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb* ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 Note: the local copy of the secret key will only be deleted with "save".
@@ -701,27 +700,27 @@ Clef d'enryption (taper `key 1` pour déséléctionner et `key 2` pour sélécti
 gpg> key 1
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> key 2
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb* cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> keytocard
@@ -730,14 +729,14 @@ Veuillez sélectionner l'endroit où stocker la clef :
 Quel est votre choix ? 2
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb* cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 Note: the local copy of the secret key will only be deleted with "save".
@@ -749,27 +748,27 @@ Clef d'authentification (taper `key 2` pour déséléctionner et `key 3` pour s�
 gpg> key 2
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> key 3
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb* ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> keytocard
@@ -778,14 +777,14 @@ Veuillez sélectionner l'endroit où stocker la clef :
 Quel est votre choix ? 3
 
 sec  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
 ssb* ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 Note: the local copy of the secret key will only be deleted with "save".
@@ -850,16 +849,16 @@ $ gpg --import secret-key.asc
 $ gpg --edit-key $KEYID
 gpg> trust
 pub  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : inconnu       validité : inconnu
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
      nº de carte : 0006 25487150
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
      nº de carte : 0006 25487150
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
      nº de carte : 0006 25487150
 [ inconnue] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
@@ -878,16 +877,16 @@ Quelle est votre décision ? 5
 Voulez-vous vraiment attribuer une confiance ultime à cette clef ? (o/N) o
 
 pub  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : inconnu
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
      nº de carte : 0006 25487150
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
      nº de carte : 0006 25487150
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
      nº de carte : 0006 25487150
 [ inconnue] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 Veuillez remarquer que la validité affichée pour la clef n'est pas
@@ -897,6 +896,7 @@ gpg> quit
 ```
 
 Répéter les étapes:
+
 - [Configuration de la Yubikey](#configuration-de-la-yubikey)
 - [Transfer de la clef](#transfer-de-la-clef)
 - [Vérification](#vérification)
@@ -911,11 +911,12 @@ $  gpg-connect-agent "scd serialno" "learn --force" /bye
 
 > [!CAUTION]
 > Veuillez vous assurer que:
->   - Les sous-clef de signature, de chiffrement et d'authentification sont sur la Yubikey (`gpg -K` doit afficher `ssb>`)
->   - Le PIN et Admin PIN des Yubikey ont été changé
->   - La phrase secrete de la clef maitre est conservée sur 1password
->   - Le certificat publique est conservé sur 1password (et keyserver.ubuntu.com)
->   - La clef secrete est conservée dans un endroit sécurisé
+>
+> - Les sous-clef de signature, de chiffrement et d'authentification sont sur la Yubikey (`gpg -K` doit afficher `ssb>`)
+> - Le PIN et Admin PIN des Yubikey ont été changé
+> - La phrase secrete de la clef maitre est conservée sur 1password
+> - Le certificat publique est conservé sur 1password (et keyserver.ubuntu.com)
+> - La clef secrete est conservée dans un endroit sécurisé
 
 ```console
 $ gpg --delete-secret-key $KEYID
@@ -926,6 +927,7 @@ $ sudo rm secret-key.* revoke.asc
 
 1. Connectez votre Yubikey
 2. Utilisez la commande `fetch` pour récupérer la clef public de la carte
+
 ```console
 $ gpg --edit-card
 
@@ -954,14 +956,14 @@ Encryption key....: 8FE4 08C8 085D 4E8E A2AC  8B8A A35C AEB0 8D47 5485
       created ....: 2024-01-30 20:32:52
 Authentication key: AF35 C111 C16A EE8F 7BBF  3CB9 852D F0FB 24EE FDE0
       created ....: 2024-01-30 20:34:55
-General key info..: 
+General key info..:
 sub  ed25519/B3099E198CD0932A 2024-01-30 Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
-sec#  ed25519/50F902F567461135  créé : 2024-01-30  expire : jamais    
-ssb>  ed25519/852DF0FB24EEFDE0  créé : 2024-01-30  expire : jamais    
+sec#  ed25519/50F902F567461135  créé : 2024-01-30  expire : jamais
+ssb>  ed25519/852DF0FB24EEFDE0  créé : 2024-01-30  expire : jamais
                                 nº de carte : 0006 25487057
-ssb>  cv25519/A35CAEB08D475485  créé : 2024-01-30  expire : jamais    
+ssb>  cv25519/A35CAEB08D475485  créé : 2024-01-30  expire : jamais
                                 nº de carte : 0006 25487057
-ssb>  ed25519/B3099E198CD0932A  créé : 2024-01-30  expire : jamais    
+ssb>  ed25519/B3099E198CD0932A  créé : 2024-01-30  expire : jamais
                                 nº de carte : 0006 25487057
 
 gpg/carte> fetch
@@ -974,11 +976,13 @@ gpg/carte> quit
 ```
 
 3. Définissez la variable KEYID (présente dans le resultat de la commande précédente)
+
 ```console
 $ export KEYID=0xFF3E7D88647EBCDB
 ```
 
 4. Attribuez une valeur de confiance à la clef
+
 ```console
  gpg --edit-key $KEYID
 gpg (GnuPG) 2.4.3; Copyright (C) 2023 g10 Code GmbH
@@ -988,31 +992,31 @@ There is NO WARRANTY, to the extent permitted by law.
 Secret subkeys are available.
 
 pub  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
      nº de carte : 0006 25487057
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
      nº de carte : 0006 25487057
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
      nº de carte : 0006 25487057
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
 gpg> trust
 pub  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
      nº de carte : 0006 25487057
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
      nº de carte : 0006 25487057
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
      nº de carte : 0006 25487057
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
@@ -1031,16 +1035,16 @@ Quelle est votre décision ? 5
 Voulez-vous vraiment attribuer une confiance ultime à cette clef ? (o/N) o
 
 pub  ed25519/50F902F567461135
-     créé : 2024-01-30  expire : jamais      utilisation : C   
+     créé : 2024-01-30  expire : jamais      utilisation : C
      confiance : ultime        validité : ultime
 ssb  ed25519/852DF0FB24EEFDE0
-     créé : 2024-01-30  expire : jamais      utilisation : A   
+     créé : 2024-01-30  expire : jamais      utilisation : A
      nº de carte : 0006 25487057
 ssb  cv25519/A35CAEB08D475485
-     créé : 2024-01-30  expire : jamais      utilisation : E   
+     créé : 2024-01-30  expire : jamais      utilisation : E
      nº de carte : 0006 25487057
 ssb  ed25519/B3099E198CD0932A
-     créé : 2024-01-30  expire : jamais      utilisation : S   
+     créé : 2024-01-30  expire : jamais      utilisation : S
      nº de carte : 0006 25487057
 [  ultime ] (1). Moroine Bentefrit <moroine.bentefrit@beta.gouv.fr>
 
@@ -1075,13 +1079,14 @@ Ajouter votre certificat publique sur [Github](https://github.com/settings/keys)
 
 ### Pré-requis
 
-- Disposer du fichier de configuration VPN https://github.com/mission-apprentissage/vpn
+- Disposer du fichier de configuration VPN https://github.com/ORGA/vpn
 - Avoir déchiffré le fichier de configuration
 - [Yubikey Manager](https://www.yubico.com/support/download/yubikey-manager/)
 
 ### Extraction des certficats
 
 Ouvrer le fichier de configuration, et créer deux fichiers:
+
 - `openvpn-key.crt`: issue du contenu de la baslise `<key>` du fichier de configuration.
 - `openvpn-cert.crt`: issue du contenu de la balise `<cert>`, uniquement le entre les balises `-----BEGIN CERTIFICATE-----` & `-----END CERTIFICATE-----` (copier les balises également).
 

@@ -1,0 +1,96 @@
+---
+# recommandation from https://www.sshaudit.com/hardening_guides.html
+# keys configuration is skipped (first 2 steps of the documentation above)
+
+- name: Regen host keys
+  command: /opt/app/tools/ssh/regen-host-key.sh
+  args:
+    creates: /etc/ssh/ssh_host_keys_generated
+
+- name: Create safe moduli file
+  command: /opt/app/tools/ssh/moduli_file.sh
+  args:
+    creates: /etc/ssh/moduli.safe
+
+- name: Get if moduli file has been modified
+  stat:
+    path: /etc/ssh/moduli
+  register: moduli_stat
+
+- name: Get if moduli safe file has been modified
+  stat:
+    path: /etc/ssh/moduli.safe
+  register: moduli_safe_stat
+
+- name: Move moduli.safe to moduli
+  command: mv /etc/ssh/moduli.safe /etc/ssh/moduli
+  when: moduli_stat.stat.checksum != moduli_safe_stat.stat.checksum
+  notify:
+    - restart-ssh
+
+- name: Create SSH hardening configuration Ubuntu 22
+  copy:
+    dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
+    content: |
+      # Restrict key exchange, cipher, and MAC algorithms, as per sshaudit.com
+      # hardening guide.
+      KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,gss-curve25519-sha256-,diffie-hellman-group16-sha512,gss-group16-sha512-,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-gcm@openssh.com,aes128-ctr
+
+      MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
+
+      HostKeyAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+
+      CASignatureAlgorithms sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sh2-256
+
+      GSSAPIKexAlgorithms gss-curve25519-sha256-,gss-group16-sha512-
+
+      HostbasedAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
+
+      PubkeyAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
+  when: ansible_facts['distribution_major_version'] == '22'
+  notify:
+    - restart-ssh
+
+- name: Create SSH hardening configuration Ubuntu 24
+  copy:
+    dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
+    content: |
+      # Restrict key exchange, cipher, and MAC algorithms, as per sshaudit.com
+      # hardening guide.
+      KexAlgorithms sntrup761x25519-sha512@openssh.com,gss-curve25519-sha256-,curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256,gss-group16-sha512-,diffie-hellman-group16-sha512
+
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-gcm@openssh.com,aes128-ctr
+
+      MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+
+      RequiredRSASize 3072
+
+      HostKeyAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+
+      CASignatureAlgorithms sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+
+      GSSAPIKexAlgorithms gss-curve25519-sha256-,gss-group16-sha512-
+
+      HostbasedAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+
+      PubkeyAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+  when: ansible_facts['distribution_major_version'] == '24'
+  notify:
+    - restart-ssh
+
+- name: IPtable
+  ansible.builtin.shell:
+    cmd: /opt/app/tools/ssh/iptables.sh
+
+# Do not use iptables-persistant due to conflict with fail2ban and docker policies
+- name: Run IPtable script after reboot
+  ansible.builtin.cron:
+    name: "iptables"
+    special_time: "reboot"
+    job: "/opt/app/tools/ssh/iptables.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Restore SSH iptables' -v $?"
+
+- name: Validate sshd Config
+  shell:
+    cmd: sshd -t

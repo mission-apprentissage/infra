@@ -1,24 +1,13 @@
 - name: Install fail2ban packages
   apt:
-    name: [ 'fail2ban' ]
-  when: ansible_facts['distribution_major_version'] != '24'
-
-# Workaround waiting fail2ban fix for Ubuntu 24.04
-# https://github.com/fail2ban/fail2ban/issues/3487
-# https://bugs.launchpad.net/ubuntu/+source/fail2ban/+bug/2055114
-- name: Install fail2ban packages for Ubuntu 24.04
-  apt:
-    deb: https://launchpad.net/ubuntu/+source/fail2ban/1.1.0-1/+build/28291332/+files/fail2ban_1.1.0-1_all.deb
-  when: ansible_facts['distribution_major_version'] == '24'
+    name: ["fail2ban"]
+  when: ansible_facts['distribution_major_version'] != '23'
 
 - name: start-fail2ban
   service:
     name: fail2ban
     enabled: true
     state: started
-
-- name: Ensure nginx error.log exists
-  ansible.builtin.shell: touch /opt/app/system/nginx/error.log
 
 - name: Copy fail2ban actions
   copy:

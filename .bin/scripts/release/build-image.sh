@@ -4,9 +4,9 @@ set -euo pipefail
 
 readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fluentd)"}
 shift
-readonly VERSION=$(${SCRIPT_DIR}/release/get-version.sh $TAG_PREFIX)
+readonly VERSION=$("$SCRIPT_DIR/release/get-version.sh" $TAG_PREFIX)
 
-echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/mission-apprentissage/)"
+echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/${GITHUB_ORGANIZATION}/)"
 
 get_channel() {
   local version="$1"
@@ -102,20 +102,21 @@ case $RES_LOGIN in
     ;;
 esac
 
+
 set +e
-docker buildx create --name mna --driver docker-container --bootstrap --use 2> /dev/null
+docker buildx create --name infra --driver docker-container --bootstrap --use 2> /dev/null
 set -e
 
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
-      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:"$NEXT_VERSION" \
-      --tag ghcr.io/mission-apprentissage/mna_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
-      --label "org.opencontainers.image.source=https://github.com/mission-apprentissage/infra" \
-      --label "org.opencontainers.image.description=$TAG_PREFIX Mission Apprentissage" \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:"$NEXT_VERSION" \
+      --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
+      --label "org.opencontainers.image.source=$REPO_INFRA" \
+      --label "org.opencontainers.image.description=$TAG_PREFIX Infra" \
       --label "org.opencontainers.image.version=$NEXT_VERSION" \
       --label "org.opencontainers.image.licenses=MIT" \
-      --builder mna \
+      --builder infra \
       --push
 
 TAG="$TAG_PREFIX@$NEXT_VERSION"
