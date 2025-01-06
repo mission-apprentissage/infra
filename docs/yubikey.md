@@ -35,8 +35,10 @@
 
 - [GnuPG](https://www.gnupg.org/) version 2.0.2 or later.
   - Sur OSX `brew install gnupg`
+  - Sur Ubuntu `sudo apt install gnupg`
 - [Yubikey Manager CLI](https://developers.yubico.com/yubikey-manager/)
   - Sur OSX `brew install ykman`
+  - Sur Ubuntu `snap install ykman`
 
 ## Clef GPG
 
@@ -296,6 +298,7 @@ Actions actuellement permises : Signer
    (Q) Terminé
 
 Quel est votre choix ? s
+
 
 Possible actions for this ECC key: Signer Authentifier
 Actions actuellement permises :
@@ -572,6 +575,8 @@ gpg/carte> quit
 
 Activer KDF:
 
+Alan ? l'activation de cette commande après le changement de PIN semble avoir invalidé lesdits changements.
+
 ```console
 $ gpg --card-edit
 
@@ -599,8 +604,7 @@ gpg/carte> sex
 Salutation (M = Mr., F = Ms., or space): M
 
 gpg/carte> url
-URL pour récupérer la clef publique : https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9430b570051988403a178ab850f902f567461135
-
+URL pour récupérer la clef publique : https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xVOTRE_$_KEYID
 gpg/carte> quit
 ```
 
@@ -608,6 +612,12 @@ gpg/carte> quit
 > L'url dépend de votre id de clef publique
 
 Mettez à jour la configuration du touch:
+
+> [!IMPORTANT]
+> Ubuntu : La connection ykman à la yubikey peut nécessiter de jouer les trois actions suivantes :
+>   - sudo wget -O /etc/udev/rules.d/70-yubikey.rules https://raw.githubusercontent.com/Yubico/libu2f-host/master/70-u2f.rules
+>   - sudo udevadm control --reload-rules
+>   - débrancher rebrancher la yubikey (pour la deuxième clef j'ai dû refaire cette action avant l'étape suivante)
 
 ```console
 $ ykman openpgp keys set-touch aut cached
