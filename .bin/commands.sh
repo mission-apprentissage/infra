@@ -58,6 +58,11 @@ function system:setup() {
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+
+  TAG="$PRODUCT_NAME-$ENV_NAME"
+  echo "Creating tag $TAG"
+  git --git-dir="$ROOT_DIR/.git" tag -f $TAG
+  git --git-dir="$ROOT_DIR/.git" push -f origin $TAG
 }
 
 function system:reboot() {
