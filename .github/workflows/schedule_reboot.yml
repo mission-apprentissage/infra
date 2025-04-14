@@ -8,11 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["sirius", "orion", "monitoring"]
-        environment: ["production", "recette", "preview", "pentest", "preprod"]
-        exclude:
-          - product: "sirius"
-            environment: "production"
+        product: ["orion"]
+        environment: ["production", "recette1", "recette2"]
     name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
     uses: "./.github/workflows/_reboot.yml"
     with:

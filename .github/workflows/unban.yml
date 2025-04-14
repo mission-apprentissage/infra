@@ -13,7 +13,7 @@ jobs:
       matrix:
         product: ["sirius", "orion", "monitoring"]
         environment:
-          ["production", "recette2", "recette", "preview", "pentest", "preprod"]
+          ["production", "recette2", "recette1"]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
