@@ -14,6 +14,8 @@ http {
     send_timeout 10s;
     client_body_timeout 10s;
     client_header_timeout 10s;
+
+    proxy_cache_path /data/nginx/cache keys_zone=main inactive=1d;
     
     sendfile on;
 
