@@ -226,7 +226,8 @@ function ssh:known_hosts:update() {
     fi;
   done;
 
-  ssh-keyscan -t ed25519,rsa ${ips} >> ~/.ssh/known_hosts 2> /dev/null
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null)
+  echo ${SSH_KNOWN_HOSTS} >> ~/.ssh/known_hosts 2> /dev/null
 
   read -p "Do you want to update github variable? [Y/n]" response
 
@@ -240,7 +241,6 @@ function ssh:known_hosts:update() {
 
   local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
-  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null)
   gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
   gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "${REPO_INFRA}"
 }
