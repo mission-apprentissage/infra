@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       cluster:
+        description: The cluster to reboot
         type: string
         required: true
       numbers:
@@ -23,7 +24,7 @@ on:
         required: true
       DEPLOY_PASS:
         required: true
-      SLACK_WEBHOOK:
+      SLACK_WEBHOOK_ALERTS:
         required: true
       VAULT_PWD:
         required: true
@@ -52,7 +53,7 @@ jobs:
     secrets:
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
       VAULT_PWD: ${{ secrets.VAULT_PWD }}
       HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}

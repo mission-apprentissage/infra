@@ -220,14 +220,16 @@ function ssh:known_hosts:update() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
+
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null)
+
   for ip in ${ips}; do
     if [[ "${ip}" != "x.x.x.x" ]]; then
       ssh-keygen -R ${ip}
     fi;
   done;
 
-  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null)
-  echo ${SSH_KNOWN_HOSTS} >> ~/.ssh/known_hosts 2> /dev/null
+  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts 2> /dev/null
 
   read -p "Do you want to update github variable? [Y/n]" response
 
