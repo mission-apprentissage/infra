@@ -154,9 +154,18 @@
 - name: Add cron to check if system reboot is required
   ansible.builtin.cron:
     name: "reboot-required"
+    weekday: "0"
     minute: "0"
     hour: "10"
     job: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
+
+- name: Add cron to reboot if system reboot is required
+  ansible.builtin.cron:
+    name: "reboot-if-required"
+    weekday: "6"
+    minute: "57"
+    hour: "5"
+    job: "[ -f /var/run/reboot-required ] && reboot"
 
 # https://bugs.launchpad.net/ubuntu/+source/apt/+bug/2003851
 - name: Add cron to fix apt.systemd.daily BUG
