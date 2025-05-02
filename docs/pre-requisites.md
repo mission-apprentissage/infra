@@ -5,16 +5,30 @@
 Contient l'ensemble des données sensibles nécessaires à la mise en place de
 l'application.
 
-- Ansible 2.7+: `brew install ansible`
-- sshpass
-  ```bash
-  brew tap esolitos/ipa
-  brew install esolitos/ipa/sshpass
-  ```
-- pwgen: `brew install pwgen`
-- bash 5+: `brew install bash`
-- 1Password CLI
-- Brew (jq)
+- Ansible :
+```bash
+brew install ansible
+```
+- sshpass :
+```bash
+brew tap esolitos/ipa
+```
+```bash
+brew install esolitos/ipa/sshpass
+```
+- pwgen:
+```bash
+brew install pwgen
+```
+- bash 5+:
+```bash
+brew install bash
+```
+- 1Password CLI : https://developer.1password.com/docs/cli/get-started/
+- Brew (jq) :
+```bash
+brew install jq
+```
 
 ### GPG
 
