@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       ip:
+        description: The IP to unban
         type: string
         required: true
 
@@ -73,4 +74,4 @@ jobs:
           notify_when: "failure"
           mention_groups: "!channel"
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}

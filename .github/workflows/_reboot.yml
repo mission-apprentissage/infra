@@ -21,7 +21,7 @@ on:
       DEPLOY_PASS:
         description: SSH PWD TO DEPLOY
         required: true
-      SLACK_WEBHOOK:
+      SLACK_WEBHOOK_ALERTS:
         description: Slack webhook URL
         required: true
       VAULT_PWD:
@@ -103,4 +103,4 @@ jobs:
           notify_when: "failure"
           mention_groups: "!channel"
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
