@@ -27,4 +27,6 @@ if [[ `command -v $command` != $command ]]; then
   Help
 fi;
 
+"${SCRIPT_DIR}/ensure-gh-op-auth.sh"
+
 $command "$@"
