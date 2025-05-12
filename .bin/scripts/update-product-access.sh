@@ -28,7 +28,7 @@ function create_password_file() {
 
   local pass_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep ".vault-password-${PRODUCT_NAME}")
   if [[ "$pass_exist" != "" ]]; then
-    cat "${VAULT_PASSWORD_FILE}" | op document edit - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-${PRODUCT_NAME}" - --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   else
     cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   fi;
@@ -40,7 +40,7 @@ function create_password_file() {
 
   local habilitations_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep "habilitations-${PRODUCT_NAME}")
   if [[ "$habilitations_exist" != "" ]]; then
-    cat "${HABILITATIONS_FILE}" | op document edit - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-${PRODUCT_NAME}" - --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   else
     cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
   fi;
