@@ -42,10 +42,8 @@ function create_password_file() {
   rm "${HABILITATIONS_FILE}"
 }
 
-if [ ! -f "$HABILITATIONS_FILE" ]; then
-    DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "") 
-    echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
-fi
+DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "") 
+echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 
 code -w "${HABILITATIONS_FILE}"
 
