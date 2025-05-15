@@ -19,21 +19,34 @@
     password_expire_max: 90
     password_expire_min: 1
 
-- name: Ensure .bash_logout file exists and has the required content for deploy user
-  copy:
-    src: "{{playbook_dir}}/../files/homedir/bash_logout"
-    dest: /home/deploy/.bash_logout
+
+- name: Disable bash history for deploy user
+  blockinfile:
+    path: "/home/deploy/.bashrc"
+    create: yes
     owner: deploy
     group: deploy
     mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - DISABLE BASH HISTORY"
+    block: |
+      # Disable bash history
+      unset HISTFILE
+      HISTSIZE=0
+      HISTFILESIZE=0
 
-- name: Ensure .bash_logout file exists and has the required content for root user
-  copy:
-    src: "{{playbook_dir}}/../files/homedir/bash_logout"
-    dest: /root/.bash_logout
+- name: Disable bash history for root user
+  blockinfile:
+    path: "/home/{{ habilitation.username }}/.bashrc"
+    create: yes
     owner: root
     group: root
     mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - DISABLE BASH HISTORY"
+    block: |
+      # Disable bash history
+      unset HISTFILE
+      HISTSIZE=0
+      HISTFILESIZE=0
 
 - name: "Ajout des clés d'autorisation à l'utilisateur deploy"
   authorized_key:

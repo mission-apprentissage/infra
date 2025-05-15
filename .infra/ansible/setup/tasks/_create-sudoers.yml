@@ -1,4 +1,4 @@
-- name: Vérification de l'existence du groupe "{{user_group}}"
+- name: "Vérification de l'existence du groupe {{user_group}}"
   group:
     name: "{{ user_group }}"
     state: present
@@ -28,10 +28,16 @@
   loop_control:
     loop_var: key
 
-- name: Ensure .bash_logout file exists and has the required content for sudo users
-  copy:
-    src: "{{playbook_dir}}/../files/homedir/bash_logout"
-    dest: "/home/{{ habilitation.username }}/.bash_logout"
+- name: "Disable bash history for {{ habilitation.username }}" 
+  blockinfile:
+    path: "/home/{{ habilitation.username }}/.bashrc"
+    create: yes
     owner: "{{ habilitation.username }}"
     group: "{{ habilitation.username }}"
     mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - DISABLE BASH HISTORY"
+    block: |
+      # Disable bash history
+      unset HISTFILE
+      HISTSIZE=0
+      HISTFILESIZE=0
