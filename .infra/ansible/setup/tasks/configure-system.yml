@@ -173,3 +173,19 @@
     name: "apt-systemd-bug"
     minute: "30"
     job: "bash /opt/app/tools/workaround/apt-daily.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Apt Daily Workaround' -v $?"
+
+- name: Disable bash history for all users
+  copy:
+    dest: /etc/profile.d/disable_history.sh
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Disable bash history for all users
+
+      export HISTFILE=/dev/null
+      export HISTSIZE=0
+      export HISTFILESIZE=0
+      unset HISTFILE
+      set +o history
