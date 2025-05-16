@@ -27,17 +27,3 @@
   loop: "{{ habilitation.authorized_keys }}"
   loop_control:
     loop_var: key
-
-- name: "Disable bash history for {{ habilitation.username }}" 
-  blockinfile:
-    path: "/home/{{ habilitation.username }}/.bashrc"
-    create: yes
-    owner: "{{ habilitation.username }}"
-    group: "{{ habilitation.username }}"
-    mode: "0644"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - DISABLE BASH HISTORY"
-    block: |
-      # Disable bash history
-      unset HISTFILE
-      HISTSIZE=0
-      HISTFILESIZE=0
