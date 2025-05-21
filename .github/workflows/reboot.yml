@@ -30,7 +30,6 @@ jobs:
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
       SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-      SLACK_WEBHOOK_NOTIF: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
       VAULT_PWD: ${{ secrets.VAULT_PWD }}
       HABILITATIONS: ${{ secrets[format('{0}_HABILITATIONS', matrix.product)] }}
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
