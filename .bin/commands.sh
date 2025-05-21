@@ -213,7 +213,7 @@ function ssh:known_hosts:print() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
-  ssh-keyscan ${ips}
+  ssh-keyscan -t ed25519,rsa ${ips}
 }
 
 function ssh:known_hosts:update() {
