@@ -184,11 +184,13 @@ function product:create() {
 }
 
 function product:access:update() {
-  "$SCRIPT_DIR/update-product-access.sh" "$@"
+  editor=${EDITOR:-'code -w'}
+  EDITOR=$editor "$SCRIPT_DIR/update-product-access.sh" "$@"
 }
 
 function infra:access:update() {
-  "$SCRIPT_DIR/update-infra-access.sh" "$@"
+  editor=${EDITOR:-'code -w'}
+  EDITOR=$editor "$SCRIPT_DIR/update-infra-access.sh" "$@"
 }
 
 function firewall:setup() {
@@ -284,3 +286,4 @@ function password:rotate() {
 
   "$SCRIPT_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
+
