@@ -55,6 +55,6 @@ function create_password_file() {
 DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
 echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 
-code -w "${HABILITATIONS_FILE}"
+$EDITOR "${HABILITATIONS_FILE}"
 
 create_password_file
