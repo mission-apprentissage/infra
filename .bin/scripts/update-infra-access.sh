@@ -2,6 +2,7 @@
 set -euo pipefail
 
 readonly HABILITATIONS_FILE="${ROOT_DIR}/products/infra/vault/habilitations.yml"
+readonly HABILITATIONS_TEMPFILE="/tmp/infra-habilitations.yml"
 readonly VAULT_PASSWORD_FILE="${ROOT_DIR}/products/infra/vault/.vault-password-next.gpg"
 
 function create_password_file() {
@@ -44,7 +45,12 @@ function create_password_file() {
 
 DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "") 
 echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
+cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
 
-$EDITOR "${HABILITATIONS_FILE}"
+$EDITOR "${HABILITATIONS_TEMPFILE}"
 
-create_password_file
+if ! cmp -s "${HABILITATIONS_TEMPFILE}" "${HABILITATIONS_FILE}"; then
+  mv "$HABILITATIONS_TEMPFILE" "$HABILITATIONS_FILE"
+  create_password_file
+fi
+

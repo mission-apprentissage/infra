@@ -4,6 +4,7 @@ set -euo pipefail
 readonly PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
 shift
 readonly HABILITATIONS_FILE="${ROOT_DIR}/products/${PRODUCT_NAME}/habilitations.yml"
+readonly HABILITATIONS_TEMPFILE="/tmp/${PRODUCT_NAME}-habilitations.yml"
 readonly VAULT_PASSWORD_FILE="${ROOT_DIR}/products/${PRODUCT_NAME}/.vault-password.gpg"
 
 readonly REPO_NAME=$("${SCRIPT_DIR}/get-product-repo.sh" "${PRODUCT_NAME}")
@@ -54,7 +55,12 @@ function create_password_file() {
 
 DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
 echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
+cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
 
-$EDITOR "${HABILITATIONS_FILE}"
+$EDITOR "${HABILITATIONS_TEMPFILE}"
 
-create_password_file
+if ! cmp -s "${HABILITATIONS_TEMPFILE}" "${HABILITATIONS_FILE}"; then
+  mv "$HABILITATIONS_TEMPFILE" "$HABILITATIONS_FILE"
+  create_password_file
+fi
+
