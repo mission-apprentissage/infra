@@ -261,10 +261,10 @@ function ssh:config() {
 
   for i in "${!ips[@]}"; do
     config="${config}
-Host ${hostnames[$i]}
+Host ${hostnames[$i]} ${ips[$i]}
   Port 22
   User ${username}
-  HostName ${ips[$i]}
+  Hostname ${ips[$i]}
 "
   done;
 
