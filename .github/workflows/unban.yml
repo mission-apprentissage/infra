@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       ip:
+        description: The IP to unban
         type: string
         required: true
 
