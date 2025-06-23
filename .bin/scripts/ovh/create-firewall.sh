@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-readonly PRODUCT_NAME=${1:?"Merci le produit (sirius, monitoring)"}; shift;
+readonly PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
 readonly ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
 function main() {

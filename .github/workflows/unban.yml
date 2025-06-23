@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["sirius", "orion", "monitoring"]
+        product: ["orion", "monitoring"]
         environment:
           ["production", "recette2", "recette1"]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
