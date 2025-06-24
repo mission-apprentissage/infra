@@ -183,37 +183,13 @@ async function configureFirewall(client, ip, product, env) {
     denyAllTcp(19),
   ];
 
-  if (product === "mongodb") {
-    const config = await getConfig();
-    const sources = [...config["vpn-production"]];
-    const envType = env.split("_")[0];
-    if (envType === "recette") {
-      const keys = Object.keys(config).filter(
-        (key) => key.endsWith("recette") || key.endsWith("preprod") || key.endsWith("pentest")
-      );
-      sources.push(...keys.map((key) => config[key]).flat());
-    } else {
-      sources.push(config[`${envType}-production`]);
-    }
-
-    sources.forEach((source, i) => {
-      let n = i + 4;
-      if (n >= 10) {
-        // Avoid conflict with existing rules 10
-        n++;
-      }
-
-      rules.push(allowTcpOnPort(n, 27017, `${source}/32`));
-    });
-  }
-
   if (product === "monitoring") {
     rules.push(allowTcpOnPort(4, 444));
   }
 
   if (product === "sirius" || product === "orion") {
     const envType = env.split("_")[0];
-    if (envType === "recette") {
+    if (envType === "recette" || envType === "qualification") {
       rules.push(allowTcpOnPort(4, 5432));
     }
   }

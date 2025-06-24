@@ -12,17 +12,19 @@ function main() {
   cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"
   yarn --silent install
 
-  if [[ -z "${APP_KEY:-}" ]]; then
-    export APP_KEY=$(op item get "API OVH" --vault "vault-passwords-common" --account inserjeunes --fields username)
+  VAULT=$(${SCRIPT_DIR}/view-vault.sh)
+
+  if [[ -z "${OVH_API_APP_KEY:-}" ]]; then
+    export OVH_API_APP_KEY=$(yq '.vault.OVH_API_APP_KEY' <<< "${VAULT}")
   fi;
-  if [[ -z "${APP_SECRET:-}" ]]; then
-    export APP_SECRET=$(op item get "API OVH" --vault "vault-passwords-common" --account inserjeunes --fields credential --reveal)
+  if [[ -z "${OVH_API_APP_SECRET:-}" ]]; then
+    export OVH_API_APP_SECRET=$(yq '.vault.OVH_API_APP_SECRET' <<< "${VAULT}")
   fi;
-  if [[ -z "${APP_TOKEN:-}" ]]; then
-    export APP_TOKEN=$(op item get "API OVH"  --vault "vault-passwords-common" --account inserjeunes --fields token --reveal)
+  if [[ -z "${OVH_API_APP_TOKEN:-}" ]]; then
+    export OVH_API_APP_TOKEN=$(yq '.vault.OVH_API_APP_TOKEN' <<< "${VAULT}")
   fi;
 
-  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${APP_TOKEN}"
+  yarn --silent cli createFirewall ${env_ip} "$PRODUCT_NAME" "${ENV_NAME}" --key "${OVH_API_APP_TOKEN}"
   cd - >/dev/null
 }
 
