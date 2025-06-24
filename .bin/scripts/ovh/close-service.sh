@@ -12,8 +12,15 @@ function main() {
   cd "${MODULE_DIR}"
   yarn --silent install
 
-  export APP_KEY=$(op item get "API OVH"  --vault "vault-passwords-common" --account inserjeunes --fields username)
-  export APP_SECRET=$(op item get "API OVH"  --vault "vault-passwords-common" --account inserjeunes --fields credential --reveal)
+
+  VAULT=$(${SCRIPT_DIR}/view-vault.sh)
+
+  if [[ -z "${OVH_API_APP_KEY:-}" ]]; then
+    export OVH_API_APP_KEY=$(yq '.vault.OVH_API_APP_KEY' <<< "${VAULT}")
+  fi;
+  if [[ -z "${OVH_API_APP_SECRET:-}" ]]; then
+    export OVH_API_APP_SECRET=$(yq '.vault.OVH_API_APP_SECRET' <<< "${VAULT}")
+  fi;
 
   yarn --silent cli closeService "${env_ip}" "$PRODUCT_NAME" "$@"
   cd - >/dev/null

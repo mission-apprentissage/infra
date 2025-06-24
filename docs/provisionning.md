@@ -37,8 +37,6 @@ Suivre la documentation relative à la [Gestion des accès d'un produit](./manag
 
 ### Mise à jour du vault
 
-Récupérez le slack webhook depuis https://api.slack.com/apps/A01JENR8874
-
 Mettre à jour le vault
 
 ```bash
@@ -66,10 +64,6 @@ service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 
 Editer le vault pour créer les env-vars liés à ce nouvel environnement (cf: [Edition du vault](#edition-du-vault))
 
-## Création du nom de domaine
-
-Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/record/?domain=69636 `<nom_produit>-<nom_environnement>.inserjeunes.beta.gouv.fr` et pour la prod `<nom_produit>.inserjeunes.beta.gouv.fr`
-
 ## Configuration de l'environnement
 
 Pour configurer l'environnement, il faut lancer la commande suivante :
@@ -83,7 +77,7 @@ Pour configurer l'environnement, il faut lancer la commande suivante :
 L'utilisateur `ubuntu` est un utilisateur créé par défaut par OVH, le mot de passe de ce compte est envoyé par email à l'administrateur du compte OVH et est également disponible dans les emails de service : https://www.ovh.com/manager/dedicated/#/useraccount/emails
 
 > ![INFORMATION]
-> Dans le cas d'une instance Public Cloud, la connection se fait via la clé ssh contenu dans le vault. Vous n'aurez donc pas besoin du mot de passe.
+> Dans le cas d'une instance Public Cloud, la connection se fait via la clé ssh contenu dans le vault. Vous n'aurez donc pas besoin du mot de passe. Pour cela, téléchargez la clé privée contenue dans la clé `GH_USER_PRIVATE_KEY` et insérez la dans le fichier `.bin/id_rsa_deploy.key`.
 
 Pour finaliser le création de l'environnement, vous devez vous connecter pour initialiser votre utilisateur :
 
