@@ -63,6 +63,6 @@ gpg_keys: "{{ habilitations | map(attribute='gpg_key', default='') | select() | 
 Fermez le fichier.
 
 > [!WARNING]
-> Les habilitations sont mise à jours, et stockées dans 1password. Par contre à ce stade elles ne sont pas appliquées, il faut pour cela:
+> Les habilitations sont mise à jours, et il faut les stocker dans un répertoire sécurisé. Par contre à ce stade elles ne sont pas appliquées, il faut pour cela:
 > - lancer la configuration de l'environnement pour mettre à jour les accès SSH
 > - ouvrir le vault du produit via `.bin/infra vault:edit` et commiter le changement du vault.
