@@ -51,4 +51,3 @@ set -e
 chgrp -R www-data /opt/app/system/certbot/
 find /opt/app/system/certbot/conf/ -type d -exec chmod 755 {} +
 find /opt/app/system/certbot/conf/ -type f -exec chmod 644 {} +
-/opt/app/tools/ssl/reload-proxy.sh

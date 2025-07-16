@@ -53,7 +53,7 @@ function system:setup() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  #firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }

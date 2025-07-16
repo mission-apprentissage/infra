@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SSL_DIR="/opt/app/configs/reverse_proxy/ssl/{{ dns_name }}"
+SSL_FILES=("fullchain.pem" "privkey.pem")
+CUSTOM_SSL_DIR="/opt/app/configs/reverse_proxy/custom_ssl/{{ dns_name }}"
+
+echo "$CUSTOM_SSL_DIR"
+echo "$SSL_DIR"
+echo "$SSL_FILES"
+
+# Ensure final directory & archives exist
+echo "Ensuring $CUSTOM_SSL_DIR/archives exist"
+if [ ! -d "$CUSTOM_SSL_DIR/archives" ]; then
+    mkdir -p "$CUSTOM_SSL_DIR/archives"
+fi
+
+function backup_custom_certificates() {
+    echo "Creating an archive of current custom certificates"
+    DATE=$(date +%s)
+    mkdir -p "$CUSTOM_SSL_DIR/archives/$DATE" || true
+    for file in "${SSL_FILES[@]}"; do
+        cp "$CUSTOM_SSL_DIR/$file" "$CUSTOM_SSL_DIR/archives/$DATE/"
+    done
+    
+    echo "Updating links to custom SSL certificates if needed"
+    for file in "${SSL_FILES[@]}"; do
+        if [[ "$(readlink "$SSL_DIR/$file")" == *"custom_ssl"* ]]; then
+            ln -sf "$CUSTOM_SSL_DIR/archives/$DATE/$file" "$SSL_DIR/$file"
+        fi
+    done
+
+    echo "Removing old custom SSL files from current directory"
+    for file in "${SSL_FILES[@]}"; do
+        echo "Removing $CUSTOM_SSL_DIR/$file"
+        rm "$CUSTOM_SSL_DIR/$file"
+    done
+    echo "Done"
+}
+
+backup_custom_certificates
