@@ -22,8 +22,17 @@
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban
 
+- import_tasks: copy-custom-ssl-certificates.yml
+  tags: ssl
+
 - import_tasks: renew-ssl-certificate.yml
   tags: ssl
+
+- import_tasks: reconcile-ssl-certificates.yml
+  tags: ssl
+
+- import_tasks: reload-proxy.yml
+  tags: reverse-proxy
 
 - import_tasks: generate-gpg-key.yml
   tags: gpg

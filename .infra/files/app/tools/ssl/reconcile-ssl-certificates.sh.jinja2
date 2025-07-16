@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{% if env_type == "preview" %}
+  echo "Not supported in preview environnment"
+  exit 0;
+{% endif %}
+
+SSL_DIR="/opt/app/configs/reverse_proxy/ssl"
+SSL_LIVE_DIR="$SSL_DIR/live/{{ dns_name }}"
+SSL_ARCHIVE_DIR="$SSL_DIR/archives/{{ dns_name }}"
+SSL_FILES=("fullchain.pem" "privkey.pem")
+CUSTOM_SSL_DIR="/opt/app/configs/reverse_proxy/custom_ssl/{{ dns_name }}"
+GENERATED_SSL_DIR="/opt/app/system/certbot/conf/live/{{ dns_name }}"
+
+# Ensure final directory & archives exist
+echo "Ensuring $SSL_DIR, $SSL_LIVE_DIR and $SSL_ARCHIVE_DIR exist"
+mkdir -p "$SSL_LIVE_DIR" || true
+mkdir -p "$SSL_ARCHIVE_DIR" || true
+
+function reconcile_ssl_certificates() {
+    echo "Creating an archive of current links"
+    DATE=$(date +%s)
+    mkdir -p "$SSL_ARCHIVE_DIR/$DATE" || true
+    for file in "${SSL_FILES[@]}"; do
+        if [ -f "$SSL_LIVE_DIR/$file" ]; then
+            cp "$SSL_LIVE_DIR/$file" "$SSL_ARCHIVE_DIR/$DATE/" || true
+        fi
+    done
+    echo "Using SSL $1 certificates"
+    for file in "${SSL_FILES[@]}"; do
+        source="$1/$file"
+        destination="$SSL_LIVE_DIR/$file"
+        if [ -f "$destination" ]; then
+            rm "$destination"
+        fi
+        cp -f "$source" "$destination"
+    done
+}
+
+# Array to store non-existent files
+echo "Checking if custom SSL files exist in $CUSTOM_SSL_DIR"
+MISSING_CUSTOM_SSL_FILES=()
+
+# Loop through the files
+for file in "${SSL_FILES[@]}"; do
+    if [ ! -f "$CUSTOM_SSL_DIR/$file" ]; then
+        MISSING_CUSTOM_SSL_FILES+=("$file")
+    fi
+done
+
+# mandatory to use this syntax because of jinja2 that thinks #MISSING_CUSTOM_SSL_FILES is a comment :(
+CUSTOM_SSL_FILES_ARE_OK="true"
+for item in "${MISSING_CUSTOM_SSL_FILES[@]}"; do
+    if [ -n "$item" ]; then
+        CUSTOM_SSL_FILES_ARE_OK="false"
+        break
+    fi
+done
+
+
+# Check if any files are missing
+if [ "$CUSTOM_SSL_FILES_ARE_OK" = "true" ]; then
+    echo "All files exist. Switching to custom SSL certificates"
+    reconcile_ssl_certificates $CUSTOM_SSL_DIR
+else
+    echo "The following files are missing:"
+    printf '%s\n' "${MISSING_CUSTOM_SSL_FILES[@]}"
+    echo "Switching to generated SSL certificates"
+    reconcile_ssl_certificates $GENERATED_SSL_DIR
+fi
+
+# Ensure SSL reverse_proxy has right to access files
+chgrp -R www-data $SSL_DIR
+find $SSL_DIR -type d -exec chmod 755 {} +
+find $SSL_DIR -type f -exec chmod 644 {} +
+echo "Done"

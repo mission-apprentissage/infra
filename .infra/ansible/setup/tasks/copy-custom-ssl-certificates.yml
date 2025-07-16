@@ -1,0 +1,19 @@
+- name: Création du répertoire pour les certificats SSL personnalisés
+  ansible.builtin.file:
+    path: /opt/app/configs/reverse_proxy/custom_ssl/{{ dns_name }}
+    state: directory
+
+- name: Backup des certificats SSL personnalisés
+  shell: "bash /opt/app/tools/ssl/backup-custom-ssl-certificates.sh"
+  register: backup_output
+
+- name: Copie des nouveaux certificats SSL personnalisés
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/opt/app/configs/reverse_proxy/custom_ssl/{{ dns_name }}/{{ item.path }}"
+    mode: "{{ item.mode }}"
+  with_filetree: "{{playbook_dir}}/../../products/{{ product_name }}/ssl/certificates/{{ env_type }}/"
+  when:
+    - item.state == 'file'
+    - item.path | regex_search('(^(fullchain|privkey)\.pem$)') != none
+    - item.path | regex_search('\.gitkeep$') == none

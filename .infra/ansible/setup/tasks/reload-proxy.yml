@@ -1,0 +1,2 @@
+- name: Reload reverse-proxy
+  shell: "bash /opt/app/tools/ssl/reload-proxy.sh"
