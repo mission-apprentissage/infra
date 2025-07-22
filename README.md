@@ -8,7 +8,6 @@ Le reverse proxy est un serveur nginx, le code se trouve dans le dossier `revers
 
 L'image est basée sur l'image officielle de nginx et ajoute:
 
-- le module `headers-more-nginx-module`
 - le waf `modsecurity`
 - les fichiers de configuration de base pour:
   - le support ACME (letsencrypt)

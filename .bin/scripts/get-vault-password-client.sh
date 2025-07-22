@@ -16,7 +16,6 @@ previous_vault_password_file="${VAULT_DIR}/.vault-password-previous.gpg"
 
 if [ ! -f "$vault_password_file" ]; then
     echo "$DOCUMENT_CONTENT" > "$vault_password_file"
-    echo "vault password créé avec succès."
 
 # Si le fichier existe et que son contenu est différent
 elif [ ! -z "$DOCUMENT_CONTENT" ] && [ "$DOCUMENT_CONTENT" != "$(cat "${vault_password_file}")" ]; then
