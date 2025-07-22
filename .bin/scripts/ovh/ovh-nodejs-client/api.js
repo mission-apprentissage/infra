@@ -3,10 +3,17 @@ import open from "open";
 import ovh from "@ovhcloud/node-ovh";
 
 function newOvhClient(consumerKey) {
+  const appKey = env.get("OVH_API_APP_KEY").asString();
+  const appSecret = env.get("OVH_API_APP_SECRET").asString();
+
+  if (!appKey || !appSecret || appKey === 'null' || appSecret === 'null') {
+    throw new Error("OVH_API_APP_KEY and OVH_API_APP_SECRET environment variables must be set.");
+  }
+
   let client = ovh({
     endpoint: "ovh-eu",
-    appKey: env.get("APP_KEY").asString(),
-    appSecret: env.get("APP_SECRET").asString(),
+    appKey,
+    appSecret,
     ...(consumerKey ? { consumerKey } : {}),
   });
   return client;

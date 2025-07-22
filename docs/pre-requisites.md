@@ -13,8 +13,8 @@ l'application.
   ```
 - pwgen: `brew install pwgen`
 - bash 5+: `brew install bash`
-- 1Password CLI
-- Brew (jq)
+- [jq](https://jqlang.org/)
+- [yq](https://github.com/mikefarah/yq)
 
 ### GPG
 

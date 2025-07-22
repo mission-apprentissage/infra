@@ -154,6 +154,10 @@ sdk/lib
 
 **/.vault-password.gpg
 **/habilitations.yml
+**/ssl/certificates/**/*.key
+**/ssl/certificates/**/*.pem
+**/ssl/certificates/**/*.cer
+**/ssl/certificates/**/*.p7b
 
 # Local History for Visual Studio Code
 .history/

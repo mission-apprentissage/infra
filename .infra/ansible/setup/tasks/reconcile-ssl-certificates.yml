@@ -1,0 +1,2 @@
+- name: Reconcile SSL certificates
+  shell: "bash /opt/app/tools/ssl/reconcile-ssl-certificates.sh"

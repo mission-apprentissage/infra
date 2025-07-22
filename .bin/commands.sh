@@ -14,6 +14,7 @@ function Help() {
    echo "  system:setup:initial                       Initial setup server"
    echo "  system:user:remove                         Remove user from server"
    echo "  vault:edit                                 Edit vault file"
+   echo "  vault:view                                 View vault file"
    echo "  vault:password                             Show vault password"
    echo "  deploy:log:encrypt                         Encrypt Github ansible logs"
    echo "  deploy:log:dencrypt                        Decrypt Github ansible logs"
@@ -22,8 +23,6 @@ function Help() {
    echo "  product:validate:env                       Validate product + environnment name"
    echo "  product:repo                               Get product repository"
    echo "  product:create                             Create a new repository"
-   echo "  product:access:update                      Update product access"
-   echo "  infra:access:update                        Update infra access"
    echo "  firewall:setup                             Setup OVH firewall"
    echo "  firewall:service:close                     Close service on OVH firewall"
    echo "  ssh:known_hosts:print                      Print SSH known host for a product including all servers"
@@ -54,7 +53,7 @@ function system:setup() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  #firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
@@ -115,6 +114,10 @@ function system:unban() {
 function vault:edit() {
   editor=${EDITOR:-'code -w'}
   EDITOR=$editor "${SCRIPT_DIR}/edit-vault.sh" "$@"
+}
+
+function vault:view() {
+  "${SCRIPT_DIR}/view-vault.sh" "$@"
 }
 
 function vault:password() {
@@ -179,10 +182,6 @@ function product:create() {
 
 function product:access:update() {
   "$SCRIPT_DIR/update-product-access.sh" "$@"
-}
-
-function infra:access:update() {
-  "$SCRIPT_DIR/update-infra-access.sh" "$@"
 }
 
 function firewall:setup() {
