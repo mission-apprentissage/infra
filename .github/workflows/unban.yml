@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       ip:
+        description: The IP to unban
         type: string
         required: true
 
@@ -11,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        product: ["sirius", "orion", "monitoring"]
+        product: ["orion", "monitoring"]
         environment:
           ["production", "recette2", "recette1"]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
