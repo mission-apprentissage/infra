@@ -5,30 +5,73 @@
 Contient l'ensemble des données sensibles nécessaires à la mise en place de
 l'application.
 
-- Ansible :
+## Ansible
+
+Installez [Ansible 2.07+](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+
+> Sur **macOS** vous pouvez utiliser `brew install ansible`
+
+---
+
+> Sur Ubuntu / WSL vous pouvez l'installer en 2 temps via :
+
+> 1. L'ajout du dépôt Ansible officiel
+
 ```bash
-brew install ansible
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
 ```
-- sshpass :
+
+> 2. L'installer avec la commande
+
+```bash
+sudo apt install -y ansible
+```
+
+## 1Password CLI
+
+[Suivre la documentation dédié](./1password.md)
+
+## Yq
+
+[Installez yq](https://github.com/mikefarah/yq)
+
+> Sur **macOS** vous pouvez utiliser `brew install yq`
+
+> Sur Ubuntu / WSL vous pouvez utiliser `sudo snap install yq`
+
+## sshpass
+
+[Installez sshpass](https://www.linuxtricks.fr/wiki/ssh-sshpass-la-connexion-ssh-par-mot-de-passe-non-interactive)
+
+> Sur **macOS** vous pouvez utiliser
+
 ```bash
 brew tap esolitos/ipa
-```
-```bash
 brew install esolitos/ipa/sshpass
 ```
-- pwgen:
+
+> Sur Ubuntu / WSL vous pouvez utiliser :
+
 ```bash
-brew install pwgen
+sudo apt install -y sshpass
 ```
-- bash 5+:
-```bash
-brew install bash
-```
-- 1Password CLI : https://developer.1password.com/docs/cli/get-started/
-- Brew (jq) :
-```bash
-brew install jq
-```
+
+## pwgen
+
+> Sur **macOS** vous pouvez utiliser `brew install pwgen`
+
+> Sur Ubuntu / WSL vous pouvez utiliser `sudo apt install -y pwgen`
+
+## Bash 5+
+
+> Sur **macOS** vous pouvez utiliser `brew install bash`
+
+> Sur Ubuntu / WSL vous pouvez utiliser `sudo apt install -y bash`
+
+## shred
+
+> Sur **macOS** vous pouvez utiliser `brew install coreutils`
 
 ### GPG
 
