@@ -12,7 +12,9 @@ readonly PASSPHRASE="$ROOT_DIR/.bin/DEPLOY_GPG_PASSPHRASE.txt"
 readonly VAULT_FILE="${ROOT_DIR}/products/infra/vault/vault.yml"
 
 delete_cleartext() {
-  rm -f "$PASSPHRASE"
+  if [ -f "$PASSPHRASE" ]; then
+    shred -f -n 10 -u "$PASSPHRASE"
+  fi
 }
 trap delete_cleartext EXIT
 
