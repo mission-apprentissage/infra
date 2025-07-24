@@ -17,10 +17,10 @@
     value: "1"
     state: present
 
-- name: Update kernel.perf_event_paranoid to 2
+- name: Update kernel.perf_event_paranoid to 1
   ansible.posix.sysctl:
     name: kernel.perf_event_paranoid
-    value: "2"
+    value: "1"
     state: present
 
 - name: Update kernel.sysrq to 0

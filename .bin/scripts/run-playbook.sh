@@ -47,8 +47,8 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   fi
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-  ansible-galaxy install --force "patrickjahns.promtail,1.26.0"
-  ansible-galaxy install --force "geerlingguy.docker,7.0.2"
+  ansible-galaxy install --force "patrickjahns.promtail,1.31.0"
+  ansible-galaxy install --force "geerlingguy.docker,7.4.7"
   ansible-galaxy collection install -U community.general
   ansible-galaxy collection install -U community.crypto
   ansible-galaxy collection install -U ansible.posix
