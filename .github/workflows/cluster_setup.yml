@@ -10,7 +10,7 @@ on:
         description: JSON environment array
         type: string
         required: true
-        default: '["1", "2", "3"]'
+        default: '[3, 2, 1]'
   workflow_call:
     inputs:
       cluster:

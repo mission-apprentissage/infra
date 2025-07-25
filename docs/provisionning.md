@@ -75,8 +75,8 @@ Créer un domain name pour le nouvel environment https://admin.alwaysdata.com/re
 Pour configurer l'environnement, il faut lancer la commande suivante :
 
 ```bash
-.bin/infra ssh:known_hosts:update <nom_produit>
 .bin/infra system:setup:initial <nom_produit> <nom_environnement>
+.bin/infra ssh:known_hosts:update <nom_produit>
 .bin/infra ssh:config <nom_produit>
 ```
 
@@ -99,8 +99,8 @@ Enfin pour des questions de sécurité, vous devez supprimer l'utilisateur `ubun
 
 ## Mise à jour des Github Action
 
-Veuillez mettre à jour les matrix dans les actions Github (ne pas oublier les cas d'exclusions).
+Veuillez mettre à jour les matrix dans les actions Github.
 
 ## Sauvegarde de la base de données
 
-Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/ORGA/mongodb]
+Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/mission-apprentissage/mongodb]
