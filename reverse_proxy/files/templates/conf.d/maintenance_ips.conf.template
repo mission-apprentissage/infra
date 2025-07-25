@@ -4,7 +4,4 @@ geo $remote_addr $maintenance_allowed_ips {
     10.0.0.0/8 1; # For private network connections
     172.16.0.0/12 1; # For private network connections
     192.168.0.0/16 1; # For private network connections
-    91.168.137.131 1; # ABD IP
-    91.173.13.14 1; # MBT IP
-    78.198.91.2 1; # DDZ IP
 }

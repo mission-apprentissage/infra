@@ -19,7 +19,6 @@ server {
 
     server_name ${SERVER_NAME};
     
-    include includes/location_common.conf;
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
 
@@ -28,7 +27,6 @@ server {
     if ($https_only = false) {
       set $always_redirect false;
     }
-
 
     if ($always_redirect = true) {
       return 301 https://$host$request_uri;
@@ -53,7 +51,6 @@ server {
 
     server_name ${SERVER_NAME};
 
-    include includes/location_common.conf;
     include includes/location_acme.conf;
     include includes/location_maintenance.conf;
     include includes/location_monitoring.conf;

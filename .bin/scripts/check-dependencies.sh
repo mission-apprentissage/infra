@@ -20,4 +20,3 @@ for command in "${dependencies[@]}"; do
     exit 1
   fi
 done
-
