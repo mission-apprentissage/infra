@@ -10,8 +10,8 @@ geo $remote_addr $rate_limit_wl {
 }
 
 map $rate_limit_wl $rate_limit_key {
-    0 "";
-    1 $binary_remote_addr;
+    1 "";
+    0 $binary_remote_addr;
 }
 
 # Maximum 2400r/m pour l'ensemble des utilisateurs avant dégradation du service

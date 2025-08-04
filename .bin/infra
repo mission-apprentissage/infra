@@ -6,7 +6,7 @@ export BIN_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
 export ROOT_DIR="$(dirname "${BIN_DIR}")"
 export SCRIPT_DIR="$BIN_DIR/scripts"
 
-source "${BIN_DIR}/../products/infra/infra-meta.sh"
+source "${ROOT_DIR}/products/infra/infra-meta.sh"
 source "${BIN_DIR}/commands.sh"
 
 ################################################################################
@@ -27,6 +27,7 @@ if [[ `command -v $command` != $command ]]; then
   Help
 fi;
 
+"${SCRIPT_DIR}/check-dependencies.sh"
 "${SCRIPT_DIR}/ensure-gh-op-auth.sh"
 
 $command "$@"
