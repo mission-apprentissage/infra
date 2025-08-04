@@ -49,7 +49,7 @@ function release:fluentd() {
 }
 
 function system:setup() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -59,7 +59,7 @@ function system:setup() {
 }
 
 function system:reboot() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -68,7 +68,7 @@ function system:reboot() {
 }
 
 function system:setup:initial() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   export ANSIBLE_HOST_KEY_CHECKING=False
@@ -92,7 +92,7 @@ function system:setup:initial() {
 }
 
 function system:user:remove() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
   local USERNAME=${1:?"Merci de préciser l'utilisateur à supprimer"}; shift;
 
@@ -102,7 +102,7 @@ function system:user:remove() {
 }
 
 function system:unban() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
   local IP=${1:?"Merci de préciser l'ip à unban"}; shift;
 
@@ -133,7 +133,7 @@ function deploy:log:decrypt() {
 }
 
 function product:ini_file() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
 
   if [ ! -f "${env_ini}" ]; then
@@ -145,7 +145,7 @@ function product:ini_file() {
 }
 
 function product:env:ip() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
   if [[ -z $env_ini ]]; then exit 1; fi
@@ -154,7 +154,7 @@ function product:env:ip() {
 }
 
 function product:repo() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
   if [[ -z $env_ini ]]; then exit 1; fi
@@ -185,7 +185,7 @@ function product:access:update() {
 }
 
 function firewall:setup() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -194,7 +194,7 @@ function firewall:setup() {
 }
 
 function firewall:service:close() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
@@ -203,14 +203,14 @@ function firewall:service:close() {
 }
 
 function ssh:known_hosts:print() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
   ssh-keyscan ${ips}
 }
 
 function ssh:known_hosts:update() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
   for ip in ${ips}; do
@@ -239,7 +239,7 @@ function ssh:known_hosts:update() {
 }
 
 function ssh:config() {
-  local PRODUCT_NAME=${1:?"Merci de préciser le produit (sirius, monitoring)"}; shift;
+  local PRODUCT_NAME=${1:?"Merci le produit (orion, monitoring)"}; shift;
   local ips=($("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
   if [ -z "$ips" ]; then exit 1; fi
 
