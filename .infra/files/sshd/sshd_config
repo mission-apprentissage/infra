@@ -21,17 +21,20 @@ IgnoreRhosts yes
 X11Forwarding no
 PrintMotd no
 PrintLastLog yes
-AcceptEnv LANG LC_*                                             #Allow client to pass locale environment variables
-ClientAliveInterval 300                                         #Client timeout (5 minutes)
-ClientAliveCountMax 3                                           #This way enforces timeouts on the server side
-LoginGraceTime 30                                               #Authentication must happen within 30 seconds
-#MaxStartups 2                                                   #Max concurrent SSH sessions
+AcceptEnv LANG LC\_\* #Allow client to pass locale environment variables
+ClientAliveInterval 300 #Client timeout (5 minutes)
+ClientAliveCountMax 3 #This way enforces timeouts on the server side
+LoginGraceTime 30 #Authentication must happen within 30 seconds
+#MaxStartups 2 #Max concurrent SSH sessions
 TCPKeepAlive yes
 Subsystem sftp /usr/lib/openssh/sftp-server
 
 #Tunnel
-#PermitTunnel no                                                 #Only SSH connection and nothing else
-#AllowTcpForwarding no                                           #Disablow tunneling out via SSH
-#AllowStreamLocalForwarding no                                   #Disablow tunneling out via SSH
-#GatewayPorts no                                                 #Disablow tunneling out via SSH
-#AllowAgentForwarding no                                         #Do not allow agent forwardng
+#PermitTunnel no #Only SSH connection and nothing else
+#AllowTcpForwarding no #Disablow tunneling out via SSH
+#AllowStreamLocalForwarding no #Disablow tunneling out via SSH
+#GatewayPorts no #Disablow tunneling out via SSH
+#AllowAgentForwarding no #Do not allow agent forwardng
+
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key

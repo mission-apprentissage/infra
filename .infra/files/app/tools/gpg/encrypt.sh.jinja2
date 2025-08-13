@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly RECIPIENTS_KEYS="{{ gpg_keys }}"
+readonly RECIPIENTS_KEYS="{{ team_gpg_keys }}"
 
 function import_recipients() {
   IFS=', ' read -r -a keys <<<"${RECIPIENTS_KEYS:-""}"

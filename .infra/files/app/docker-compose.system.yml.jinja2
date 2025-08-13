@@ -24,7 +24,7 @@ x-default: &default
 services:
   reverse_proxy:
     <<: *default
-    image: ghcr.io/{{github_organization}}/infra_reverse_proxy:{{reverse_proxy_version}}
+    image: ghcr.io/{{github_organization}}/{{user_group}}_reverse_proxy:{{reverse_proxy_version}}
     deploy:
       <<: *deploy-default
       restart_policy:
@@ -39,11 +39,11 @@ services:
     # In order to bypass this, we need to use mode host port mapping
     # But we cannot replicate the service on a single node
     ports:
-      - target: 80
+      - target: 8080
         published: 80
         protocol: tcp
         mode: host
-      - target: 443
+      - target: 8443
         published: 443
         protocol: tcp
         mode: host
@@ -52,7 +52,6 @@ services:
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
       - MODSEC_REQ_BODY_NOFILES_LIMIT={{modsec_body_limit}}
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
-      - DISALLOW_ROBOTS={{disallow_robots}}
     volumes:
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
@@ -127,7 +126,7 @@ services:
       resources:
         limits:
           cpus: "1.00"
-    image: ghcr.io/{{github_organization}}/infra_fluentd:{{fluentd_version}}
+    image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
     ports:
       - "24224:24224"
       - "24224:24224/udp"

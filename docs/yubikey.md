@@ -36,17 +36,19 @@
 - [GnuPG](https://www.gnupg.org/) version 2.0.2 or later.
   - Sur OSX `brew install gnupg`
   - Sur Windows [gpg4win](https://gpg4win.org/download.html)
+  - Sur Ubuntu `sudo apt install gnupg`
 - [Yubikey Manager CLI](https://developers.yubico.com/yubikey-manager/)
   - Sur OSX `brew install ykman`
+  - Sur Ubuntu `snap install ykman`
 
 ### WSL
-  L'accès aux interfaces USB depuis WSL étant restreintes, une solution de contournement est d'utiliser l'instance Windows de gpg depuis WSL. 
+
+L'accès aux interfaces USB depuis WSL étant restreintes, une solution de contournement est d'utiliser l'instance Windows de GnuPG depuis WSL. 
 
 - Si vos clés sont stockés coté WSL, alors il est nécessaire d'exporter vos clés pour les importer coté Windows. Voir [ce gist](https://gist.github.com/Killeroid/6361944d0694e474fb94cc42a3b119d1) pour l'export et l'import de clé
 > [!IMPORTANT]  
 > Veillez à bien éxécuter l'export depuis WSL (ubuntu), et l'import depuis powershell.  
 > Le chemin d'import depuis windows étant ``\\wsl.localhost\Ubuntu\root\...``
-
 
 - Identifiez où se trouve l'exéctuable coté windows (via Powershell)
   ```console
@@ -57,10 +59,6 @@
  ```bash
  alias gpg='/mnt/c/Program\ Files\ \(x86\)/GnuPG/bin/gpg.exe'
  ```
-  
-
-
-
 
 ## Clef GPG
 
@@ -320,6 +318,7 @@ Actions actuellement permises : Signer
    (Q) Terminé
 
 Quel est votre choix ? s
+
 
 Possible actions for this ECC key: Signer Authentifier
 Actions actuellement permises :
@@ -596,6 +595,8 @@ gpg/carte> quit
 
 Activer KDF:
 
+Alan ? l'activation de cette commande après le changement de PIN semble avoir invalidé lesdits changements.
+
 ```console
 $ gpg --card-edit
 
@@ -623,8 +624,7 @@ gpg/carte> sex
 Salutation (M = Mr., F = Ms., or space): M
 
 gpg/carte> url
-URL pour récupérer la clef publique : https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9430b570051988403a178ab850f902f567461135
-
+URL pour récupérer la clef publique : https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xVOTRE_$_KEYID
 gpg/carte> quit
 ```
 
@@ -632,6 +632,12 @@ gpg/carte> quit
 > L'url dépend de votre id de clef publique
 
 Mettez à jour la configuration du touch:
+
+> [!IMPORTANT]
+> Ubuntu : La connection ykman à la yubikey peut nécessiter de jouer les trois actions suivantes :
+>   - sudo wget -O /etc/udev/rules.d/70-yubikey.rules https://raw.githubusercontent.com/Yubico/libu2f-host/master/70-u2f.rules
+>   - sudo udevadm control --reload-rules
+>   - débrancher rebrancher la yubikey (pour la deuxième clef j'ai dû refaire cette action avant l'étape suivante)
 
 ```console
 $ ykman openpgp keys set-touch aut cached

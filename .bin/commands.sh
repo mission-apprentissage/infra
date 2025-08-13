@@ -58,6 +58,11 @@ function system:setup() {
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+
+  TAG="$PRODUCT_NAME-$ENV_NAME"
+  echo "Creating tag $TAG"
+  git --git-dir="$ROOT_DIR/.git" tag -f $TAG
+  git --git-dir="$ROOT_DIR/.git" push -f origin $TAG
 }
 
 function system:reboot() {
@@ -179,11 +184,13 @@ function product:create() {
 }
 
 function product:access:update() {
-  "$SCRIPT_DIR/update-product-access.sh" "$@"
+  editor=${EDITOR:-'code -w'}
+  EDITOR=$editor "$SCRIPT_DIR/update-product-access.sh" "$@"
 }
 
 function infra:access:update() {
-  "$SCRIPT_DIR/update-infra-access.sh" "$@"
+  editor=${EDITOR:-'code -w'}
+  EDITOR=$editor "$SCRIPT_DIR/update-infra-access.sh" "$@"
 }
 
 function firewall:setup() {
@@ -208,20 +215,23 @@ function ssh:known_hosts:print() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
-  ssh-keyscan ${ips}
+  ssh-keyscan -t ed25519,rsa ${ips}
 }
 
 function ssh:known_hosts:update() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
   if [ -z "$ips" ]; then exit 1; fi
+
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null)
+
   for ip in ${ips}; do
     if [[ "${ip}" != "x.x.x.x" ]]; then
       ssh-keygen -R ${ip}
     fi;
   done;
 
-  ssh-keyscan ${ips} >> ~/.ssh/known_hosts 2> /dev/null
+  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts 2> /dev/null
 
   read -p "Do you want to update github variable? [Y/n]" response
 
@@ -235,7 +245,6 @@ function ssh:known_hosts:update() {
 
   local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
-  SSH_KNOWN_HOSTS=$(ssh-keyscan ${ips} 2> /dev/null)
   gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
   gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "${REPO_INFRA}"
 }
@@ -252,10 +261,10 @@ function ssh:config() {
 
   for i in "${!ips[@]}"; do
     config="${config}
-Host ${hostnames[$i]}
+Host ${hostnames[$i]} ${ips[$i]}
   Port 22
   User ${username}
-  HostName ${ips[$i]}
+  Hostname ${ips[$i]}
 "
   done;
 
@@ -277,3 +286,4 @@ function password:rotate() {
 
   "$SCRIPT_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
+

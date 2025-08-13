@@ -8,7 +8,6 @@ Le reverse proxy est un serveur nginx, le code se trouve dans le dossier `revers
 
 L'image est basée sur l'image officielle de nginx et ajoute:
 
-- le module `headers-more-nginx-module`
 - le waf `modsecurity`
 - les fichiers de configuration de base pour:
   - le support ACME (letsencrypt)
@@ -52,3 +51,36 @@ La configuration de base contient la configuration:
 
 - [Ajouter un produit/environnement](./docs/provisionning.md)
 - [Gestion des accès d'un produit](./docs/manage_access.md)
+
+
+## TODO
+
+- [ ] Automatiser la vérification des utilisateurs ayant accès au S3 `OVH_S3_BUCKET`
+  - Aucun utilisateur n'est censé avoir la permission de supprimer des fichiers dans le bucket
+  - Seuls les utilisateurs lié à un membre de l'équipe peuvent avoir accès en lecture (c'est à dire les comptes nominatifs).
+  - L'utilisateur identifié par `OVH_S3_API_KEY` doit avoir la polique S3 suivante:
+    ```
+    {
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": "arn:aws:s3:::{{ OVH_S3_BUCKET }}"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:PutObject",
+            "s3:GetObject"
+          ],
+          "Resource": "arn:aws:s3:::{{ OVH_S3_BUCKET }}/*"
+        }
+      ]
+    }
+    ```
+- [ ] S'assurer que le bucket `OVH_S3_BUCKET` a bien l'option de chiffrement activée
+- [ ] Automatiser la configuration de l'access logging est activé `aws s3api put-bucket-logging --bucket <bucket> --bucket-logging-status file://logging.json`
+- [ ] Automatiser la configuration multi-région de OVH S3
+- [ ] Automatiser la configuration de la lifecyle policy

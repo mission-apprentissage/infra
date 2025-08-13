@@ -3,13 +3,14 @@ on:
   workflow_dispatch:
     inputs:
       cluster:
+        description: The cluster to reboot
         type: string
         required: true
       numbers:
         description: JSON environment array
         type: string
         required: true
-        default: '["1", "2", "3"]'
+        default: '[3, 2, 1]'
   workflow_call:
     inputs:
       cluster:
@@ -23,7 +24,9 @@ on:
         required: true
       DEPLOY_PASS:
         required: true
-      SLACK_WEBHOOK:
+      SLACK_WEBHOOK_ALERTS:
+        required: true
+      SLACK_WEBHOOK_NOTIF:
         required: true
       VAULT_PWD:
         required: true
@@ -52,7 +55,8 @@ jobs:
     secrets:
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+      SLACK_WEBHOOK_NOTIF: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
       VAULT_PWD: ${{ secrets.VAULT_PWD }}
       HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}

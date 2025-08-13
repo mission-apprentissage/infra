@@ -3,7 +3,7 @@ set -euo pipefail
 
 #Inspired by https://andidittrich.com/2020/02/gpg-encrypt-files-with-a-public-keyfile-without-using-a-global-keyring.html
 readonly GPG_PUBKEY="/root/.gnupg/publickey.asc"
-readonly RECIPIENTS_KEYS="{{ gpg_keys }}"
+readonly RECIPIENTS_KEYS="{{ team_gpg_keys }}"
 
 function import_recipients() {
   IFS=', ' read -r -a keys <<<"${RECIPIENTS_KEYS:-""}"

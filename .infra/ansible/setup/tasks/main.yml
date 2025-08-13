@@ -1,3 +1,7 @@
+- import_tasks: configure-kernel.yml
+  tags: kernel
+  when: add_kernel_modification == true
+
 - import_tasks: configure-system.yml
   tags: system
 
@@ -18,6 +22,9 @@
 
 - import_tasks: install-app.yml
   tags: app
+
+- import_tasks: configure-ssh.yml
+  tags: ssh
 
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban

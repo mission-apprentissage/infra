@@ -19,22 +19,6 @@
     password_expire_max: 90
     password_expire_min: 1
 
-- name: Ensure .bash_logout file exists and has the required content for deploy user
-  copy:
-    src: "{{playbook_dir}}/../files/homedir/bash_logout"
-    dest: /home/deploy/.bash_logout
-    owner: deploy
-    group: deploy
-    mode: "0644"
-
-- name: Ensure .bash_logout file exists and has the required content for root user
-  copy:
-    src: "{{playbook_dir}}/../files/homedir/bash_logout"
-    dest: /root/.bash_logout
-    owner: root
-    group: root
-    mode: "0644"
-
 - name: "Ajout des clés d'autorisation à l'utilisateur deploy"
   authorized_key:
     user: "deploy"

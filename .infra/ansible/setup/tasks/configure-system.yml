@@ -154,9 +154,18 @@
 - name: Add cron to check if system reboot is required
   ansible.builtin.cron:
     name: "reboot-required"
+    weekday: "0"
     minute: "0"
     hour: "10"
     job: "bash /opt/app/tools/monitoring/check-reboot-status.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Reboot system' -v $?"
+
+- name: Add cron to reboot if system reboot is required
+  ansible.builtin.cron:
+    name: "reboot-if-required"
+    weekday: "6"
+    minute: "57"
+    hour: "5"
+    job: "[ -f /var/run/reboot-required ] && reboot"
 
 # https://bugs.launchpad.net/ubuntu/+source/apt/+bug/2003851
 - name: Add cron to fix apt.systemd.daily BUG
@@ -164,3 +173,19 @@
     name: "apt-systemd-bug"
     minute: "30"
     job: "bash /opt/app/tools/workaround/apt-daily.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Apt Daily Workaround' -v $?"
+
+- name: Disable bash history for all users
+  copy:
+    dest: /etc/profile.d/disable_history.sh
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Disable bash history for all users
+
+      export HISTFILE=/dev/null
+      export HISTSIZE=0
+      export HISTFILESIZE=0
+      unset HISTFILE
+      set +o history
