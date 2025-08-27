@@ -192,4 +192,11 @@
       export HISTSIZE=0
       export HISTFILESIZE=0
       unset HISTFILE
-      set +o history
+
+- name: Configure tmux
+  template:
+    src: "{{playbook_dir}}/../files/tmux/tmux.conf.template.jinja2"
+    dest: /etc/tmux.conf
+    owner: root
+    group: root
+    mode: '0755'
