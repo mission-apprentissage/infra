@@ -9,6 +9,10 @@
     name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
 
+- import_tasks: configure-nvidia-gpu.yml
+  tags: nvidia
+  when: gpu_instance == 'true'
+
 - include_role:
     name: geerlingguy.docker
   vars:
@@ -19,7 +23,7 @@
         tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
         fluentd-async: "true"
       dns: ["172.17.0.1"]
-  when: env_type != 'preview'
+  when: env_type != 'preview' and gpu_instance == 'false'
 
 - include_role:
     name: geerlingguy.docker
@@ -27,7 +31,7 @@
     docker_daemon_options:
       log-driver: local
       dns: ["172.17.0.1"]
-  when: env_type == 'preview'
+  when: env_type == 'preview' and gpu_instance == 'false'
 
 - name: Docker login
   shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
