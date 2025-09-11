@@ -188,7 +188,9 @@ async function configureFirewall(client, ip, product, env) {
     const sources = [...config["vpn-production"]];
     const envType = env.split("_")[0];
     if (envType === "recette") {
-      const keys = Object.keys(config).filter((key) => key.endsWith("recette") || key.endsWith("preprod") || key.endsWith("pentest"));
+      const keys = Object.keys(config).filter(
+        (key) => key.endsWith("recette") || key.endsWith("preprod") || key.endsWith("pentest") || key.endsWith("demo")
+      );
       sources.push(...keys.map((key) => config[key]).flat());
     } else {
       sources.push(config[`${envType}-production`]);
@@ -235,21 +237,19 @@ async function closeService(client, ip) {
 async function getAllIp(client, ip) {
   const ipData = await client.requestPromised("GET", `/ip/${ip}`);
 
-  const cloudProjects =  await client.requestPromised("GET", `/cloud/project`);
-  
+  const cloudProjects = await client.requestPromised("GET", `/cloud/project`);
+
   if (cloudProjects.includes(ipData.routedTo.serviceName)) {
     const instances = await client.requestPromised("GET", `/cloud/project/${ipData.routedTo.serviceName}/instance`);
-    const instance = instances.find(instance => instance.ipAddresses.some(i => i.ip === ip));
+    const instance = instances.find((instance) => instance.ipAddresses.some((i) => i.ip === ip));
 
     if (!instance) {
       throw new Error(`Instance not found for ip ${ip}`);
     }
 
-    return instance.ipAddresses
-      .filter(i => i.version === 4 && i.type === "public")
-      .map(i => i.ip);
+    return instance.ipAddresses.filter((i) => i.version === 4 && i.type === "public").map((i) => i.ip);
   }
-    
+
   const ips = await client.requestPromised("GET", `/vps/${ipData.routedTo.serviceName}/ips`);
 
   // Returns all ipv4
