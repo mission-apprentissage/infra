@@ -1,7 +1,7 @@
 # Define Error Pages
 
-error_page 503 @503.html;
-error_page 500 502 504 @5xx.html;
+error_page 503 = @503.html;
+error_page 500 502 504 = @5xx.html;
 
 location @500.json {
   default_type application/json;
