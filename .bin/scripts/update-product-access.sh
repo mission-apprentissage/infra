@@ -28,11 +28,11 @@ function create_password_file() {
 
   echo "${password}" | gpg --quiet --always-trust --armor ${recipients[*]} -e -o "${VAULT_PASSWORD_FILE}"
 
-  local pass_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep ".vault-password-${PRODUCT_NAME}")
+  local pass_exist=$(op document list --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" | grep ".vault-password-${PRODUCT_NAME}")
   if [[ "$pass_exist" != "" ]]; then
-    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-${PRODUCT_NAME}" - --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-${PRODUCT_NAME}" - --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   else
-    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-${PRODUCT_NAME}" --file-name ".vault-password-${PRODUCT_NAME}.gpg" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   fi;
 
 #  # ===> set dans infra
@@ -40,11 +40,11 @@ function create_password_file() {
 #   # ===> set dans bal (utile pour le deploy)
   gh secret set "VAULT_PWD" --body "$password" --repo "https://github.com/${REPO_NAME}" 
 
-  local habilitations_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep "habilitations-${PRODUCT_NAME}")
+  local habilitations_exist=$(op document list --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" | grep "habilitations-${PRODUCT_NAME}")
   if [[ "$habilitations_exist" != "" ]]; then
-    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-${PRODUCT_NAME}" - --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-${PRODUCT_NAME}" - --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   else
-    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-${PRODUCT_NAME}" --file-name "habilitations-${PRODUCT_NAME}.yml" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   fi;
 
   cat "${HABILITATIONS_FILE}" | gh secret set "HABILITATIONS" --repo "https://github.com/${REPO_NAME}"
@@ -54,7 +54,7 @@ function create_password_file() {
   rm "${HABILITATIONS_FILE}"
 }
 
-DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
+DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" || echo "")
 echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
 

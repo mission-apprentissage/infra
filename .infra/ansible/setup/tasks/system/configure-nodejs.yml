@@ -1,0 +1,23 @@
+- name: Preview specific system Configuration
+  when: env_type == "preview"
+  block:
+    - name: Installation node 20
+      shell: "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
+
+    - name: apt-key yarn
+      shell: "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
+
+    - name: Installation nodejs
+      apt:
+        name: ["nodejs"]
+
+    - name: Installation yarn
+      shell: "npm install -g yarn --force"
+
+    - name: Set yarn and git proxy config
+      shell: |
+        yarn config set proxy {{ vault.EXTERNAL_PROXY.HTTP_PROXY }}
+        yarn config set https-proxy {{ vault.EXTERNAL_PROXY.HTTPS_PROXY }}
+
+    - name: Set yarn version
+      shell: "yarn policies set-version"
