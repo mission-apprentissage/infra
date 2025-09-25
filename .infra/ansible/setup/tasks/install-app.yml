@@ -65,33 +65,30 @@
   with_fileglob:
     - "{{playbook_dir}}/../files/app/docker-compose.system.yml.jinja2"
 
-- name: récupération du status de docker swarm
-  ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
-  register: docker_swarm_status
+- name: Configuration de docker swarm
   when: env_type != 'preview'
+  block:
+    - name: récupération du status de docker swarm
+      ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
+      register: docker_swarm_status
 
-- name: initialisation de docker swarm
-  ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
-  when:
-    - env_type != 'preview'
-    - docker_swarm_status.stdout.find('inactive') != -1
+    - name: initialisation de docker swarm
+      ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
+      when:
+        - docker_swarm_status.stdout.find('inactive') != -1
 
-- name: check du docker network
-  ansible.builtin.shell:
-    chdir: /opt/app
-    cmd: docker network ls --filter name={{docker_network}} -q
-  register: network
+    - name: check du docker network
+      ansible.builtin.shell:
+        chdir: /opt/app
+        cmd: docker network ls --filter name={{docker_network}} -q
+      register: network
 
-- debug:
-    var: network
-
-- name: création du docker network en swarm mode
-  ansible.builtin.shell:
-    chdir: /opt/app
-    cmd: docker network create -d overlay --attachable {{docker_network}}
-  when:
-    - network.stdout == ""
-    - env_type != 'preview'
+    - name: création du docker network en swarm mode
+      ansible.builtin.shell:
+        chdir: /opt/app
+        cmd: docker network create -d overlay --attachable {{docker_network}}
+      when:
+        - network.stdout == ""
 
 - name: création du docker network en compose mode
   ansible.builtin.shell:
@@ -113,5 +110,18 @@
   apt:
     name: [apache2-utils]
 
-- name: Create monitoring access file
-  shell: htpasswd -bBc "/opt/app/configs/reverse_proxy/locations/monitoring.htpasswd" monitoring {{ vault.MONITORING_PASSWORD }}
+
+- name: Création du fichier monitoring.htpasswd pour autoriser le monitoring à puller les métriques
+  shell: htpasswd -bBc "/opt/app/configs/reverse_proxy/locations/monitoring.htpasswd" "monitoring" "{{ vault[product_name].monitoring[env_type].PULL_PASSWORD}}"
+
+- name: Configure le fichier htpasswd de pour controler l'accès push vers Loki
+  when: product_name == "monitoring"
+  block:
+    - name: Réinitialisation du fichier loki.htpasswd
+      shell: echo "" > "/opt/app/configs/reverse_proxy/locations/loki.htpasswd"
+
+    - name: Pour chaque environnement géré par cette instance de monitoring
+      loop: "{{ vault | dict2items | selectattr('value.monitoring', 'defined') | list }}"
+      loop_control:
+        loop_var: product_config
+      include_tasks: ./app/_monitoring-loki-htpasswd.yml

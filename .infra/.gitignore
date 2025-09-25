@@ -139,3 +139,5 @@ yarn-error.log
 **/habilitations.yml
 
 scripts/ovh/ovh-nodejs-client/.yarn/
+
+*.pem

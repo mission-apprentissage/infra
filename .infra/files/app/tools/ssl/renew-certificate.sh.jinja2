@@ -25,7 +25,7 @@ while [ $retries -gt 0 ]; do
     --rm certbot/certbot:latest \
     certonly \
       --webroot --webroot-path /var/www/certbot/ \
-      --email misson.apprentissage.devops@gmail.com \
+      --email {{ email_contact }} \
       --agree-tos \
       --non-interactive \
       --domain ${SERVER_NAME} \
