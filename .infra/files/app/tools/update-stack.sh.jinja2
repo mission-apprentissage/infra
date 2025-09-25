@@ -2,4 +2,4 @@
 set -euo pipefail
 #Needs to be run as sudo
 
-docker stack deploy --detach=false $(for file in $(ls /opt/app/docker-compose.*.yml); do echo -n "-c $file "; done) {{product_name}}
+docker stack deploy --with-registry-auth --detach=false $(for file in $(ls /opt/app/docker-compose.*.yml); do echo -n "-c $file "; done) {{product_name}}

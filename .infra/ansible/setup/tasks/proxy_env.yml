@@ -1,0 +1,10 @@
+- name: set an optional environment proxy for all tasks
+  set_fact:
+    proxy_env:
+      http_proxy: "{{ vault.EXTERNAL_PROXY.HTTP_PROXY | default(omit) }}"
+      https_proxy: "{{ vault.EXTERNAL_PROXY.HTTPS_PROXY | default(omit) }}"
+      no_proxy: "{{ vault.EXTERNAL_PROXY.NO_PROXY | default(omit) }}"
+      HTTP_PROXY: "{{ vault.EXTERNAL_PROXY.HTTP_PROXY | default(omit) }}"
+      HTTPS_PROXY: "{{ vault.EXTERNAL_PROXY.HTTPS_PROXY | default(omit) }}"
+      NO_PROXY: "{{ vault.EXTERNAL_PROXY.NO_PROXY | default(omit) }}"
+  when: provider == "internal"

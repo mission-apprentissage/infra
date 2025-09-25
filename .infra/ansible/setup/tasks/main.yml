@@ -1,3 +1,6 @@
+- import_tasks: proxy_env.yml
+  when: provider == "internal"
+
 - import_tasks: configure-kernel.yml
   tags: kernel
   when: add_kernel_modification == true
@@ -8,6 +11,7 @@
 
 - import_tasks: configure-system.yml
   tags: system
+  environment: "{{ proxy_env | default(omit) }}"
 
 - import_tasks: configure-dns.yml
   tags: dns
@@ -20,6 +24,11 @@
 
 - import_tasks: configure-network.yml
   tags: network
+
+# For OVH insfrastructure, we use their firewall solution
+- import_tasks: configure-firewall.yml
+  tags: firewall
+  when: provider == "internal"
 
 - import_tasks: configure-ips-blacklist.yml
   tags: ipsblacklist
@@ -35,6 +44,11 @@
 
 - import_tasks: renew-ssl-certificate.yml
   tags: ssl
+  when: provider != "internal"
+
+- import_tasks: configure-ssl-certificate-files.yml
+  tags: ssl
+  when: provider == "internal"
 
 - import_tasks: generate-gpg-key.yml
   tags: gpg

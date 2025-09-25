@@ -77,6 +77,7 @@ function system:reboot() {
 function system:setup:initial() {
   local PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
+  local INITIAL_USERNAME=${1:-"ubuntu"}; shift;
 
   export ANSIBLE_HOST_KEY_CHECKING=False
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
@@ -88,11 +89,11 @@ function system:setup:initial() {
       "$SCRIPT_DIR/deploy_ssh_keyfile.sh"
       export ANSIBLE_PRIVATE_KEY_FILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
       export ANSIBLE_BECOME_PASS="-"
-      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
+      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user "$INITIAL_USERNAME"
       rm -f "${ANSIBLE_PRIVATE_KEY_FILE}"
       ;;
     *)
-      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
+      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user "$INITIAL_USERNAME" --ask-pass
       return
       ;;
   esac
@@ -198,6 +199,13 @@ function firewall:setup() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+
+  local provider=$("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "provider" "${ENV_NAME}")
+
+  if [ "${provider}" != "ovh" ]; then
+    echo "${PRODUCT_NAME}-${ENV_NAME} is hosted on ${provider}, skipping firewall setup";
+    return 0;
+  fi;
 
   "$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }

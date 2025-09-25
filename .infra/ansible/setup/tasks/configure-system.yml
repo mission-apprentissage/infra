@@ -29,9 +29,38 @@
       dns: ["172.17.0.1"]
   when: env_type == 'preview' and gpu_instance == 'false'
 
+- name: Configure Docker behind a proxy
+  when: provider == "internal"
+  block:
+    - name: Create directory to use Docker behind proxy
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+
+    - name: Configure file for Docker proxy
+      copy:
+        content: |
+          [Service]
+          Environment="HTTP_PROXY={{ vault.EXTERNAL_PROXY.HTTP_PROXY }}"
+          Environment="HTTPS_PROXY={{ vault.EXTERNAL_PROXY.HTTPS_PROXY }}"
+          Environment="NO_PROXY={{ vault.EXTERNAL_PROXY.NO_PROXY }}"
+          Environment="http_proxy={{ vault.EXTERNAL_PROXY.HTTP_PROXY }}"
+          Environment="https_proxy={{ vault.EXTERNAL_PROXY.HTTPS_PROXY }}"
+          Environment="no_proxy={{ vault.EXTERNAL_PROXY.NO_PROXY }}"
+        dest: /etc/systemd/system/docker.service.d/proxy.conf
+        follow: false
+      register: docker_proxy_config
+
+    - name: Reload systemd if docker proxy config changed
+      systemd:
+        name: docker
+        state: restarted
+        daemon_reload: true
+      when: docker_proxy_config.changed
+
 - name: Docker login
   shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
-  environment: 
+  environment:
     PASS: "{{ vault.DOCKER_LOGIN.token }}"
 
 - include_role:
@@ -43,10 +72,10 @@
         promtail_config_server:
           disable: true
         promtail_config_clients:
-          - url: "{{ vault.PROMTAIL_URL }}"
+          - url: "https://{{ vault[product_name].monitoring[env_type].HOST }}/loki/loki/api/v1/push"
             basic_auth:
-              username: "monitoring"
-              password: "{{ vault.MONITORING_PASSWORD }}"
+              username: "{{ product_name }}-{{ env_type }}"
+              password: "{{ vault[product_name].monitoring[env_type].PUSH_PASSWORD }}"
             external_labels:
               product: "{{ product_name }}"
               env: "{{ env_type }}"
@@ -76,29 +105,11 @@
   when: ctop.stat.exists == False
   shell: "wget https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop"
 
-- name: Installation node 20
-  shell: "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
-  when: env_type == 'preview'
-
-- name: apt-key yarn
-  shell: "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
-  when: env_type == 'preview'
-
 - name: Installation des packages apt
   apt:
     name: ["vim", "htop", "jq", "git", "python3-pip", "python3-docker"]
 
-- name: Installation nodejs
-  apt:
-    name: ["nodejs"]
-  when: env_type == 'preview'
-
-- name: Installation yarn
-  shell: "npm install -g yarn --force"
-  when: env_type == 'preview'
-
-- name: Set yarn version
-  shell: "yarn set version berry"
+- include_tasks: ./system/configure-nodejs.yml
   when: env_type == 'preview'
 
 - name: Set timezone to Europe/Paris
@@ -121,8 +132,8 @@
   hostname:
     name: "{{ host_name }}"
 
-#Works only with OVH instance
 - name: Ajout de l'hôte en tant qu'alias dans /etc/hosts
+  when: provider == "ovh"
   lineinfile:
     dest: /etc/hosts
     backup: true

@@ -1,4 +1,3 @@
-import getConfig from "./getConfig.js";
 import { resourceExists, resourceOrNull } from "./utils.js";
 
 const allowTcpConnection = (sequence) => {
@@ -182,34 +181,6 @@ async function configureFirewall(client, ip, product, env) {
     // denyAllUdp(18),
     denyAllTcp(19),
   ];
-
-  if (product === "mongodb") {
-    const config = await getConfig();
-    const sources = [...config["vpn-production"]];
-    const envType = env.split("_")[0];
-    if (envType === "recette") {
-      const keys = Object.keys(config).filter(
-        (key) => key.endsWith("recette") || key.endsWith("preprod") || key.endsWith("pentest") || key.endsWith("demo")
-      );
-      sources.push(...keys.map((key) => config[key]).flat());
-    } else {
-      sources.push(config[`${envType}-production`]);
-    }
-
-    sources.forEach((source, i) => {
-      let n = i + 4;
-      if (n >= 10) {
-        // Avoid conflict with existing rules 10
-        n++;
-      }
-
-      rules.push(allowTcpOnPort(n, 27017, `${source}/32`));
-    });
-  }
-
-  if (product === "monitoring") {
-    rules.push(allowTcpOnPort(4, 444));
-  }
 
   await updateRules(client, ip, rules);
   console.log(`Firewall for ${ip} configured`);

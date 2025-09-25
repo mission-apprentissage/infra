@@ -23,27 +23,27 @@ function create_password_file() {
   echo "Generating vault password..."
   echo "${password}" | gpg --quiet --always-trust --armor ${recipients[*]} -e -o "${VAULT_PASSWORD_FILE}"
 
-  local pass_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep ".vault-password-infra")
+  local pass_exist=$(op document list --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" | grep ".vault-password-infra")
   if [[ "$pass_exist" != "" ]]; then
-    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-infra" - --file-name ".vault-password-infra.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${VAULT_PASSWORD_FILE}" | op document edit ".vault-password-infra" - --file-name ".vault-password-infra.gpg" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   else
-    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-infra" --file-name ".vault-password-infra.gpg" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${VAULT_PASSWORD_FILE}" | op document create - --title ".vault-password-infra" --file-name ".vault-password-infra.gpg" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   fi;
 
   gh secret set "VAULT_PWD" --body "$password"
 
-  local habilitations_exist=$(op document list --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" | grep "habilitations-infra")
+  local habilitations_exist=$(op document list --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" | grep "habilitations-infra")
   if [[ "$habilitations_exist" != "" ]]; then
-    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-infra" - --file-name "habilitations-infra.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${HABILITATIONS_FILE}" | op document edit "habilitations-infra" - --file-name "habilitations-infra.yml" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   else
-    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-infra" --file-name "habilitations-infra.yml" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}"
+    cat "${HABILITATIONS_FILE}" | op document create - --title "habilitations-infra" --file-name "habilitations-infra.yml" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}"
   fi;
 
   rm "${VAULT_PASSWORD_FILE}"
   rm "${HABILITATIONS_FILE}"
 }
 
-DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "") 
+DOCUMENT_CONTENT=$(op document get "habilitations-infra" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" || echo "") 
 echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
 cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
 

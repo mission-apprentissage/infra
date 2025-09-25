@@ -8,6 +8,8 @@ dependencies=(
   "shred"
   "sshpass"
   "yq"
+  "jq"
+  "openssl"
 )
 
 if [[ -z "${CI:-}" ]]; then
