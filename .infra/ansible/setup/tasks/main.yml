@@ -1,42 +1,41 @@
-# - import_tasks: configure-system.yml
-#   tags: system
+- import_tasks: configure-system.yml
+  tags: system
 
-# - import_tasks: configure-dns.yml
-#   tags: dns
+- import_tasks: configure-dns.yml
+  tags: dns
 
-# - import_tasks: create-users.yml
-#   tags: users
+- import_tasks: create-users.yml
+  tags: users
 
-# - import_tasks: configure-auth.yml
-#   tags: auth
+- import_tasks: configure-auth.yml
+  tags: auth
 
-# - import_tasks: configure-network.yml
-#   tags: network
+- import_tasks: configure-network.yml
+  tags: network
 
-# - import_tasks: configure-ips-blacklist.yml
-#   tags: ipsblacklist
+- import_tasks: configure-ips-blacklist.yml
+  tags: ipsblacklist
 
 - import_tasks: install-app.yml
   tags: app
 
-# - import_tasks: configure-fail2ban.yml
-#   tags: fail2ban
-
 - import_tasks: copy-custom-ssl-certificates.yml
   tags: ssl
-# - import_tasks: renew-ssl-certificate.yml
-#   tags: ssl
+
+- import_tasks: renew-ssl-certificate.yml
+  tags: ssl
 
 - import_tasks: reconcile-ssl-certificates.yml
   tags: ssl
-# - import_tasks: reload-proxy.yml
-#   tags: reverse-proxy
 
-# - import_tasks: generate-gpg-key.yml
-#   tags: gpg
+- import_tasks: reload-proxy.yml
+  tags: reverse-proxy
 
-# - import_tasks: configure-logrotate.yml
-#   tags: logrotate
+- import_tasks: generate-gpg-key.yml
+  tags: gpg
 
-# - import_tasks: configure-swap.yml
-#   tags: swap
+- import_tasks: configure-logrotate.yml
+  tags: logrotate
+
+- import_tasks: configure-swap.yml
+  tags: swap

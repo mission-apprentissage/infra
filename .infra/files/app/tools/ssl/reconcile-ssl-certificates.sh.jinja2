@@ -6,28 +6,35 @@ set -euo pipefail
   exit 0;
 {% endif %}
 
-SSL_DIR="/opt/app/configs/reverse_proxy/ssl/{{ dns_name }}"
+SSL_DIR="/opt/app/configs/reverse_proxy/ssl"
+SSL_LIVE_DIR="$SSL_DIR/live/{{ dns_name }}"
+SSL_ARCHIVE_DIR="$SSL_DIR/archives/{{ dns_name }}"
 SSL_FILES=("fullchain.pem" "privkey.pem")
 CUSTOM_SSL_DIR="/opt/app/configs/reverse_proxy/custom_ssl/{{ dns_name }}"
-GENERATED_SSL_DIR="/opt/app/system/certbot/conf/{{ dns_name }}"
+GENERATED_SSL_DIR="/opt/app/system/certbot/conf/live/{{ dns_name }}"
 
 # Ensure final directory & archives exist
-echo "Ensuring $SSL_DIR and $SSL_DIR/archives exist"
-if [ ! -d "$SSL_DIR" ]; then
-    mkdir -p "$SSL_DIR"
-    mkdir -p "$SSL_DIR/archives"
-fi
+echo "Ensuring $SSL_DIR, $SSL_LIVE_DIR and $SSL_ARCHIVE_DIR exist"
+mkdir -p "$SSL_LIVE_DIR" || true
+mkdir -p "$SSL_ARCHIVE_DIR" || true
 
 function reconcile_ssl_certificates() {
-    echo "Creating an archive of current certificates"
+    echo "Creating an archive of current links"
     DATE=$(date +%s)
-    mkdir -p "$SSL_DIR/archives/$DATE" || true
+    mkdir -p "$SSL_ARCHIVE_DIR/$DATE" || true
     for file in "${SSL_FILES[@]}"; do
-        cp "$SSL_DIR/$file" "$SSL_DIR/archives/$DATE/" || true
+        if [ -f "$SSL_LIVE_DIR/$file" ]; then
+            cp "$SSL_LIVE_DIR/$file" "$SSL_ARCHIVE_DIR/$DATE/" || true
+        fi
     done
     echo "Using SSL $1 certificates"
     for file in "${SSL_FILES[@]}"; do
-        ln -sf "$1/$file" "$SSL_DIR/$file"
+        source="$1/$file"
+        destination="$SSL_LIVE_DIR/$file"
+        if [ -f "$destination" ]; then
+            rm "$destination"
+        fi
+        cp -f "$source" "$destination"
     done
 }
 

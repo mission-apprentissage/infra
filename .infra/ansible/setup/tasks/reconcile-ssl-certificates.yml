@@ -1,2 +1,7 @@
 - name: Reconcile SSL certificates
   shell: "bash /opt/app/tools/ssl/reconcile-ssl-certificates.sh"
+  register: reconcile_output
+
+- name: Info on SSL reconciliation
+  debug:
+    var: reconcile_output.stdout_lines
