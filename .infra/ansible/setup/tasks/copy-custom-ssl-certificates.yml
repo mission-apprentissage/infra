@@ -5,6 +5,7 @@
 
 - name: Backup des certificats SSL personnalisés
   shell: "bash /opt/app/tools/ssl/backup-custom-ssl-certificates.sh"
+  register: backup_output
 
 - name: Copie des nouveaux certificats SSL personnalisés
   ansible.builtin.copy:
@@ -13,6 +14,7 @@
     mode: "{{ item.mode }}"
   with_filetree: "{{playbook_dir}}/../../products/{{ product_name }}/ssl/certificates/{{ env_type }}/"
   when:
+    - dns_name | regex_search('(beta\.gouv\.fr$)') == none
     - item.state == 'file'
-    - item.path | regex_search('((fullchain|privkey)\.pem$)') != none
+    - item.path | regex_search('(^(fullchain|privkey)\.pem$)') != none
     - item.path | regex_search('\.gitkeep$') == none
