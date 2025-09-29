@@ -15,6 +15,7 @@ function Help() {
    echo "  system:user:remove                         Remove user from server"
    echo "  vault:edit                                 Edit vault file"
    echo "  vault:view                                 View vault file"
+   echo "  vault:renew                                Renew vault password with updated habilitations"
    echo "  vault:password                             Show vault password"
    echo "  deploy:log:encrypt                         Encrypt Github ansible logs"
    echo "  deploy:log:dencrypt                        Decrypt Github ansible logs"
@@ -53,7 +54,7 @@ function system:setup() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-  #firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
@@ -118,6 +119,10 @@ function vault:edit() {
 
 function vault:view() {
   "${SCRIPT_DIR}/view-vault.sh" "$@"
+}
+
+function vault:renew() {
+  "${SCRIPT_DIR}/renew-vault.sh" "$@"
 }
 
 function vault:password() {
