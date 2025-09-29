@@ -15,6 +15,7 @@ function Help() {
    echo "  system:user:remove                         Remove user from server"
    echo "  vault:edit                                 Edit vault file"
    echo "  vault:view                                 View vault file"
+   echo "  vault:renew                                Renew vault password with updated habilitations"
    echo "  vault:password                             Show vault password"
    echo "  deploy:log:encrypt                         Encrypt Github ansible logs"
    echo "  deploy:log:dencrypt                        Decrypt Github ansible logs"
@@ -118,6 +119,10 @@ function vault:edit() {
 
 function vault:view() {
   "${SCRIPT_DIR}/view-vault.sh" "$@"
+}
+
+function vault:renew() {
+  "${SCRIPT_DIR}/renew-vault.sh" "$@"
 }
 
 function vault:password() {

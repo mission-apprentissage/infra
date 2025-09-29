@@ -16,12 +16,13 @@ function renew() {
   bash "${SCRIPT_DIR}/generate-vault-password.sh"
 
   echo "Using new password to re-encrypt vault file..."
-  ansible-vault rekey \
-    --vault-id "previous@${SCRIPT_DIR}/get-vault-password-client.sh" \
-    --new-vault-id "default@${SCRIPT_DIR}/get-vault-password-client.sh" \
+
+  ansible-vault -vvvvvv rekey \
+    --vault-id="${SCRIPT_DIR}/get-previous-vault-password-client.sh" \
+    --new-vault-id="${SCRIPT_DIR}/get-vault-password-client.sh" \
     "${VAULT_FILE}"
 
-  rm "${previous_vault_password_file}"
+  # rm "${previous_vault_password_file}"
 }
 
 renew "$@"
