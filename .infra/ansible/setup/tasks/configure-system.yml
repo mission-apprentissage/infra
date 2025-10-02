@@ -9,10 +9,6 @@
     name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
 
-- import_tasks: configure-nvidia-gpu.yml
-  tags: nvidia
-  when: gpu_instance == 'true'
-
 - include_role:
     name: geerlingguy.docker
   vars:

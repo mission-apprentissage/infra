@@ -64,6 +64,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
     -i "${PRODUCT_DIR}/../infra/infra-env.ini" \
     -i "${PRODUCT_DIR}/env.ini" \
     --limit "${ENV_FILTER}" \
+    -e "product=${PRODUCT_NAME}" \
     "${ansible_extra_opts[@]}" \
     "${ROOT_DIR}/.infra/ansible/${PLAYBOOK_NAME}" \
     "$@"

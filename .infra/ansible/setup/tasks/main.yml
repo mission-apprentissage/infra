@@ -2,6 +2,10 @@
   tags: kernel
   when: add_kernel_modification == true
 
+- import_tasks: configure-nvidia-gpu.yml
+  tags: nvidia
+  when: gpu_instance == 'true'
+
 - import_tasks: configure-system.yml
   tags: system
 
