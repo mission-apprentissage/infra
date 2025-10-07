@@ -1,3 +1,9 @@
+- name: Mise à jour des packages
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
 - shell: uname -r
   register: linux_flavour
 
