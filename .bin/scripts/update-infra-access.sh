@@ -11,7 +11,7 @@ function create_password_file() {
   password="$(pwgen -n 71 -C | head -n1)"
 
   echo "Extracting gpg keys from habilitations file..."
-  mapfile -t keys < <(grep "gpg_key:" "${HABILITATIONS_FILE}" | awk -F ":" '{print $2}' | sed '/^$/d' | tr -d ' ')
+  mapfile -t keys < <(sed -n '/gpg_keys/,/authorized_keys/p' "${HABILITATIONS_FILE}" | grep -Ev "gpg_keys|authorized_keys" | awk -F "-" '{print $2}' | tr -d ' ')
 
   echo "Fetching gpg keys and add them as a recipients..."
   for key in "${keys[@]}"; do

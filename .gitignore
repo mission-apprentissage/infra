@@ -152,6 +152,7 @@ sdk/lib
 .npmrc
 
 
+**/.vault-password-previous.gpg
 **/.vault-password.gpg
 **/habilitations.yml
 
