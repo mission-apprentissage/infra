@@ -38,10 +38,10 @@ server {
 # Use map to allow starting reverse_proxy without SSL ssl_certificate
 # This will allow certbot to create one and trigger reload
 map $host $fullchain {
-    default       /etc/nginx/ssl/live/${SERVER_NAME}/fullchain.pem;
+    default       /etc/nginx/ssl/${SERVER_NAME}/fullchain.pem;
 }
 map $host $privkey {
-    default       /etc/nginx/ssl/live/${SERVER_NAME}/privkey.pem;
+    default       /etc/nginx/ssl/${SERVER_NAME}/privkey.pem;
 }
 
 server {

@@ -47,11 +47,19 @@ done
 
 set -e
 
-# Ensure correct permissions for privkey.pem
+install -d -m 755 /opt/app/system/certbot/certs/${SERVER_NAME}/
+
+cp -v /opt/app/system/certbot/conf/live/${SERVER_NAME}/* /opt/app/system/certbot/certs/${SERVER_NAME}/
+
+ln -sr /opt/app/system/certbot/certs/${SERVER_NAME}/cert.pem /opt/app/system/certbot/certs/${SERVER_NAME}.crt
+ln -sr /opt/app/system/certbot/certs/${SERVER_NAME}/privkey.pem /opt/app/system/certbot/certs/${SERVER_NAME}.key
+
+# Ensure correct permissions for private keys
 chmod 0440 /opt/app/system/certbot/conf/live/${SERVER_NAME}/privkey.pem
+chmod 0440 /opt/app/system/certbot/certs/${SERVER_NAME}.key
 
 # Allow Nginx container to access certificates
 chgrp -R www-data /opt/app/system/certbot/
-find /opt/app/system/certbot/conf/ -type d -exec chmod 755 {} +
-find /opt/app/system/certbot/conf/ -type f -exec chmod 644 {} +
+chmod 755 /opt/app/system/certbot/certs
+find /opt/app/system/certbot/certs/ -type f -exec chmod 644 {} +
 /opt/app/tools/ssl/reload-proxy.sh

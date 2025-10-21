@@ -53,7 +53,7 @@ services:
       - MODSEC_REQ_BODY_NOFILES_LIMIT={{modsec_body_limit}}
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
     volumes:
-      - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
+      - /opt/app/system/certbot/certs/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
       - /opt/app/configs/reverse_proxy/locations/:/etc/nginx/templates/locations/:ro
       - /opt/app/configs/reverse_proxy/system/:/etc/nginx/system/:ro
