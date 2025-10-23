@@ -1,29 +1,30 @@
-- name: "Vérification de l'existence du groupe {{user_group}}"
+- name: Vérification de l'existence du groupe '{{ user_group }}'
   group:
     name: "{{ user_group }}"
     state: present
 
-- name: "Création utilisateur {{ habilitation.username }}"
+- name: Création de l'utilisateur '{{ habilitation.username }}'
   user:
     name: "{{ habilitation.username }}"
     password: "{{ vault.HABILITATION_PASSWORD }}"
     update_password: on_create
     shell: /bin/bash
-    groups: sudo,{{user_group}}
+    groups: sudo,{{ user_group }}
     append: yes
     password_expire_max: 90
     password_expire_min: 1
   register: user
 
-- name: Force password update
+- name: Invalidation du mot de passe de l'utilisateur '{{ habilitation.username }}'
   command: "chage -d 0 {{ habilitation.username }}"
   when: user.changed
 
-- name: "Ajout des clés d'autorisation à l'utilisateur {{habilitation.username}}"
+- name: Ajout des clés SSH publiques autorisées à l'utilisateur '{{ habilitation.username }}'
   authorized_key:
     user: "{{ habilitation.username }}"
     state: present
-    key: "{{key}}"
+    key: "{{ key }}"
   loop: "{{ habilitation.authorized_keys }}"
   loop_control:
     loop_var: key
+

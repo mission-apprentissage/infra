@@ -1,6 +1,16 @@
----
-# recommandation from https://www.sshaudit.com/hardening_guides.html
-# keys configuration is skipped (first 2 steps of the documentation above)
+- name: Mise à jour de la configuration OpenSSH
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/sshd/sshd_config.jinja2"
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0640
+  notify:
+    - restart-ssh
+
+- name: Vérification de la configuration OpenSSH
+  shell:
+    cmd: sshd -t
 
 - name: Regen host keys
   command: /opt/app/tools/ssh/regen-host-key.sh
@@ -28,32 +38,7 @@
   notify:
     - restart-ssh
 
-- name: Create SSH hardening configuration Ubuntu 22
-  copy:
-    dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
-    content: |
-      # Restrict key exchange, cipher, and MAC algorithms, as per sshaudit.com
-      # hardening guide.
-      KexAlgorithms sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,gss-curve25519-sha256-,diffie-hellman-group16-sha512,gss-group16-sha512-,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
-
-      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-gcm@openssh.com,aes128-ctr
-
-      MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
-
-      HostKeyAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
-
-      CASignatureAlgorithms sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sh2-256
-
-      GSSAPIKexAlgorithms gss-curve25519-sha256-,gss-group16-sha512-
-
-      HostbasedAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
-
-      PubkeyAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-256
-  when: ansible_facts['distribution_major_version'] == '22'
-  notify:
-    - restart-ssh
-
-- name: Create SSH hardening configuration Ubuntu 24
+- name: Create SSH hardening configuration Ubuntu
   copy:
     dest: /etc/ssh/sshd_config.d/ssh-audit_hardening.conf
     content: |
@@ -76,7 +61,6 @@
       HostbasedAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
 
       PubkeyAcceptedAlgorithms sk-ssh-ed25519-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,ssh-ed25519,rsa-sha2-512,rsa-sha2-256
-  when: ansible_facts['distribution_major_version'] == '24'
   notify:
     - restart-ssh
 
