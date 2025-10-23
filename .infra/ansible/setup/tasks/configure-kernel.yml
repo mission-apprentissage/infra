@@ -1,5 +1,4 @@
 - name: Mettre à jour kernel.kptr_restrict to 2
-  become: true
   ansible.posix.sysctl:
     name: kernel.kptr_restrict
     value: "2"

@@ -1,0 +1,10 @@
+[Match]
+Name=wan
+
+[Network]
+LinkLocalAddressing=no
+Address={{ public_interface_ip }}/32
+
+[Route]
+Gateway={{ public_interface_gateway }}
+GatewayOnLink=true

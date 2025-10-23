@@ -1,38 +1,4 @@
-- name: Mise à jour configuration sshd
-  copy:
-    src: "{{playbook_dir}}/../files/sshd/sshd_config"
-    dest: /etc/ssh/sshd_config
-    owner: root
-    group: root
-    mode: 0640
-  notify:
-    - restart-ssh
-
-- name: Validate sshd Config
-  shell:
-    cmd: sshd -t
-
-- name: Ensure group "{{user_group}}" exists
-  group:
-    name: "{{user_group}}"
-    state: present
-
-- name: Setup password policy in Ubuntu 22.04
-  when: ansible_facts['distribution_major_version'] != '24'
-  block:
-    - name: Install pam packages
-      apt:
-        name: ["libpam-cracklib"]
-
-    - name: Set password policy
-      lineinfile:
-        path: /etc/pam.d/common-password
-        regexp: "pam_cracklib.so"
-        line: "password   requisite   pam_cracklib.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1"
-
-# cracklib is deprecated and removed in Ubuntu 24.04
-- name: Setup password policy in Ubuntu 24.04
-  when: ansible_facts['distribution_major_version'] == '24'
+- name: Setup password policy
   block:
     - name: Install pam packages
       apt:
