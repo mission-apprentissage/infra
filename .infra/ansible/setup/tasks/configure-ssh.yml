@@ -64,17 +64,3 @@
   notify:
     - restart-ssh
 
-- name: IPtable
-  ansible.builtin.shell:
-    cmd: /opt/app/tools/ssh/iptables.sh
-
-# Do not use iptables-persistant due to conflict with fail2ban and docker policies
-- name: Run IPtable script after reboot
-  ansible.builtin.cron:
-    name: "iptables"
-    special_time: "reboot"
-    job: "/opt/app/tools/ssh/iptables.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Restore SSH iptables' -v $?"
-
-- name: Validate sshd Config
-  shell:
-    cmd: sshd -t
