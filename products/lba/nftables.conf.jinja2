@@ -1,8 +1,9 @@
 #!/usr/sbin/nft -f
 
-flush ruleset
+table ip firewall
+delete table ip firewall
 
-table ip filter {
+table ip firewall {
 
   chain input {
     type filter hook input priority filter
@@ -20,40 +21,21 @@ table ip filter {
     tcp dport { 80, 443 } accept
 
     # Docker Swarm - port 2377 TCP for communication with and between manager nodes
-    # tcp dport 2377 accept
+    #tcp dport 2377 accept
 
     # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
-    # tcp dport 7946 accept
-    # udp dport 7946 accept
+    #tcp dport 7946 accept
+    #udp dport 7946 accept
 
     # Docker Swarm - port 4789 UDP for overlay network traffic
-    # udp dport 4789 accept
+    #udp dport 4789 accept
 
   }
 
   chain forward {
-    type filter hook forward priority filter; policy drop;
-    counter jump docker-isolation-stage-1
-    oifname "docker0" ct state { related, established } counter accept
-    oifname "docker0" counter jump docker
-    iifname "docker0" oifname != "docker0" counter accept
-    iifname "docker0" oifname "docker0" counter accept
-  }
-
-  chain output {
-    type filter hook output priority 0
-    policy accept
-  }
-
-  chain docker {
-  }
-
-  chain docker-isolation-stage-1 {
-    iifname "docker0" oifname != "docker0" jump docker-isolation-stage-2
-  }
-
-  chain docker-isolation-stage-2 {
-    oifname "docker0" counter drop
+    iifname "wan" ip daddr 172.17.0.0/12 ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip daddr 172.18.0.0/12 ct original proto-dst { 80, 443 } accept
   }
 
 }
+
