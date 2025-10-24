@@ -18,5 +18,5 @@
 - name: restart-nftables
   service:
     name: nftables
-    enabled: true
+    enabled: false
     state: restarted
