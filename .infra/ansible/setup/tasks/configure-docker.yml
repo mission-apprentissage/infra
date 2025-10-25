@@ -7,8 +7,8 @@
         fluentd-address: localhost:24224
         tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
         fluentd-async: "true"
-      ipv6: false,
-      ip6tables: false,
+      ipv6: false
+      ip6tables: false
       dns: ["172.17.0.1"]
   when: env_type != 'preview' and gpu_instance == 'false'
 
@@ -31,8 +31,8 @@
         fluentd-address: localhost:24224
         tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
         fluentd-async: "true"
-      ipv6: false,
-      ip6tables: false,
+      ipv6: false
+      ip6tables: false
       dns: ["172.17.0.1"]
       runtimes:
         nvidia:
