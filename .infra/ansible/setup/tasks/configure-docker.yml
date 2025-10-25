@@ -17,8 +17,8 @@
   vars:
     docker_daemon_options:
       log-driver: local
-      ipv6: false,
-      ip6tables: false,
+      ipv6: false
+      ip6tables: false
       dns: ["172.17.0.1"]
   when: env_type == 'preview' and gpu_instance == 'false'
 
