@@ -1,38 +1,33 @@
-- name: Ensure group "{{user_group}}" exists
-  group:
-    name: "{{user_group}}"
-    state: present
-
 - include_tasks: _create-sudoers.yml
-  loop: "{{habilitations}}"
+  loop: "{{ habilitations }}"
   loop_control:
     loop_var: habilitation
 
-- name: "Création utilisateur deploy"
+- name: Création de l'utilisateur 'deploy'
   user:
     name: "deploy"
     password: "{{ vault.GH_USER_PASS_HASH }}"
     update_password: always
     shell: /bin/bash
-    groups: sudo,{{user_group}}
+    groups: sudo,{{ user_group }}
     append: yes
     password_expire_max: 90
     password_expire_min: 1
 
-- name: "Ajout des clés d'autorisation à l'utilisateur deploy"
+- name: Ajout des clés SSH publiques autorisées à l'utilisateur 'deploy'
   authorized_key:
     user: "deploy"
     state: present
     key: "{{ vault.GH_USER_PUBLIC_KEY }}"
 
-- name: "Ajout de la SSH private key"
+- name: Ajout de la SSH privée
   copy:
     dest: "~/.ssh/id_ed25519"
     content: "{{ vault.GH_USER_PRIVATE_KEY }}"
     owner: root
     mode: "700"
 
-- name: "Ajout de la SSH key"
+- name: Ajout de la SSH privée à l'agent OpenSSH
   shell: |
     eval "$(ssh-agent)"
     ssh-add ~/.ssh/id_ed25519

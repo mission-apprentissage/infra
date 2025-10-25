@@ -27,7 +27,7 @@ set-option -g status-style fg=colour238,bg=colour233
 # Left side of status bar
 set-option -g status-left-style bg=colour233,fg=colour243
 set-option -g status-left-length 50
-set-option -g status-left "#[fg=colour232,bg=colour24,bold] #(hostname -s) #[fg=colour24,bg=colour240,nobold]#[fg=colour233,bg=colour240] {{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} #[fg=colour240,bg=colour245]#[fg=colour233,bg=colour245,bold] #I:#P #[fg=colour245,bg=colour233]"
+set-option -g status-left "#[fg=colour232,bg=colour24,bold] #(hostname -s) #[fg=colour24,bg=colour240,nobold]#[fg=colour233,bg=colour240] {{ public_interface_ip }} #[fg=colour240,bg=colour245]#[fg=colour233,bg=colour245,bold] #I:#P #[fg=colour245,bg=colour233]"
 
 set-option -g status-right ""
 

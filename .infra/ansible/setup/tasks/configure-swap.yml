@@ -1,36 +1,34 @@
----
-- name: Ensure swap file exists.
+- name: Création du fichier d'échange de la mémoire
   shell:
     cmd: "dd if=/dev/zero of=/swapfile bs=1M count=4096"
     creates: /swapfile
   register: swap_file_create
 
-- name: Set permissions on swap file.
+- name: Configuration des droits du fichier d'échange de la mémoire
   file:
     path: "/swapfile"
     owner: root
     group: root
     mode: 0600
 
-- name: Make swap file if necessary.
+- name: Initialisation du fichier d'échange de la mémoire
   shell:
     cmd: mkswap /swapfile
   when: swap_file_create is changed
   register: mkswap_result
 
-- name: Run swapon on the swap file.
+- name: Activation du fichier d'échange de la mémoire
   shell:
     cmd: swapon /swapfile
   when: mkswap_result is changed
 
-- name: Set swappiness.
+- name: Ajustement du niveau d'utilisation du fichier d'échange de la mémoire par le système
   sysctl:
     name: vm.swappiness
-    # Swap only when necessary https://www.mongodb.com/docs/manual/administration/production-notes/#std-label-set-swappiness
     value: "1"
     state: present
 
-- name: Manage swap file entry in fstab.
+- name: Enregistrement du fichier d'échange de mémoire comme partition
   ansible.posix.mount:
     backup: true
     src: "/swapfile"
