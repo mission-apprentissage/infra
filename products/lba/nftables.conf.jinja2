@@ -12,7 +12,8 @@ table ip firewall {
     ct state { established, related } accept
     ip protocol icmp accept
     iif "lo" accept
-    iif != "lo" ip daddr 127.0.0.0/8 drop
+    iif "docker0" accept
+    iif "docker_gwbridge" accept
     iifname "wan" jump input-wan
   }
 
@@ -32,10 +33,4 @@ table ip firewall {
 
   }
 
-  chain forward {
-    iifname "wan" ip daddr 172.17.0.0/12 ct original proto-dst { 80, 443 } accept
-    iifname "wan" ip daddr 172.18.0.0/12 ct original proto-dst { 80, 443 } accept
-  }
-
 }
-
