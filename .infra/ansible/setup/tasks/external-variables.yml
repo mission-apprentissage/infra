@@ -1,10 +1,5 @@
 - name: Récupération des adresses IPv4 des serveurs lba de production 
-  local_action: ansible.builtin.shell sh -c "env" 
-  become: false
-  register: foo
-
-- name: Récupération des adresses IPv4 des serveurs lba de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/env.ini -l production" 
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'" 
   become: false
   register: foo
 
