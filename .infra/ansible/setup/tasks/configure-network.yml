@@ -88,28 +88,28 @@
     purge: true
 
 - set_fact:
-    public_interface_ip={{ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}
+    public_interface_ip: "{{ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
 
 - name: Récupération du nom de l'interface réseau publique
   shell: "ip -br a | grep {{ public_interface_ip }} | awk '{print $1}'"
   register: public_interface_name
 
 - set_fact:
-    public_interface_name={{ public_interface_name.stdout }}  
+    public_interface_name: "{{ public_interface_name.stdout }}"  
 
 - name: Récupération de l'adresse MAC de l'interface réseau publique
   shell: "ip -br l show {{ public_interface_name }} | awk '{print $3}'"
   register: public_interface_mac
 
 - set_fact:
-    public_interface_mac={{ public_interface_mac.stdout }}  
+    public_interface_mac: "{{ public_interface_mac.stdout }}"
 
 - name: Récupération de l'adresse IP de la passerelle par défaut
   shell: "ip r | grep default | awk '{print $3}'"
   register: public_interface_gateway
 
 - set_fact:
-    public_interface_gateway={{ public_interface_gateway.stdout }}  
+    public_interface_gateway: "{{ public_interface_gateway.stdout }}"
 
 - name: Copie du modèle de la configuration Ethernet de l'interface réseau publique
   ansible.builtin.template:
@@ -132,7 +132,7 @@
   when: public_interface_name != 'wan'
 
 - set_fact:
-    netplan_rules="{{ netplan_systemd.stdout }} {{ netplan_udev.stdout }}"  
+    netplan_rules: "{{ netplan_systemd.stdout }} {{ netplan_udev.stdout }}"  
   when: public_interface_name != 'wan'
 
 - name: Suppression des fichiers systemd et udev gérés dynamiquement par Netplan

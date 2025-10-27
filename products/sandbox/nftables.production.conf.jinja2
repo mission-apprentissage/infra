@@ -3,6 +3,18 @@
 table ip firewall
 delete table ip firewall
 
+define MONGODB_CLUSTER = {
+{% for ip in mongodb_lba_ips %}
+"{{ ip }}",
+{% endfor %}
+}
+
+define LBA_PRODUCTION = {
+{% for ip in lba_production_ips %}
+"{{ ip }}",
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {
@@ -21,6 +33,9 @@ table ip firewall {
     tcp dport 22 accept
     tcp dport { 80, 443 } accept
 
+    ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
+    ip saddr $LBA_PRODUCTION tcp dport 27017 accept
+
     # Docker Swarm - port 2377 TCP for communication with and between manager nodes
     #tcp dport 2377 accept
 
@@ -34,3 +49,4 @@ table ip firewall {
   }
 
 }
+
