@@ -1,5 +1,5 @@
 - name: Récupération des adresses IPv4 des serveurs lba de production 
-  local_action: ansible.builtin.shell sh -c "echo {{ playbook_dir }}/../../products/lba/env.ini" 
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/env.ini -l production" 
   become: false
   register: foo
 
