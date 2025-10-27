@@ -26,8 +26,8 @@
 #- import_tasks: configure-network.yml
 #  tags: network
 #
-- import_tasks: configure-firewall.yml
-  tags: firewall
+#- import_tasks: configure-firewall.yml
+#  tags: firewall
 #
 #- import_tasks: configure-ips-blacklist.yml
 #  tags: ipsblacklist

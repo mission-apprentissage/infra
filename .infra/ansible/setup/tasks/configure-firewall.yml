@@ -5,7 +5,7 @@
 #    autoremove: true
 #    purge: true
 
-- name: Copie du modèle de la configuration de nftables
+- name: Copie du modèle de configuration de nftables
   ansible.builtin.template:
     src: "{{ playbook_dir }}/../../products/{{ product }}/nftables.{{ env_type }}.conf.jinja2"
     dest: "/etc/nftables.conf"
