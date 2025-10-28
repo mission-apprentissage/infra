@@ -24,8 +24,9 @@ table ip firewall {
     ct state { established, related } accept
     ip protocol icmp accept
     iif "lo" accept
-    iif "docker0" accept
-    iif "docker_gwbridge" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "br-*" accept
     iifname "wan" jump input-wan
   }
 
