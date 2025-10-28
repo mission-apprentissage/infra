@@ -38,6 +38,7 @@
     bal_production_ips: "{{ bal_production_ips.stdout_lines }}"
     bal_recette_ips: "{{ bal_recette_ips.stdout_lines }}"
     mongodb_lba_ips: "{{ mongodb_lba_ips.stdout_lines }}"
+    monitoring_ips: "{{ monitoring_ips.stdout_lines }}"
     data_ips: "{{ data_ips.stdout_lines }}"
     vpn_ips: "{{ vpn_ips.stdout_lines }}"
 

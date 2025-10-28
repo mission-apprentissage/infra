@@ -48,12 +48,13 @@ table ip firewall {
     ct state { established, related } accept
     ip protocol icmp accept
     iif "lo" accept
-    iif "docker0" accept
-    iif "docker_gwbridge" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
     iifname "wan" jump input-wan
   }
 
   chain input-wan {
+
     tcp dport 22 accept
     tcp dport { 80, 443 } accept
 
@@ -63,16 +64,6 @@ table ip firewall {
     ip saddr $BAL_RECETTE tcp dport 27017 accept
     ip saddr $DATA tcp dport 27017 accept
     ip saddr $VPN tcp dport 27017 accept
-
-    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
-    #tcp dport 2377 accept
-
-    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
-    #tcp dport 7946 accept
-    #udp dport 7946 accept
-
-    # Docker Swarm - port 4789 UDP for overlay network traffic
-    #udp dport 4789 accept
 
   }
 

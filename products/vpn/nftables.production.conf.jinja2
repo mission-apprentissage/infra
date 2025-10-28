@@ -3,12 +3,6 @@
 table ip firewall
 delete table ip firewall
 
-define VPN = {
-{% for ip in vpn_ips %}
-"{{ ip }}",
-{% endfor %}
-}
-
 define MONITORING = {
 {% for ip in monitoring_ips %}
 "{{ ip }}",
@@ -26,18 +20,26 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
-    iifname "br-*" accept
     iifname "wan" jump input-wan
+    iifname "tun0" jump input-tun
   }
 
   chain input-wan {
 
     tcp dport 22 accept
+    udp dport 1194
 
-    ip saddr $VPN tcp dport { 80, 443 } accept
     ip saddr $MONITORING tcp dport { 80, 443 } accept
 
   }
 
+  chain input-tun {
+
+    ip saddr 18.0.0.0/24 tcp dport 22 accept
+    ip saddr 18.0.0.0/24 tcp dport { 80, 443 } accept
+    ip saddr 18.0.0.0/24 tcp dport 27017
+
+  }
+ 
 }
 
