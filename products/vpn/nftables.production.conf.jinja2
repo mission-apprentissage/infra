@@ -1,0 +1,45 @@
+#!/usr/sbin/nft -f
+
+table ip firewall
+delete table ip firewall
+
+define MONITORING = {
+{% for ip in monitoring_ips %}
+"{{ ip }}",
+{% endfor %}
+}
+
+table ip firewall {
+
+  chain input {
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "wan" jump input-wan
+    iifname "tun0" jump input-tun
+  }
+
+  chain input-wan {
+
+    tcp dport 22 accept
+    udp dport 1194
+
+    ip saddr $MONITORING tcp dport { 80, 443 } accept
+
+  }
+
+  chain input-tun {
+
+    ip saddr 18.0.0.0/24 tcp dport 22 accept
+    ip saddr 18.0.0.0/24 tcp dport { 80, 443 } accept
+    ip saddr 18.0.0.0/24 tcp dport 27017
+
+  }
+ 
+}
+
