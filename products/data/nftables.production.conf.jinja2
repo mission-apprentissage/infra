@@ -3,6 +3,18 @@
 table ip firewall
 delete table ip firewall
 
+define VPN = {
+{% for ip in vpn_ips %}
+"{{ ip }}",
+{% endfor %}
+}
+
+define MONITORING = {
+{% for ip in monitoring_ips %}
+"{{ ip }}",
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {
@@ -18,19 +30,13 @@ table ip firewall {
   }
 
   chain input-wan {
+
     tcp dport 22 accept
-    tcp dport { 80, 443 } accept
 
-    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
-    #tcp dport 2377 accept
-
-    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
-    #tcp dport 7946 accept
-    #udp dport 7946 accept
-
-    # Docker Swarm - port 4789 UDP for overlay network traffic
-    #udp dport 4789 accept
+    ip saddr $VPN tcp dport { 80, 443 } accept
+    ip saddr $MONITORING tcp dport { 80, 443 } accept
 
   }
 
 }
+
