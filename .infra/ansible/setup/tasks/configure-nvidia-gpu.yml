@@ -1,9 +1,3 @@
-- name: Mise à jour des packages
-  apt:
-    name: "*"
-    state: latest
-    update_cache: yes
-
 - shell: uname -r
   register: linux_flavour
 
@@ -43,30 +37,3 @@
 
 - set_fact:
     gpu_uuid={{ gpu_uuid.stdout }}  
-
-- include_role:
-    name: geerlingguy.docker
-  vars:
-    docker_daemon_options:
-      log-driver: fluentd
-      log-opts:
-        fluentd-address: localhost:24224
-        tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
-        fluentd-async: "true"
-      dns: ["172.17.0.1"]
-      runtimes:
-        nvidia:
-          path: "nvidia-container-runtime"
-          runtimeArgs: []
-      default-runtime: "nvidia"
-      node-generic-resources: ["gpu={{ gpu_uuid }}"]
-
-- shell: "docker node ls --format '{{ '{{' }} .ID {{ '}}' }}'"
-  register: node_id
-
-- set_fact:
-    node_id={{ node_id.stdout }}  
-
-- name: Ajout d'un label au nœud Docker Swarm
-  shell: docker node update --label-add nvidia=true {{ node_id }}
-

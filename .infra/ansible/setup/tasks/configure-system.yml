@@ -4,35 +4,48 @@
     state: latest
     update_cache: yes
 
-- name: Remove unused package
+- name: Suppression de certains paquets
   apt:
     name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
+  when: gpu_instance == 'false'
 
-- include_role:
-    name: geerlingguy.docker
-  vars:
-    docker_daemon_options:
-      log-driver: fluentd
-      log-opts:
-        fluentd-address: localhost:24224
-        tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
-        fluentd-async: "true"
-      dns: ["172.17.0.1"]
-  when: env_type != 'preview' and gpu_instance == 'false'
+- name: Suppression de certains paquets
+  apt:
+    name: ["tcpdump", "gdb", "libX11", "telnet", "ftp"]
+    state: absent
+  when: gpu_instance == 'true'
 
-- include_role:
-    name: geerlingguy.docker
-  vars:
-    docker_daemon_options:
-      log-driver: local
-      dns: ["172.17.0.1"]
-  when: env_type == 'preview' and gpu_instance == 'false'
+- name: Installation de certains paquets
+  apt:
+    name: ["vim", "htop", "jq", "git", "python3-pip", "python3-docker"]
 
-- name: Docker login
-  shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
-  environment: 
-    PASS: "{{ vault.DOCKER_LOGIN.token }}"
+- name: Configuration du fuseau horaire (Europe/Paris)
+  community.general.timezone:
+    name: Europe/Paris
+
+- name: Disable bash history for all users
+  copy:
+    dest: /etc/profile.d/disable_history.sh
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/bash
+      # Disable bash history for all users
+
+      export HISTFILE=/dev/null
+      export HISTSIZE=0
+      export HISTFILESIZE=0
+      unset HISTFILE
+
+- name: Configuration du multiplexeur de terminaux tmux
+  template:
+    src: "{{playbook_dir}}/../files/tmux/tmux.conf.template.jinja2"
+    dest: /etc/tmux.conf
+    owner: root
+    group: root
+    mode: '0755'
 
 - include_role:
     name: patrickjahns.promtail
@@ -84,10 +97,6 @@
   shell: "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
   when: env_type == 'preview'
 
-- name: Installation des packages apt
-  apt:
-    name: ["vim", "htop", "jq", "git", "python3-pip", "python3-docker"]
-
 - name: Installation nodejs
   apt:
     name: ["nodejs"]
@@ -101,16 +110,6 @@
   shell: "yarn set version berry"
   when: env_type == 'preview'
 
-- name: Set timezone to Europe/Paris
-  community.general.timezone:
-    name: Europe/Paris
-
-- name: Definition clavier francais
-  lineinfile:
-    path: /etc/default/keyboard
-    regexp: '^XKBLAYOUT=\"\w*\"$'
-    line: 'XKBLAYOUT="fr"'
-
 - name: Définition de l'environnement
   copy:
     dest: /env
@@ -121,7 +120,6 @@
   hostname:
     name: "{{ host_name }}"
 
-#Works only with OVH instance
 - name: Ajout de l'hôte en tant qu'alias dans /etc/hosts
   lineinfile:
     dest: /etc/hosts
@@ -174,25 +172,34 @@
     minute: "30"
     job: "bash /opt/app/tools/workaround/apt-daily.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Apt Daily Workaround' -v $?"
 
-- name: Disable bash history for all users
-  copy:
-    dest: /etc/profile.d/disable_history.sh
-    owner: root
-    group: root
-    mode: '0755'
-    content: |
-      #!/bin/bash
-      # Disable bash history for all users
+- name: Création des répertoires 'tools' et 'configs' dans '/opt/app/'
+  file:
+    path: "/opt/app/{{ item.path }}/"
+    state: directory
+  with_filetree: "{{playbook_dir}}/../files/app"
+  when: item.state == 'directory'
 
-      export HISTFILE=/dev/null
-      export HISTSIZE=0
-      export HISTFILESIZE=0
-      unset HISTFILE
+- name: Copie des fichiers 'app'
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/opt/app/{{ item.path }}"
+    mode: "{{ item.mode }}"
+  with_filetree: "{{playbook_dir}}/../files/app"
+  when:
+    - item.state == 'file'
+    - item.path | regex_search('\.jinja2$') == none
+    - item.path | basename != '.gitkeep'
+    - item.path | basename != '.DS_Store'
 
-- name: Configure tmux
-  template:
-    src: "{{playbook_dir}}/../files/tmux/tmux.conf.template.jinja2"
-    dest: /etc/tmux.conf
-    owner: root
-    group: root
-    mode: '0755'
+- name: Copie des template de l'arborescence /opt/app
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "/opt/app/{{ (item.path | splitext)[0] }}"
+    mode: "{{ item.mode }}"
+  with_filetree: "{{playbook_dir}}/../files/app"
+  when:
+    - item.state == 'file'
+    - item.path | regex_search('\.jinja2$') != none
+    - item.path | basename != '.gitkeep'
+    - item.path | basename != '.DS_Store'
+

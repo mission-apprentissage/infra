@@ -1,11 +1,11 @@
-- name: Ignore ICMP broadcast requests
+- name: Blocage des requêtes ICMP de diffusion
   #Ignores broadcast pings, reducing the damage of SMURF attacks.
   ansible.posix.sysctl:
     name: net.ipv4.icmp_echo_ignore_broadcasts
     value: "1"
     sysctl_set: yes
 
-- name: Ignore send redirects
+- name: Blocage des requêtes ICMP de redirection pouvant être émises
   # Prevents hijacking of routing path by only allowing redirects from gateways known in our routing table.
   ansible.posix.sysctl:
     name: "net.ipv4.conf.{{item}}.send_redirects"
@@ -15,7 +15,7 @@
     - "all"
     - "default"
 
-- name: Ignore ICMP redirects  (accept_redirects)
+- name: Blocage des requêtes ICMP de redirection pouvant être reçues
   ansible.posix.sysctl:
     name: "net.ipv4.conf.{{item}}.accept_redirects"
     value: "0"
@@ -23,7 +23,8 @@
   with_items:
     - "all"
     - "default"
-- name: Ignore ICMP redirects  (secure_redirects)
+
+- name: Blocage des requêtes ICMP de redirection émises par des passerelles configurées
   ansible.posix.sysctl:
     name: "net.ipv4.conf.{{item}}.secure_redirects"
     value: "0"
@@ -63,21 +64,82 @@
     - "ipv4"
     - "ipv6"
 
-- name: Disable IPv6 on all interfaces
+- name: Désactivation du protocole IPv6
   ansible.posix.sysctl:
-    name: net.ipv6.conf.all.disable_ipv6
+    name: net.ipv6.conf.{{ item }}.disable_ipv6
     value: "1"
     sysctl_set: yes
+  with_items:
+    - "all"
+    - "default"
+    - "lo"
 
-- name: Disable IPv6 on default interface
-  ansible.posix.sysctl:
-    name: net.ipv6.conf.default.disable_ipv6
-    value: "1"
-    sysctl_set: yes
-
-# Required for docker networking
-- name: Enable IPv4 paquets routing
+- name: Activation du routage des paquets IPv4
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
     sysctl_set: yes
+
+- name: Suppression du paquet 'netplan.io'
+  apt:
+    name: ["netplan.io"]
+    state: absent
+    autoremove: true
+    purge: true
+
+- set_fact:
+    public_interface_ip: "{{ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
+
+- name: Récupération du nom de l'interface réseau publique
+  shell: "ip -br a | grep {{ public_interface_ip }} | awk '{print $1}'"
+  register: public_interface_name
+
+- set_fact:
+    public_interface_name: "{{ public_interface_name.stdout }}"  
+
+- name: Récupération de l'adresse MAC de l'interface réseau publique
+  shell: "ip -br l show {{ public_interface_name }} | awk '{print $3}'"
+  register: public_interface_mac
+
+- set_fact:
+    public_interface_mac: "{{ public_interface_mac.stdout }}"
+
+- name: Récupération de l'adresse IP de la passerelle par défaut
+  shell: "ip r | grep default | awk '{print $3}'"
+  register: public_interface_gateway
+
+- set_fact:
+    public_interface_gateway: "{{ public_interface_gateway.stdout }}"
+
+- name: Copie du modèle de la configuration Ethernet de l'interface réseau publique
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/systemd/10-wan.link.jinja2"
+    dest: "/etc/systemd/network/10-wan.link"
+
+- name: Copie du modèle de la configuration IP de l'interface réseau publique
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/systemd/10-wan.network.jinja2"
+    dest: "/etc/systemd/network/10-wan.network"
+
+- name: Récupération des fichiers systemd gérés dynamiquement par Netplan
+  shell: "find /run/systemd/network/ -name '*netplan*' | xargs"
+  register: netplan_systemd
+  when: public_interface_name != 'wan'
+
+- name: Récupération des fichiers udev gérés dynamiquement par Netplan
+  shell: "find /run/udev/rules.d/ -name '*netplan*' | xargs"
+  register: netplan_udev
+  when: public_interface_name != 'wan'
+
+- set_fact:
+    netplan_rules: "{{ netplan_systemd.stdout }} {{ netplan_udev.stdout }}"  
+  when: public_interface_name != 'wan'
+
+- name: Suppression des fichiers systemd et udev gérés dynamiquement par Netplan
+  shell: "rm -f {{ netplan_rules }}"
+  when: public_interface_name != 'wan'
+
+- name: Renommage et configuration de l'interface réseau publique
+  shell: "ip link set {{ public_interface_name }} down && udevadm control --reload-rules && udevadm trigger --action=add /sys/class/net/{{ public_interface_name }} && systemctl restart systemd-networkd.service"
+  when: public_interface_name != 'wan'
+

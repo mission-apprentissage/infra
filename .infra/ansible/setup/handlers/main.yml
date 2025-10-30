@@ -14,3 +14,9 @@
     name: logrotate
     enabled: true
     state: restarted
+
+- name: restart-nftables
+  service:
+    name: nftables
+    enabled: false
+    state: restarted
