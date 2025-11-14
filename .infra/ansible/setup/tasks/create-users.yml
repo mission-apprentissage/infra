@@ -11,7 +11,7 @@
 - name: "Création utilisateur deploy"
   user:
     name: "deploy"
-    password: "{{ vault[product_name][env_type].GH_USER_PASS_HASH }}"
+    password: "{{ vault[product_name].GH_USER_PASS_HASH }}"
     update_password: always
     shell: /bin/bash
     groups: sudo,{{user_group}}
