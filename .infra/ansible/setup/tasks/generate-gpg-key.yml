@@ -1,3 +1,5 @@
 - name: Generate GPG key
   shell: "bash /opt/app/tools/gpg/generate-gpg-key.sh"
+  args:
+    creates: /root/.gnupg/publickey.asc
   register: output

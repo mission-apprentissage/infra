@@ -10,7 +10,7 @@ readonly env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
 "${SCRIPT_DIR}/validate-product-name.sh" "${PRODUCT_NAME}"
 
 set +e
-readonly env_ip=$(ansible-inventory -i "${env_ini}" --list -l "${ENV_NAME}" | jq -r ".${ENV_NAME}.hosts[0]")
+readonly env_ip=$(ansible-inventory -i "${env_ini}" --list -l "${ENV_NAME}" | jq -r ".\"${ENV_NAME}\".hosts[0]")
 set -e
 
 if [[ "$env_ip" == "null" ]]; then

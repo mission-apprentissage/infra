@@ -71,7 +71,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
 }
 
 if [[ -z "${CI:-}" ]]; then
-  op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
+  op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_NAME}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
 fi;
 
 # Do not show error log in CI

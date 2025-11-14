@@ -27,3 +27,4 @@
   loop: "{{ habilitation.authorized_keys }}"
   loop_control:
     loop_var: key
+  environment: "{{ proxy_env | default(omit) }}"

@@ -143,14 +143,14 @@ services:
     environment:
       PRODUCT_NAME: "{{ product_name }}"
       ENV_TYPE: "{{ env_type }}"
-      LOKI_URL: "https://monitoring.apprentissage.beta.gouv.fr/loki"
-      LOKI_USERNAME: "monitoring"
-      LOKI_PASSWORD: "{{ vault.MONITORING_PASSWORD }}"
-      OVH_S3_API_KEY: "{{ vault.OVH_S3_API_KEY }}"
-      OVH_S3_API_SECRET: "{{ vault.OVH_S3_API_SECRET }}"
-      OVH_S3_BUCKET: "{{ vault.OVH_S3_BUCKET }}"
-      OVH_S3_ENDPOINT: "{{ vault.OVH_S3_ENDPOINT }}"
-      OVH_S3_REGION: "{{ vault.OVH_S3_REGION }}"
+      LOKI_URL: "https://{{ vault[product_name].monitoring[env_type].HOST }}/loki"
+      LOKI_USERNAME: "{{ product_name }}-{{ env_type }}"
+      LOKI_PASSWORD: "{{ vault[product_name].monitoring[env_type].PUSH_PASSWORD }}"
+      S3_API_KEY: "{{ vault.S3_API_KEY }}"
+      S3_API_SECRET: "{{ vault.S3_API_SECRET }}"
+      S3_BUCKET: "{{ vault.S3_BUCKET }}"
+      S3_ENDPOINT: "{{ vault.S3_ENDPOINT }}"
+      S3_REGION: "{{ vault.S3_REGION }}"
     logging:
       driver: "local"
 

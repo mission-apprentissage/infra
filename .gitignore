@@ -154,6 +154,7 @@ sdk/lib
 
 **/.vault-password-previous.gpg
 **/.vault-password.gpg
+**/.vault-password*.gpg
 **/habilitations.yml
 
 # Local History for Visual Studio Code
@@ -164,3 +165,5 @@ node_modules.tar.gz
 /.env_server
 vault-tmp-*.*
 id_rsa_deploy.key
+
+**/gpg/*.gpg
