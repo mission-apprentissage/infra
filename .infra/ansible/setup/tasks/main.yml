@@ -21,11 +21,6 @@
 - import_tasks: configure-network.yml
   tags: network
 
-# For OVH insfrastructure, we use their firewall solution
-- import_tasks: configure-firewall.yml
-  tags: firewall
-  when: provider == "internal"
-
 - import_tasks: configure-ips-blacklist.yml
   tags: ipsblacklist
 
