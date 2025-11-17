@@ -1,5 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
-#Needs to be run as sudo
 
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock sudobmitch/docker-stack-wait:v0.2.3 {{product_name}}
+STACK_NAME="${1:-{{product_name}}}"
+MAX_ATTEMPTS=60
+
+echo "Waiting for stack '${STACK_NAME}' to converge..."
+
+i=1
+while [ $i -le $MAX_ATTEMPTS ]; do
+    SERVICES=$(docker stack services "$STACK_NAME" --format "{% raw %}{{.Name}} {{.Replicas}}{% endraw %}" 2>/dev/null)
+
+    if [ -z "$SERVICES" ]; then
+        echo "Stack not found"
+        exit 1
+    fi
+
+    NOT_READY=$(echo "$SERVICES" | awk '{split($2,a,"/"); if(a[1]!=a[2]) print $1}')
+
+    if [ -z "$NOT_READY" ]; then
+        echo "Stack converged!"
+        exit 0
+    fi
+
+    echo "Waiting... ($i/$MAX_ATTEMPTS)"
+    sleep 5
+    i=$((i + 1))
+done
+
+echo "Timeout"
+exit 1
