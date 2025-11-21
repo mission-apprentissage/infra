@@ -2,19 +2,24 @@
 
 set -euo pipefail
 
-readonly PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}; shift;
+. "${BIN_DIR}/commands.sh"
 
-readonly env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
+PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}
+shift
+
+env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
 "${SCRIPT_DIR}/validate-product-name.sh" "${PRODUCT_NAME}"
 
 set +e
-readonly repo=$(ansible-inventory -i "${env_ini}" --list -l all | jq -r "._meta.hostvars[._meta.hostvars | keys | first].repo")
+
+repo=$(ansible-inventory -i "${env_ini}" --list -l all | jq -r "._meta.hostvars[._meta.hostvars | keys | first].repo")
+
 set -e
 
-if [[ "$repo" == "" ]]; then
-  >&2 echo "Repository not found";
-  exit 1;
-fi;
+if [ "$repo" == "" ]; then
+  >&2 echo "Repository not found"
+  exit 1
+fi
 
 echo $repo

@@ -3,6 +3,8 @@
   become: true
   vars_files:
     - "{{ playbook_dir }}/../../products/infra/vault/vault.yml"
-    - "{{ playbook_dir }}/../../products/{{ product }}/habilitations.yml"
+  vars:
+    habilitations_file: "{{ lookup('first_found', playbook_dir ~ '/../../products/' ~ product ~ '/habilitations.yml', errors='ignore') }}"
+    habilitations_file_sops: "{{ lookup('first_found', playbook_dir ~ '/../../products/' ~ product ~ '/.infra/habilitations.yml', errors='ignore') }}"
   roles:
     - setup

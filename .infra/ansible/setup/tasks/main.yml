@@ -1,3 +1,17 @@
+- name: Debug
+  debug:
+    var: habilitations_file
+
+- name: Chargement des variables du fichier d'habilitations
+  include_vars: "{{ habilitations_file }}"
+  when: habilitations_file is not none
+
+- name: Chargement des variables du fichier d'habilitations avec SOPS
+  community.sops.load_vars:
+    file: "{{ habilitations_file_sops }}"
+    expressions: ignore
+  when: habilitations_file is none
+
 - import_tasks: configure-kernel.yml
   tags: kernel
   when: add_kernel_modification == true

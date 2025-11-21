@@ -54,14 +54,18 @@ function create_password_file() {
   rm "${HABILITATIONS_FILE}"
 }
 
-DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
-echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
-cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
+if [ "$PRODUCT_NAME" != "bal" ]; then
 
-$EDITOR "${HABILITATIONS_TEMPFILE}"
+  DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
+  echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"
+  cp "$HABILITATIONS_FILE" "$HABILITATIONS_TEMPFILE"
 
-if ! cmp -s "${HABILITATIONS_TEMPFILE}" "${HABILITATIONS_FILE}"; then
-  mv "$HABILITATIONS_TEMPFILE" "$HABILITATIONS_FILE"
-  create_password_file
+  $EDITOR "${HABILITATIONS_TEMPFILE}"
+
+  if ! cmp -s "${HABILITATIONS_TEMPFILE}" "${HABILITATIONS_FILE}"; then
+    mv "$HABILITATIONS_TEMPFILE" "$HABILITATIONS_FILE"
+    create_password_file
+  fi
+
 fi
 
