@@ -8,6 +8,12 @@ define DOCKER_NETWORK = {
   172.17.0.0/16
 }
 
+define MONITORING = {
+{% for ip in monitoring_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
 define MONGODB_CLUSTER = {
 {% for ip in mongodb_lba_ips %}
   {{ ip }},
@@ -61,7 +67,6 @@ table ip firewall {
   chain input-wan {
 
     tcp dport 22 accept
-    tcp dport { 80, 443 } accept
 
     # Docker Swarm - port 2377 TCP for communication with and between manager nodes
     tcp dport 2377 accept

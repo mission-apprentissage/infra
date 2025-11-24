@@ -9,14 +9,14 @@ define DOCKER_NETWORK = {
   172.20.0.0/16
 }
 
-define VPN = {
-{% for ip in vpn_ips %}
+define MONITORING = {
+{% for ip in monitoring_ips %}
   {{ ip }},
 {% endfor %}
 }
 
-define MONITORING = {
-{% for ip in monitoring_ips %}
+define VPN = {
+{% for ip in vpn_ips %}
   {{ ip }},
 {% endfor %}
 }
