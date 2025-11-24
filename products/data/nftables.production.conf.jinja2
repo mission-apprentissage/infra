@@ -4,7 +4,9 @@ table ip firewall
 delete table ip firewall
 
 define DOCKER_NETWORK = {
-  172.18.0.0/16
+  172.18.0.0/16,
+  172.17.0.0/16,
+  172.20.0.0/16
 }
 
 define VPN = {
@@ -29,7 +31,9 @@ table ip firewall {
     ct state { established, related } accept
     ip protocol icmp accept
     iif "lo" accept
+    iifname "docker0" accept
     iifname "docker_gwbridge" accept
+    iifname "br-*" accept
     iifname "wan" jump input-wan
 
   }
@@ -46,6 +50,9 @@ table ip firewall {
     policy drop
     ct state invalid drop
     ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
     iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
     iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept

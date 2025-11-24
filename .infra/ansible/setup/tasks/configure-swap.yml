@@ -1,6 +1,6 @@
 - name: Création du fichier d'échange de la mémoire
   shell:
-    cmd: "dd if=/dev/zero of=/swapfile bs=1M count=4096"
+    cmd: "dd if=/dev/zero of=/swapfile bs=1M count=$((16 * 1024))"
     creates: /swapfile
   register: swap_file_create
 
