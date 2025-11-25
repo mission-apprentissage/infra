@@ -12,6 +12,8 @@
     expressions: ignore
   when: habilitations_file is none
 
+- import_tasks: external-variables.yml
+
 - import_tasks: configure-kernel.yml
   tags: kernel
   when: add_kernel_modification == true
