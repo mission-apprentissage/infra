@@ -3,9 +3,14 @@
 table ip firewall
 delete table ip firewall
 
+define DOCKER_NETWORK = {
+  172.18.0.0/16,
+  172.17.0.0/16
+}
+
 define MONITORING = {
 {% for ip in monitoring_ips %}
-"{{ ip }}",
+  {{ ip }},
 {% endfor %}
 }
 
@@ -38,6 +43,20 @@ table ip firewall {
     ip saddr 18.0.0.0/24 tcp dport 22 accept
     ip saddr 18.0.0.0/24 tcp dport { 80, 443 } accept
     ip saddr 18.0.0.0/24 tcp dport 27017
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
 
   }
  
