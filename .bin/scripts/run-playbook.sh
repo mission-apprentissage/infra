@@ -2,12 +2,18 @@
 
 set -euo pipefail
 
-readonly PLAYBOOK_NAME=${1:?"Merci de préciser le playbook a éxécuter"}
+. "${BIN_DIR}/commands.sh"
+
+PLAYBOOK_NAME=${1:?"Merci de préciser le playbook a éxécuter"}
 shift
-readonly PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
+
+PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
 shift
-readonly ENV_FILTER=${1:?"Merci de préciser un ou plusieurs environnements (ex. recette ou production)"}
+
+ENV_FILTER=${1:?"Merci de préciser un ou plusieurs environnements (ex. recette ou production)"}
 shift
+
+env_ini=$(product:ini_file "${PRODUCT_NAME}")
 
 PRODUCT_DIR="${ROOT_DIR}/products/${PRODUCT_NAME}"
 
@@ -52,6 +58,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
   ansible-galaxy collection install -U community.general
   ansible-galaxy collection install -U community.crypto
   ansible-galaxy collection install -U ansible.posix
+  ansible-galaxy collection install -U community.sops
 
   # This env-vars is used by CI to decrypt
   if [[ -z "${ANSIBLE_VAULT_PASSWORD_FILE:-}" ]]; then
@@ -62,7 +69,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
 
   ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible/ansible.cfg" ansible-playbook \
     -i "${PRODUCT_DIR}/../infra/infra-env.ini" \
-    -i "${PRODUCT_DIR}/env.ini" \
+    -i "${env_ini}" \
     --limit "${ENV_FILTER}" \
     -e "product=${PRODUCT_NAME}" \
     "${ansible_extra_opts[@]}" \
@@ -70,7 +77,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
     "$@"
 }
 
-if [[ -z "${CI:-}" ]]; then
+if [[ -z "${CI:-}" ]] && [[ "${PRODUCT_NAME}" != "bal" ]]; then
   op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
 fi;
 

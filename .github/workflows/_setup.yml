@@ -42,6 +42,9 @@ on:
       OVH_APP_SECRET:
         description: OVH Application secret
         required: true
+      OPENPGP_PRIVATE_SUBKEY:
+        description: Github Actions' OpenPGP private subkey
+        required: true
 
 jobs:
   setup:
@@ -61,6 +64,8 @@ jobs:
 
       - name: Checkout project
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
 
       - uses: actions/setup-node@v4
         with:
@@ -78,6 +83,15 @@ jobs:
           config: |
             Host *
               IdentityFile ~/.ssh/github_actions
+
+      - name: Initialize the GnuPG keyring
+        run: |
+          echo -n "$OPENPGP_KEY" | base64 -d | gpg --import
+        env:
+          OPENPGP_KEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}
+
+      - name: Setup SOPS
+        uses: nhedger/setup-sops@v2
 
       - name: Create vault pwd file
         run: echo ${VAULT_PWD} > .infra/.vault_pwd.txt

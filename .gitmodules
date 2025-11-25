@@ -1,0 +1,4 @@
+[submodule "products/bal"]
+	path = products/bal
+	url = git@github.com:mission-apprentissage/bal.git
+	branch = lba-3069
