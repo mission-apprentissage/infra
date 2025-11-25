@@ -12,6 +12,13 @@
   notify:
     - restart-nftables
 
-#- name: Debug
-#  ansible.builtin.debug:
-#    msg: "{{ mongodb_lba_ips }}"
+- name: Copie de la configuration l'unité Systemd nftables.service
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../files/systemd/nftables.service"
+    dest: "/etc/systemd/system/nftables.service"
+    mode: "644"
+
+- name: Relecture des configurations des unités Systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
