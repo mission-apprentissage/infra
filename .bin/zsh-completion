@@ -8,6 +8,7 @@ _mna-infra_completion() {
    "bin\:setup:Installs mna-infra binary with zsh completion on system"
    "release\:proxy:Release docker reverse proxy image"
    "release\:fluentd:Release fluentd reverse proxy image"
+   "release\:docker-stack-wait:Release docker-stack-wait image"
    "system\:setup:Setup server"
    "system\:setup\:initial:Initial setup server"
    "system\:user\:remove:Remove user from server"

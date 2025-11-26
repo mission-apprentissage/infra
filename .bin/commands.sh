@@ -8,6 +8,7 @@ function Help() {
    echo "  bin:setup                                  Installs mna-infra binary with zsh completion on system"
    echo "  release:proxy                              Release docker reverse proxy image"
    echo "  release:fluentd                            Release fluentd reverse proxy image"
+   echo "  release:docker-stack-wait                  Release docker-stack-wait image"
    echo "  system:setup                               Setup server"
    echo "  system:unban                               Unban IP from server"
    echo "  system:reboot                              Reboot server if needed"
@@ -48,6 +49,10 @@ function release:proxy() {
 
 function release:fluentd() {
   "$SCRIPT_DIR/release/build-image.sh" fluentd "$@"
+}
+
+function release:docker-stack-wait() {
+  "$SCRIPT_DIR/release/build-image.sh" docker-stack-wait "$@"
 }
 
 function system:setup() {
