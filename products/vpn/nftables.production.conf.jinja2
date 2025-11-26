@@ -26,7 +26,7 @@ table ip firewall {
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
     iifname "wan" jump input-wan
-    iifname "tun0" jump input-tun
+    iifname "tun0" accept
   }
 
   chain input-wan {
@@ -38,11 +38,12 @@ table ip firewall {
 
   }
 
-  chain input-tun {
+  chain postrouting {
 
-    ip saddr 18.0.0.0/24 tcp dport 22 accept
-    ip saddr 18.0.0.0/24 tcp dport { 80, 443 } accept
-    ip saddr 18.0.0.0/24 tcp dport 27017
+    type nat hook postrouting priority 100
+    policy accept
+
+    oifname "wan" ip saddr 10.8.0.0/24 masquerade
 
   }
 
@@ -52,6 +53,10 @@ table ip firewall {
     policy drop
     ct state invalid drop
     ct state { established, related } accept
+
+    iifname "tun*" accept
+    iifname "tun*" oifname "wan" accept
+    iifname "wan" oifname "tun*" accept
 
     ip saddr $DOCKER_NETWORK oif "wan" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
