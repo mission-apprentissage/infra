@@ -1,0 +1,69 @@
+#!/usr/sbin/nft -f
+
+table ip firewall
+delete table ip firewall
+
+define DOCKER_NETWORK = {
+  172.18.0.0/16,
+  172.17.0.0/16
+}
+
+define MONITORING = {
+{% for ip in monitoring_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define VPN = {
+{% for ip in vpn_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+table ip firewall {
+
+  chain input {
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "wan" jump input-wan
+  }
+
+  chain input-wan {
+
+    tcp dport 22 accept
+
+    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
+    tcp dport 2377 accept
+
+    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
+    tcp dport 7946 accept
+    udp dport 7946 accept
+
+    # Docker Swarm - port 4789 UDP for overlay network traffic
+    udp dport 4789 accept
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+
+  }
+
+}
+
