@@ -10,7 +10,7 @@ function main() {
   if [ -z $env_ip ]; then exit 1; fi
 
   cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"
-  npm install --quiet
+  #npm install --quiet
 
   if [[ -z "${APP_KEY:-}" ]]; then
     export APP_KEY=$(op item get "API OVH" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --fields username)
