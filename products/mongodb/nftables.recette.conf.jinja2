@@ -20,20 +20,44 @@ define MONGODB_CLUSTER = {
 {% endfor %}
 }
 
-define LBA_PRODUCTION = {
-{% for ip in lba_production_ips %}
+define LBA_PENTEST = {
+{% for ip in lba_pentest_ips %}
   {{ ip }},
 {% endfor %}
 }
 
-define BAL_PRODUCTION = {
-{% for ip in bal_production_ips %}
+define LBA_RECETTE = {
+{% for ip in lba_recette_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define API_RECETTE = {
+{% for ip in api_recette_ips %}
   {{ ip }},
 {% endfor %}
 }
 
 define BAL_RECETTE = {
 {% for ip in bal_recette_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define TDB_DEMO = {
+{% for ip in tdb_demo_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define TDB_PREPROD = {
+{% for ip in tdb_preprod_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define TDB_RECETTE = {
+{% for ip in tdb_recette_ips %}
   {{ ip }},
 {% endfor %}
 }
@@ -79,9 +103,13 @@ table ip firewall {
     udp dport 4789 accept
 
     ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
-    ip saddr $LBA_PRODUCTION tcp dport 27017 accept
-    ip saddr $BAL_PRODUCTION tcp dport 27017 accept
+    ip saddr $LBA_PENTEST tcp dport 27017 accept
+    ip saddr $LBA_DEMO tcp dport 27017 accept
+    ip saddr $API_RECETTE tcp dport 27017 accept
     ip saddr $BAL_RECETTE tcp dport 27017 accept
+    ip saddr $TDB_DEMO tcp dport 27017 accept
+    ip saddr $TDB_PREPROD tcp dport 27017 accept
+    ip saddr $TDB_RECETTE tcp dport 27017 accept
     ip saddr $DATA tcp dport 27017 accept
     ip saddr $VPN tcp dport 27017 accept
     ip saddr $MONITORING tcp dport 27017 accept
