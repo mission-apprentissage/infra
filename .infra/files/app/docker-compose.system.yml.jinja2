@@ -128,8 +128,8 @@ services:
           cpus: "1.00"
     image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
     ports:
-      - "24224:24224"
-      - "24224:24224/udp"
+      - "127.0.0.1:24224:24224/tcp"
+      - "127.0.0.1:24224:24224/udp"
     volumes:
       - fluentd:/var/log/fluent
       - /opt/app/system/nginx/:/var/log/nginx/:ro

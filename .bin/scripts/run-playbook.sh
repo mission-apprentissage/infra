@@ -31,7 +31,7 @@ if [[ -z "${ANSIBLE_BECOME_PASS:-}" ]]; then
       else
         echo "Récupération du mot de passe 'become_pass' depuis 1password" 
         ansible_extra_opts+=("-e ansible_become_password='$become_pass'")
-      fi;
+      fi
 fi
   else
     echo "Récupération du mot de passe 'become_pass' depuis l'environnement variable ANSIBLE_BECOME_PASS" 
@@ -46,13 +46,14 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
       else
         echo "Récupération du username depuis 1password" 
         ansible_extra_opts+=("--user" $username)
-      fi;
+      fi
   fi
   else
     echo "Récupération du username depuis l'environnement variable ANSIBLE_REMOTE_USER" 
   fi
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
   ansible-galaxy install --force "patrickjahns.promtail,1.31.0"
   ansible-galaxy install --force "geerlingguy.docker,7.4.7"
   ansible-galaxy collection install -U community.general
@@ -79,7 +80,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
 
 if [[ -z "${CI:-}" ]] && [[ "${PRODUCT_NAME}" != "bal" ]]; then
   op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
-fi;
+fi
 
 # Do not show error log in CI
 # Do not remove this behavior as displaying errors can reveal secrets
@@ -87,4 +88,4 @@ if [[ -z "${CI:-}" ]]; then
   runPlaybook "$@"
 else
   runPlaybook "$@" &> /tmp/deploy.log
-fi;
+fi

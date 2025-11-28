@@ -1,0 +1,96 @@
+- include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_daemon_options:
+      ipv6: false
+      ip6tables: false
+      dns: ["172.17.0.1"]
+      log-driver: fluentd
+      log-opts:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
+        fluentd-async: "true"
+  when: env_type != 'preview' and gpu_instance == 'false'
+
+- include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_daemon_options:
+      ipv6: false
+      ip6tables: false
+      dns: ["172.17.0.1"]
+      log-driver: local
+  when: env_type == 'preview' and gpu_instance == 'false'
+
+- include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_daemon_options:
+      ipv6: false
+      ip6tables: false
+      dns: ["172.17.0.1"]
+      log-driver: fluentd
+      log-opts:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
+        fluentd-async: "true"
+      runtimes:
+        nvidia:
+          path: "nvidia-container-runtime"
+          runtimeArgs: []
+      default-runtime: "nvidia"
+      node-generic-resources: ["gpu={{ gpu_uuid }}"]
+  when: gpu_instance == 'true'
+
+- name: Docker login
+  shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
+  environment: 
+    PASS: "{{ vault.DOCKER_LOGIN.token }}"
+
+- name: récupération du status de docker swarm
+  ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
+  register: docker_swarm_status
+  when: env_type != 'preview'
+
+- name: initialisation de docker swarm
+  ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
+  when:
+    - env_type != 'preview'
+    - docker_swarm_status.stdout.find('inactive') != -1
+
+- name: check du docker network
+  ansible.builtin.shell:
+    chdir: /opt/app
+    cmd: docker network ls --filter name={{docker_network}} -q
+  register: network
+
+- debug:
+    var: network
+
+- name: création du docker network en swarm mode
+  ansible.builtin.shell:
+    chdir: /opt/app
+    cmd: docker network create -d overlay --attachable {{docker_network}}
+  when:
+    - network.stdout == ""
+    - env_type != 'preview'
+
+- name: création du docker network en compose mode
+  ansible.builtin.shell:
+    chdir: /opt/app
+    cmd: docker network create --attachable {{docker_network}}
+  when:
+    - network.stdout == ""
+    - env_type == 'preview'
+
+- shell: "docker node ls --format '{{ '{{' }} .ID {{ '}}' }}'"
+  register: node_id
+  when: gpu_instance == 'true'
+
+- set_fact:
+    node_id={{ node_id.stdout }}  
+  when: gpu_instance == 'true'
+
+- name: Ajout d'un label au nœud Docker Swarm
+  shell: docker node update --label-add nvidia=true {{ node_id }}
+  when: gpu_instance == 'true'

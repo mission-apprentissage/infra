@@ -1,8 +1,8 @@
-- name: Install ipset packages
+- name: "Installation du paquet 'ipset'"
   apt:
     name: ["ipset"]
 
-- name: Add cron to blacklist IPs from daily list
+- name: "Ajout d'une tâche récurrente pour bloquer les adresses IPs depuis une liste quotidienne"
   ansible.builtin.cron:
     name: "blacklist_ips"
     minute: "0"

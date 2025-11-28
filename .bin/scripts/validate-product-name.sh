@@ -8,7 +8,7 @@ PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}
 shift
 
 if [ "$PRODUCT_NAME" == "bal" ]; then
-  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/.infra/env.ini"
+  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/project/.infra/env.ini"
 else
   env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
 fi

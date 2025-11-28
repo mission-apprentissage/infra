@@ -1,6 +1,4 @@
----
-
-- name: configure systemd-resolved
+- name: Configuration du service 'systemd-resolved'
   ansible.builtin.copy:
     src: "{{playbook_dir}}/../files/systemd/resolved.conf"
     dest: /etc/systemd/resolved.conf
@@ -9,7 +7,7 @@
     mode: 0644
   register: __systemd_resolved_configuration
 
-- name: enable systemd-resolved service and assure it is started
+- name: Activation et démarrage du service 'systemd-resolved'
   ansible.builtin.systemd:
     name: systemd-resolved
     enabled: yes
@@ -20,4 +18,3 @@
           ternary("restarted", "started")
       }}
 
-...

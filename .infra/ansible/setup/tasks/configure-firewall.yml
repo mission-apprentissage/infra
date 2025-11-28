@@ -1,0 +1,24 @@
+- name: Suppression du paquet 'ufw'
+  apt:
+    name: ["ufw"]
+    state: absent
+    autoremove: true
+    purge: true
+
+- name: Copie du modèle de configuration de nftables
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../../products/{{ product }}/nftables.{{ env_type }}.conf.jinja2"
+    dest: "/etc/nftables.conf"
+  notify:
+    - restart-nftables
+
+- name: Copie de la configuration l'unité Systemd nftables.service
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../files/systemd/nftables.service"
+    dest: "/etc/systemd/system/nftables.service"
+    mode: "644"
+
+- name: Relecture des configurations des unités Systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
