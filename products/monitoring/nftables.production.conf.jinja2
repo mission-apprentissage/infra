@@ -1,0 +1,98 @@
+#!/usr/sbin/nft -f
+
+table ip firewall
+delete table ip firewall
+
+define DOCKER_NETWORK = {
+  172.18.0.0/16,
+  172.17.0.0/16,
+  172.20.0.0/16
+}
+
+define MONITORING = {
+{% for ip in monitoring_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_LBA_CLUSTER = {
+{% for ip in mongodb_lba_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_API_CLUSTER = {
+{% for ip in mongodb_api_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_BAL_CLUSTER = {
+{% for ip in mongodb_bal_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_TDB_CLUSTER = {
+{% for ip in mongodb_tdb_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_RECETTE_CLUSTER = {
+{% for ip in mongodb_recette_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define VPN = {
+{% for ip in vpn_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+table ip firewall {
+
+  chain input {
+
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "br-*" accept
+    iifname "wan" jump input-wan
+
+  }
+
+  chain input-wan {
+
+    tcp dport 22 accept
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip saddr $MONGODB_LBA_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_API_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_BAL_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_TDB_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+
+  }
+
+}
+
