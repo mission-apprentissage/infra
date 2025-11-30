@@ -73,7 +73,7 @@
     cmd: docker network create -d overlay --attachable {{docker_network}}
   when:
     - network.stdout == ""
-    - env_type != 'preview'
+    - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
 
 - name: création du docker network en compose mode
   ansible.builtin.shell:
@@ -81,7 +81,7 @@
     cmd: docker network create --attachable {{docker_network}}
   when:
     - network.stdout == ""
-    - env_type == 'preview'
+    - env_type == 'preview' or product_name == 'monitoring' or product_name == 'data'
 
 - shell: "docker node ls --format '{{ '{{' }} .ID {{ '}}' }}'"
   register: node_id
