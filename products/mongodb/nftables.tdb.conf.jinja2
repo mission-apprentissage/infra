@@ -4,8 +4,7 @@ table ip firewall
 delete table ip firewall
 
 define DOCKER_NETWORK = {
-  172.18.0.0/16,
-  172.17.0.0/16
+  172.16.0.0/12,
 }
 
 define MONITORING = {
@@ -55,6 +54,7 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
+    iifname "br-*" accept
     iifname "wan" jump input-wan
   }
 
