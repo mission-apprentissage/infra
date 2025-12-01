@@ -13,60 +13,6 @@ define MONITORING = {
 {% endfor %}
 }
 
-define MONGODB_CLUSTER = {
-{% for ip in mongodb_lba_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define LBA_PENTEST = {
-{% for ip in lba_pentest_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define LBA_RECETTE = {
-{% for ip in lba_recette_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define API_RECETTE = {
-{% for ip in api_recette_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define BAL_RECETTE = {
-{% for ip in bal_recette_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define TDB_DEMO = {
-{% for ip in tdb_demo_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define TDB_PREPROD = {
-{% for ip in tdb_preprod_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define TDB_RECETTE = {
-{% for ip in tdb_recette_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define DATA = {
-{% for ip in data_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
 define VPN = {
 {% for ip in vpn_ips %}
   {{ ip }},
@@ -101,18 +47,6 @@ table ip firewall {
     # Docker Swarm - port 4789 UDP for overlay network traffic
     udp dport 4789 accept
 
-    ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
-    ip saddr $LBA_PENTEST tcp dport 27017 accept
-    ip saddr $LBA_RECETTE tcp dport 27017 accept
-    ip saddr $API_RECETTE tcp dport 27017 accept
-    ip saddr $BAL_RECETTE tcp dport 27017 accept
-    ip saddr $TDB_DEMO tcp dport 27017 accept
-    ip saddr $TDB_PREPROD tcp dport 27017 accept
-    ip saddr $TDB_RECETTE tcp dport 27017 accept
-    ip saddr $DATA tcp dport 27017 accept
-    ip saddr $VPN tcp dport 27017 accept
-    ip saddr $MONITORING tcp dport 27017 accept
-
   }
 
   chain forward {
@@ -126,6 +60,7 @@ table ip firewall {
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
     iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
 
   }
 

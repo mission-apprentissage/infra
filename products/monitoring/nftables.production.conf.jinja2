@@ -13,20 +13,32 @@ define MONITORING = {
 {% endfor %}
 }
 
-define MONGODB_CLUSTER = {
+define MONGODB_LBA_CLUSTER = {
+{% for ip in mongodb_lba_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_API_CLUSTER = {
 {% for ip in mongodb_api_ips %}
   {{ ip }},
 {% endfor %}
 }
 
-define API_PRODUCTION = {
-{% for ip in api_production_ips %}
+define MONGODB_BAL_CLUSTER = {
+{% for ip in mongodb_bal_ips %}
   {{ ip }},
 {% endfor %}
 }
 
-define DATA = {
-{% for ip in data_ips %}
+define MONGODB_TDB_CLUSTER = {
+{% for ip in mongodb_tdb_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define MONGODB_RECETTE_CLUSTER = {
+{% for ip in mongodb_recette_ips %}
   {{ ip }},
 {% endfor %}
 }
@@ -40,6 +52,7 @@ define VPN = {
 table ip firewall {
 
   chain input {
+
     type filter hook input priority filter
     policy drop
     ct state invalid drop
@@ -48,28 +61,14 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
+    iifname "br-*" accept
     iifname "wan" jump input-wan
+
   }
 
   chain input-wan {
 
     tcp dport 22 accept
-
-    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
-    tcp dport 2377 accept
-
-    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
-    tcp dport 7946 accept
-    udp dport 7946 accept
-
-    # Docker Swarm - port 4789 UDP for overlay network traffic
-    udp dport 4789 accept
-
-    ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
-    ip saddr $API_PRODUCTION tcp dport 27017 accept
-    ip saddr $DATA tcp dport 27017 accept
-    ip saddr $VPN tcp dport 27017 accept
-    ip saddr $MONITORING tcp dport 27017 accept
 
   }
 
@@ -83,7 +82,13 @@ table ip firewall {
     ip saddr $DOCKER_NETWORK oif "wan" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
+    iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
     iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    iifname "wan" ip saddr $MONGODB_LBA_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_API_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_BAL_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_TDB_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
   }
 

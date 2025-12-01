@@ -1,12 +1,18 @@
-- shell: uname -r
+- shell: sh -c "uname -r | cut -d'-' -f 1"
   register: linux_flavour
 
 - set_fact:
     linux_flavour={{ linux_flavour.stdout }}  
 
+- shell: sh -c "apt-cache policy linux-modules-nvidia-550-{{ linux_flavour }}-*-generic | grep linux-modules | sort | tail -n 1 | cut -d':' -f 1"
+  register: nvidia_package
+
+- set_fact:
+    nvidia_package={{ nvidia_package.stdout }}  
+
 - name: Installation du pilote Nvidia
   apt:
-    name: [ "linux-modules-nvidia-550-{{ linux_flavour }}", "nvidia-driver-550"]
+    name: [ "{{ nvidia_package }}", "nvidia-driver-550"]
     update_cache: yes
     state: present
 
