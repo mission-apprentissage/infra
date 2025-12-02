@@ -1,4 +1,4 @@
-name: Setup One
+name: One Server Reboot
 on:
   workflow_dispatch:
     inputs:
@@ -14,7 +14,7 @@ on:
 jobs:
   setup:
     name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
-    uses: "./.github/workflows/_setup.yml"
+    uses: "./.github/workflows/_reboot.yml"
     with:
       product: ${{ inputs.product}}
       environment: ${{ inputs.environment}}

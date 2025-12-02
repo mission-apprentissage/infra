@@ -1,4 +1,4 @@
-name: Unban Batch
+name: All Servers Unban IP
 on:
   workflow_dispatch:
     inputs:
@@ -13,8 +13,27 @@ jobs:
       fail-fast: false
       matrix:
         product:
-          ["api", "bal", "lba", "monitoring", "tdb", "vpn", "contrat", "data"]
-        environment: ["production", "demo", "recette", "preview", "pentest", "preprod"]
+          [
+            "api",
+            "bal",
+            "contrat",
+            "data",
+            "lab",
+            "lba",
+            "monitoring",
+            "sandbox",
+            "tdb",
+            "vpn",
+          ]
+        environment:
+          [
+            "production",
+            "demo",
+            "recette",
+            "preview",
+            "pentest",
+            "preprod"
+          ]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
