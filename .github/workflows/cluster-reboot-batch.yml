@@ -1,4 +1,4 @@
-name: Batch Cluster Reboot
+name: Cluster Reboot Batch
 on:
   workflow_dispatch:
     inputs:
@@ -6,7 +6,7 @@ on:
         description: JSON cluster array
         type: string
         required: true
-        default: '["api", "bal", "lba", "tdb", "contrat", "recette"]'
+        default: '["api", "bal", "lba", "recette", "tdb"]'
 
 jobs:
   setup:
@@ -15,7 +15,7 @@ jobs:
       matrix:
         cluster: ${{ fromJSON(inputs.clusters) }}
     name: Cluster Reboot ${{ matrix.cluster }}
-    uses: "./.github/workflows/cluster_reboot.yml"
+    uses: "./.github/workflows/cluster-reboot.yml"
     with:
       cluster: ${{ matrix.cluster }}
       numbers: '[3, 2, 1]'
