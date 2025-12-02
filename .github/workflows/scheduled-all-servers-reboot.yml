@@ -58,7 +58,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-      cluster: ['api', 'bal', 'contrat', 'recette']
+        cluster: ['api', 'bal', 'contrat', 'recette']
     name: Cluster Reboot ${{ matrix.cluster }}
     uses: "./.github/workflows/cluster_reboot.yml"
     with:
