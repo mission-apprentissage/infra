@@ -32,13 +32,13 @@ jobs:
           ]
         exclude:
           - product: "api"
-          environment: "production"
+            environment: "production"
           - product: "bal"
-          environment: "production"
+            environment: "production"
           - product: "lba"
-          environment: "production"
+            environment: "production"
           - product: "tdb"
-          environment: "production"
+            environment: "production"
     name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
     uses: "./.github/workflows/_reboot.yml"
     with:
