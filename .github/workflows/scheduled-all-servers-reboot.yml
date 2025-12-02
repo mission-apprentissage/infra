@@ -28,17 +28,17 @@ jobs:
             "recette",
             "preview",
             "pentest",
-            "preprod"
+            "preprod",
           ]
-      exclude:
-        - product: "api"
-        environment: "production"
-        - product: "bal"
-        environment: "production"
-        - product: "lba"
-        environment: "production"
-        - product: "tdb"
-        environment: "production"
+        exclude:
+          - product: "api"
+          environment: "production"
+          - product: "bal"
+          environment: "production"
+          - product: "lba"
+          environment: "production"
+          - product: "tdb"
+          environment: "production"
     name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
     uses: "./.github/workflows/_reboot.yml"
     with:
