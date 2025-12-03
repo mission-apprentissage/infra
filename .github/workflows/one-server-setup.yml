@@ -10,7 +10,13 @@ on:
         description: The environment to setup
         type: string
         required: true
-
+    secrets:
+      SLACK_WEBHOOK_NOTIF:
+        description: Slack webhook URL
+        required: true
+      SLACK_WEBHOOK_ALERTS:
+        description: Slack webhook URL
+        required: true
 jobs:
 
   npm-packages-check:
@@ -30,6 +36,18 @@ jobs:
 
       - name: Analyze NPM dependancies
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
+
+      - name: Notify failure on Slack
+        uses: ravsamhq/notify-slack-action@v2
+        if: always()
+        with:
+          status: ${{ job.status }}
+          notification_title: "Le setup ${{ inputs.product }} en ${{ inputs.environment }} a échoué"
+          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. Suspected traces of known attacks on the NPM supply chain!"
+          notify_when: "failure"
+          mention_groups: "!channel"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
 
   setup:
     if: ${{ success() }}
