@@ -71,8 +71,8 @@ jobs:
         with:
           node-version: 20
 
-      #- name: Install dependencies
-      #  run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
+      - name: Install dependencies
+        run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
