@@ -40,6 +40,7 @@ jobs:
 
       - name: The demo step has failed
         if: ${{ failure() && steps.demo.conclusion == 'failure' }}
+        run: echo "Failed"
 
       - name: Notify failure on Slack
         uses: ravsamhq/notify-slack-action@v2
