@@ -125,7 +125,11 @@ table ip firewall {
     ip saddr $DOCKER_NETWORK oif "wan" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
-    iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    ### Temporary rule to ensure the ACME http-01 challenge with Let's Encrypt
+    iifname "wan" ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
+    ###
+
+    #iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
 
   }
 
