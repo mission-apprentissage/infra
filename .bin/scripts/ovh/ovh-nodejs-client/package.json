@@ -16,7 +16,8 @@
     "dotenv": "16.4.5",
     "env-var": "7.5.0",
     "ini": "^5.0.0",
-    "open": "10.1.0"
+    "open": "10.1.0",
+    "error-ex": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "7.15.0",
