@@ -1,8 +1,33 @@
 {
-  "name": "lockfile-compromised-test",
+  "name": "ovh",
   "version": "1.0.0",
-  "description": "Test case for actual compromised packages in lockfile",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "cli": "node index.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
-    "color-convert": "3.1.1"
+    "@ovhcloud/node-ovh": "^3.0.0",
+    "commander": "12.1.0",
+    "dotenv": "16.4.5",
+    "env-var": "7.5.0",
+    "ini": "^5.0.0",
+    "open": "10.1.0"
+  },
+  "devDependencies": {
+    "eslint": "7.15.0",
+    "eslint-config-prettier": "7.0.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.2.0",
+    "prettier": "2.2.1"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "bracketSpacing": true,
+    "trailingComma": "es5"
   }
 }
