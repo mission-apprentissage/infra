@@ -10,7 +10,7 @@ function main() {
   if [ -z $env_ip ]; then exit 1; fi
 
   cd "${MODULE_DIR}"
-  #npm install --quiet
+  npm ci --ignore-scripts --quiet
 
   export APP_KEY=$(op item get "API OVH" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --fields username)
   export APP_SECRET=$(op item get "API OVH" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --fields credential --reveal)
