@@ -10,13 +10,7 @@ on:
         description: The environment to setup
         type: string
         required: true
-    secrets:
-      SLACK_WEBHOOK_NOTIF:
-        description: Slack webhook URL
-        required: true
-      SLACK_WEBHOOK_ALERTS:
-        description: Slack webhook URL
-        required: true
+
 jobs:
   setup:
     name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
