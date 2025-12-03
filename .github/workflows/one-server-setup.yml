@@ -39,7 +39,7 @@ jobs:
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
 
       - name: The demo step has failed
-        if: ${{ failure() && steps.demo.conclusion == 'failure' }}
+        if: ${{ steps.demo.outcome != 'success' }}
         run: echo "Failed"
 
       - name: Notify failure on Slack
