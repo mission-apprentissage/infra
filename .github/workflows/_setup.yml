@@ -80,6 +80,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
 
   setup:
+    if: ${{ success() }}
+    needs: ["npm-packages-check"]
     concurrency:
       group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
     name: Setup ${{ inputs.product }} on ${{ inputs.environment }}

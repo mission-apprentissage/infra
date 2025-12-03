@@ -19,8 +19,6 @@ on:
         required: true
 jobs:
   setup:
-    if: ${{ success() }}
-    needs: ["npm-packages-check"]
     name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
     uses: "./.github/workflows/_setup.yml"
     with:
