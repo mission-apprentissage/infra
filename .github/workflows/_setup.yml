@@ -87,14 +87,14 @@ jobs:
     name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-      - name: Notify new deployment on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
-        with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+#      - name: Notify new deployment on Slack
+#        uses: ravsamhq/notify-slack-action@v2
+#        if: always()
+#        with:
+#          status: ${{ job.status }}
+#          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
 
       - name: Checkout project
         uses: actions/checkout@v4
@@ -137,51 +137,54 @@ jobs:
         env:
           HABILITATIONS: ${{ secrets.HABILITATIONS }}
 
-      - name: Run playbook
-        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
-        env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
-          ANSIBLE_REMOTE_USER: deploy
-          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
-          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
-          APP_KEY: ${{ secrets.OVH_APP_KEY }}
-          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+      - name: Debug habilitations
+        run: md5sum products/${{inputs.product}}/habilitations.yml
 
-      - name: Encrypt logs
-        run: .bin/infra deploy:log:encrypt
-        if: always()
-        env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
-
-      - name: Upload logs artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs-${{ inputs.product }}-${{ inputs.environment }}
-          path: /tmp/deploy.log.gpg
-
-      - name: Add Job summary
-        if: always()
-        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
-
-      - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
-        with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-
-      - name: Notify success on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
-        with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-          notify_when: "success"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+#      - name: Run playbook
+#        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
+#        env:
+#          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
+#          ANSIBLE_REMOTE_USER: deploy
+#          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
+#          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+#          APP_KEY: ${{ secrets.OVH_APP_KEY }}
+#          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+#
+#      - name: Encrypt logs
+#        run: .bin/infra deploy:log:encrypt
+#        if: always()
+#        env:
+#          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
+#
+#      - name: Upload logs artifacts
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: logs-${{ inputs.product }}-${{ inputs.environment }}
+#          path: /tmp/deploy.log.gpg
+#
+#      - name: Add Job summary
+#        if: always()
+#        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+#
+#      - name: Notify failure on Slack
+#        uses: ravsamhq/notify-slack-action@v2
+#        if: always()
+#        with:
+#          status: ${{ job.status }}
+#          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+#          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+#          notify_when: "failure"
+#          mention_groups: "!channel"
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+#
+#      - name: Notify success on Slack
+#        uses: ravsamhq/notify-slack-action@v2
+#        if: always()
+#        with:
+#          status: ${{ job.status }}
+#          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+#          notify_when: "success"
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
