@@ -19,25 +19,6 @@ on:
       numbers:
         type: string
         required: true
-    secrets:
-      DEPLOY_SSH_PRIVATE_KEY:
-        required: true
-      DEPLOY_PASS:
-        required: true
-      SLACK_WEBHOOK_ALERTS:
-        required: true
-      SLACK_WEBHOOK_NOTIF:
-        required: true
-      VAULT_PWD:
-        required: true
-      OVH_APP_TOKEN:
-        required: true
-      OVH_APP_KEY:
-        required: true
-      OVH_APP_SECRET:
-        required: true
-      MONGODB_HABILITATIONS:
-        required: true
 
 jobs:
   setup:
