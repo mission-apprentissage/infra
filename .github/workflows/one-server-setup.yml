@@ -13,7 +13,7 @@ on:
 
 jobs:
   setup:
-    name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
+    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     uses: "./.github/workflows/_setup.yml"
     with:
       product: ${{ inputs.product}}

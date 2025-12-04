@@ -20,7 +20,7 @@ jobs:
       matrix:
         product: ${{ fromJSON(inputs.products) }}
         environment: ${{ fromJSON(inputs.environments) }}
-    name: Setup ${{ matrix.product }} on ${{ matrix.environment }}
+    name: Setup ${{ matrix.product }}-${{ matrix.environment }}
     uses: "./.github/workflows/_setup.yml"
     with:
       product: ${{ matrix.product }}
