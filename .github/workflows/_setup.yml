@@ -64,7 +64,6 @@ jobs:
           path: mna-npm-check
 
       - name: Analyze NPM dependancies
-        id: demo
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
 
       - name: Notify failure on Slack
