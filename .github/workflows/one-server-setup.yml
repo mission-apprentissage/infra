@@ -13,7 +13,7 @@ on:
 
 jobs:
   setup:
-    name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
+    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     uses: "./.github/workflows/_setup.yml"
     with:
       product: ${{ inputs.product}}
@@ -30,3 +30,4 @@ jobs:
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
       OPENPGP_PRIVATE_SUBKEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}
+
