@@ -14,8 +14,19 @@ jobs:
       fail-fast: false
       matrix:
         cluster: ${{ fromJSON(inputs.clusters) }}
-    name: Cluster Update ${{ matrix.cluster }}
+    name: Cluster Setup ${{ matrix.cluster }}
     uses: "./.github/workflows/cluster-setup.yml"
     with:
       cluster: ${{ matrix.cluster }}
       numbers: '[3, 2, 1]'
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+      SLACK_WEBHOOK_NOTIF: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+      VAULT_PWD: ${{ secrets.VAULT_PWD }}
+      HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
+      OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+      OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
+      OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+      OPENPGP_PRIVATE_SUBKEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}

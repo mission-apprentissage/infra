@@ -21,10 +21,10 @@ on:
       DEPLOY_PASS:
         description: SSH PWD TO DEPLOY
         required: true
-      SLACK_WEBHOOK_NOTIF:
+      SLACK_WEBHOOK_ALERTS:
         description: Slack webhook URL
         required: true
-      SLACK_WEBHOOK_ALERTS:
+      SLACK_WEBHOOK_NOTIF:
         description: Slack webhook URL
         required: true
       VAULT_PWD:
