@@ -35,7 +35,7 @@ on:
       VAULT_PWD:
         description: Vault Password
         required: true
-      HABILITATIONS:
+      MONGODB_HABILITATIONS:
         description: Product habilitations
         required: true
       OVH_APP_TOKEN:
