@@ -84,7 +84,7 @@ function system:setup:initial() {
   local ENV_NAME=${1:?"Merci de préciser un environnement (ex. recette ou production)"}; shift;
 
   export ANSIBLE_HOST_KEY_CHECKING=False
-  #firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
   read -p "Do you want to setup the server with a RSA key? [Y/n]" response
 
@@ -196,7 +196,7 @@ function firewall:setup() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  #"$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 function firewall:service:close() {
@@ -205,7 +205,7 @@ function firewall:service:close() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  #"$SCRIPT_DIR/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 function ssh:known_hosts:print() {
