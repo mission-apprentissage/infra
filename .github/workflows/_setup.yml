@@ -84,7 +84,7 @@ jobs:
     needs: ["npm-packages-check"]
     concurrency:
       group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
-    name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
+    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Notify new deployment on Slack
@@ -92,7 +92,7 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }} en ${{ inputs.environment }} initié..."
+          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
 
@@ -169,7 +169,7 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          notification_title: "Le setup ${{ inputs.product }} en ${{ inputs.environment }} a échoué"
+          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
           message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
           notify_when: "failure"
           mention_groups: "!channel"
@@ -181,7 +181,7 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }} en ${{ inputs.environment }} terminé avec succès"
+          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
           notify_when: "success"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
