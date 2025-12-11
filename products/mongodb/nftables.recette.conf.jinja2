@@ -14,7 +14,7 @@ define MONITORING = {
 }
 
 define MONGODB_CLUSTER = {
-{% for ip in mongodb_lba_ips %}
+{% for ip in mongodb_recette_ips %}
   {{ ip }},
 {% endfor %}
 }
@@ -39,6 +39,12 @@ define API_RECETTE = {
 
 define BAL_RECETTE = {
 {% for ip in bal_recette_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
+define TDB_PRODUCTION = {
+{% for ip in tdb_production_ips %}
   {{ ip }},
 {% endfor %}
 }
