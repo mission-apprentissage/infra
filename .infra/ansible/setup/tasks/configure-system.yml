@@ -110,6 +110,18 @@
   shell: "yarn set version berry"
   when: env_type == 'preview'
 
+- name: Install pnpm globally (standalone)
+  shell: "curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest sh -"
+  args:
+    creates: /root/.local/share/pnpm/pnpm
+
+- name: Add pnpm to system PATH
+  lineinfile:
+    dest: /etc/profile.d/pnpm.sh
+    line: 'export PATH="/root/.local/share/pnpm:$PATH"'
+    create: yes
+    mode: '0755'
+
 - name: Définition de l'environnement
   copy:
     dest: /env
