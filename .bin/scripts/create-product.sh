@@ -17,7 +17,6 @@ fi
 if [ "$PRODUCT_NAME" != "bal" ]; then
 
   mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"
-  cp "${ROOT_DIR}/products/tmpl/env.ini" "${ROOT_DIR}/products/${PRODUCT_NAME}/env.ini"
 
 fi
 
