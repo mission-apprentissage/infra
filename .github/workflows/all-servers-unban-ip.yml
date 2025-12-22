@@ -16,7 +16,6 @@ jobs:
           [
             "api",
             "bal",
-            "contrat",
             "data",
             "lab",
             "lba",

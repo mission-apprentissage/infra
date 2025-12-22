@@ -93,13 +93,6 @@
   become: false
   register: mongodb_tdb_ips
 
-## Contrat
-
-- name: Récupération des adresses IPv4 des serveurs contrat de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/contrat/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: contrat_production_ips
-
 ### Misc
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-recette-x
@@ -140,7 +133,6 @@
     tdb_recette_ips: "{{ tdb_recette_ips.stdout_lines }}"
     tdb_demo_ips: "{{ tdb_demo_ips.stdout_lines }}"
     mongodb_tdb_ips: "{{ mongodb_tdb_ips.stdout_lines }}"
-    contrat_production_ips: "{{ contrat_production_ips.stdout_lines }}"
     mongodb_recette_ips: "{{ mongodb_recette_ips.stdout_lines }}"
     monitoring_ips: "{{ monitoring_ips.stdout_lines }}"
     data_ips: "{{ data_ips.stdout_lines }}"
