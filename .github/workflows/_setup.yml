@@ -119,7 +119,7 @@ jobs:
 
       - name: Initialize the GnuPG keyring
         run: |
-          echo -n "$OPENPGP_KEY" | base64 -d | gpg --import
+          echo -n "$OPENPGP_KEY" | gpg --import
         env:
           OPENPGP_KEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}
 
