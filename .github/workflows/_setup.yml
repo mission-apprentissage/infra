@@ -45,6 +45,9 @@ on:
       OPENPGP_PRIVATE_SUBKEY:
         description: Github Actions' OpenPGP private subkey
         required: true
+      TOKEN_MNA_SHARED:
+        description: Authentication token for accessing private repositories
+        required: true
 
 jobs:
 
@@ -98,6 +101,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.TOKEN_MNA_SHARED }}
           submodules: "recursive"
 
       - uses: actions/setup-node@v4
@@ -119,7 +123,7 @@ jobs:
 
       - name: Initialize the GnuPG keyring
         run: |
-          echo -n "$OPENPGP_KEY" | base64 -d | gpg --import
+          echo -n "$OPENPGP_KEY" | gpg --import
         env:
           OPENPGP_KEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}
 
