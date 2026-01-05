@@ -54,7 +54,9 @@ function create_password_file() {
   rm "${HABILITATIONS_FILE}"
 }
 
-if [ "$PRODUCT_NAME" != "bal" ]; then
+if [ "$PRODUCT_NAME" != "bal" ] \
+  && [ "$PRODUCT_NAME" != "data" ] \
+  ; then
 
   DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
   echo "$DOCUMENT_CONTENT" > "$HABILITATIONS_FILE"

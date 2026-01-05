@@ -14,7 +14,9 @@ if [ -f "${env_ini}" ]; then
   return 1
 fi
 
-if [ "$PRODUCT_NAME" != "bal" ]; then
+if [ "$PRODUCT_NAME" != "bal" ] \
+  && [ "$PRODUCT_NAME" != "data" ] \
+  ; then
 
   mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"
 
