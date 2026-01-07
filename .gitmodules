@@ -1,6 +1,3 @@
-[submodule "products/bal/project"]
-	path = products/bal/project
-	url = git@github.com:mission-apprentissage/bal.git
 [submodule "products/data/authorizations"]
 	path = products/data/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
@@ -9,3 +6,11 @@
 	path = products/data/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
 	branch = data
+[submodule "products/bal/inventories"]
+	path = products/bal/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = bal
+[submodule "products/bal/authorizations"]
+	path = products/bal/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = bal
