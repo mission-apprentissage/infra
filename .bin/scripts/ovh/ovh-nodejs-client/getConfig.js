@@ -13,9 +13,9 @@ export default async function getConfig() {
     if (file.isDirectory() && file.name !== "infra") {
 
       if (file.name == "api" || file.name == "bal" || file.name == "data") {
-        envFile = join(productDir, file.name, "inventories/env.ini");
+        var envFile = join(productDir, file.name, "inventories/env.ini");
       } else {
-        envFile = join(productDir, file.name, "env.ini");
+        var envFile = join(productDir, file.name, "env.ini");
       }
 
       process.stdout.write("debug: " + envFile);
