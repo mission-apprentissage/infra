@@ -16,6 +16,7 @@ fi
 
 if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "data" ] \
+  && [ "$PRODUCT_NAME" != "api" ] \
   ; then
 
   mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"
