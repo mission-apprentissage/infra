@@ -81,6 +81,7 @@ if [[ -z "${ANSIBLE_REMOTE_USER:-}" ]]; then
 if [[ -z "${CI:-}" ]] \
   && [[ "${PRODUCT_NAME}" != "bal" ]] \
   && [[ "${PRODUCT_NAME}" != "data" ]] \
+  && [[ "${PRODUCT_NAME}" != "api" ]] \
   ; then
   op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
 fi

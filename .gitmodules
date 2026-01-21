@@ -14,3 +14,11 @@
 	path = products/bal/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = bal
+[submodule "products/api/inventories"]
+	path = products/api/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = api
+[submodule "products/api/authorizations"]
+	path = products/api/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = api

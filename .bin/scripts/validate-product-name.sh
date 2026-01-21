@@ -9,6 +9,7 @@ shift
 
 if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "data" ] \
+  && [ "$PRODUCT_NAME" != "api" ] \
   ; then
 
   env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/inventories/env.ini"
