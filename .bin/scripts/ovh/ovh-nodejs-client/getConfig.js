@@ -13,6 +13,7 @@ export default async function getConfig() {
     if (file.isDirectory() && file.name !== "infra") {
 
       if (file.name == "api" || file.name == "bal" || file.name == "data") {
+        process.stdout.write("debug: " + join(productDir, file.name, "inventories/env.ini"))
         const data = await readFile(join(productDir, file.name, "inventories/env.ini"), "utf-8");
       } else {
         const data = await readFile(join(productDir, file.name, "env.ini"), "utf-8");
