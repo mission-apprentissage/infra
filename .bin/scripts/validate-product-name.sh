@@ -12,17 +12,16 @@ if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "api" ] \
   ; then
 
-  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/inventories/env.ini"
+  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
 
 else
 
-  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
+  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/inventories/env.ini"
 
 fi
 
 if [ ! -f "${env_ini}" ]; then
   >&2 echo "Product $PRODUCT_NAME not found (${env_ini})"
-  return 1
 fi
 
 echo $env_ini
