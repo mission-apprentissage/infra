@@ -13,12 +13,13 @@ export default async function getConfig() {
     if (file.isDirectory() && file.name !== "infra") {
 
       if (file.name == "api" || file.name == "bal" || file.name == "data") {
-        process.stdout.write("debug: " + join(productDir, file.name, "inventories/env.ini"))
-        const data = await readFile(join(productDir, file.name, "inventories/env.ini"), "utf-8");
+        const envFile = join(productDir, file.name, "inventories/env.ini");
       } else {
-        const data = await readFile(join(productDir, file.name, "env.ini"), "utf-8");
+        const envFile = join(productDir, file.name, "env.ini");
       }
 
+      process.stdout.write("debug: " + envFile);
+      const data = await readFile(envFile, "utf-8");
       const env = parse(data);
       for (const key of Object.keys(env)) {
         if (key.endsWith(":vars")) {
