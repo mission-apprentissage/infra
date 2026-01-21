@@ -136,7 +136,7 @@ jobs:
           VAULT_PWD: ${{ secrets.VAULT_PWD }}
 
       - name: Create habilitations file
-        run: echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml
+        run:  bash -c '[ ! -z "${HABILITATIONS}" ] && echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml || true'
         env:
           HABILITATIONS: ${{ secrets.HABILITATIONS }}
 
