@@ -12,57 +12,57 @@
     expressions: ignore
   when: habilitations_file is none
 
-- import_tasks: external-variables.yml
-
-- import_tasks: configure-kernel.yml
-  tags: kernel
-  when: add_kernel_modification == true
-
-- import_tasks: configure-nvidia-gpu.yml
-  tags: nvidia
-  when: gpu_instance == 'true'
-
-- import_tasks: configure-swap.yml
-  tags: swap
-
-- import_tasks: configure-network.yml
-  tags: network
-
-- import_tasks: configure-firewall.yml
-  tags: firewall
-
-- import_tasks: configure-dns.yml
-  tags: dns
-
-- import_tasks: configure-ips-blacklist.yml
-  tags: ipsblacklist
-
-- import_tasks: configure-system.yml
-  tags: system
-
-- import_tasks: configure-ssh.yml
-  tags: ssh
-
-- import_tasks: configure-docker.yml
-  tags: docker
-
-- import_tasks: configure-users.yml
-  tags: users
-
-- import_tasks: configure-auth.yml
-  tags: auth
-
-- import_tasks: install-app.yml
-  tags: app
-
-- import_tasks: configure-fail2ban.yml
-  tags: fail2ban
-
-- import_tasks: renew-ssl-certificate.yml
-  tags: ssl
-
-- import_tasks: generate-gpg-key.yml
-  tags: gpg
-
-- import_tasks: configure-logrotate.yml
-  tags: logrotate
+#- import_tasks: external-variables.yml
+#
+#- import_tasks: configure-kernel.yml
+#  tags: kernel
+#  when: add_kernel_modification == true
+#
+#- import_tasks: configure-nvidia-gpu.yml
+#  tags: nvidia
+#  when: gpu_instance == 'true'
+#
+#- import_tasks: configure-swap.yml
+#  tags: swap
+#
+#- import_tasks: configure-network.yml
+#  tags: network
+#
+#- import_tasks: configure-firewall.yml
+#  tags: firewall
+#
+#- import_tasks: configure-dns.yml
+#  tags: dns
+#
+#- import_tasks: configure-ips-blacklist.yml
+#  tags: ipsblacklist
+#
+#- import_tasks: configure-system.yml
+#  tags: system
+#
+#- import_tasks: configure-ssh.yml
+#  tags: ssh
+#
+#- import_tasks: configure-docker.yml
+#  tags: docker
+#
+#- import_tasks: configure-users.yml
+#  tags: users
+#
+#- import_tasks: configure-auth.yml
+#  tags: auth
+#
+#- import_tasks: install-app.yml
+#  tags: app
+#
+#- import_tasks: configure-fail2ban.yml
+#  tags: fail2ban
+#
+#- import_tasks: renew-ssl-certificate.yml
+#  tags: ssl
+#
+#- import_tasks: generate-gpg-key.yml
+#  tags: gpg
+#
+#- import_tasks: configure-logrotate.yml
+#  tags: logrotate
