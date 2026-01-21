@@ -11,7 +11,14 @@ export default async function getConfig() {
   const config = {};
   for (const file of files) {
     if (file.isDirectory() && file.name !== "infra") {
-      const data = await readFile(join(productDir, file.name, "env.ini"), "utf-8");
+
+      if (file.name == "api" || file.name == "bal" || file.name == "data") {
+        var envFile = join(productDir, file.name, "inventories/env.ini");
+      } else {
+        var envFile = join(productDir, file.name, "env.ini");
+      }
+
+      const data = await readFile(envFile, "utf-8");
       const env = parse(data);
       for (const key of Object.keys(env)) {
         if (key.endsWith(":vars")) {
