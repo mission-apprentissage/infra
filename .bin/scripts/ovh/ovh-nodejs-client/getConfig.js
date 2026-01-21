@@ -18,7 +18,6 @@ export default async function getConfig() {
         var envFile = join(productDir, file.name, "env.ini");
       }
 
-      process.stdout.write("debug: " + envFile);
       const data = await readFile(envFile, "utf-8");
       const env = parse(data);
       for (const key of Object.keys(env)) {
