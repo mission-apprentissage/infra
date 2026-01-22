@@ -30,6 +30,7 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
+    iifname "br-*" accept
     iifname "wan" jump input-wan
   }
 
