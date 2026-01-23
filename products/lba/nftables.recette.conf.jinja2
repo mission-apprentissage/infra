@@ -13,6 +13,12 @@ define MONITORING = {
 {% endfor %}
 }
 
+define MONGODB_RECETTE = {
+{% for ip in mongodb_recette_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {
@@ -52,6 +58,9 @@ table ip firewall {
 
     ip saddr $DOCKER_NETWORK oif "wan" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    # Allow Docker containers to connect to MongoDB recette
+    ip saddr $DOCKER_NETWORK ip daddr $MONGODB_RECETTE tcp dport 27017 accept
 
     iifname "wan" ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
 

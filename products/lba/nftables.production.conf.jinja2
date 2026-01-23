@@ -13,6 +13,12 @@ define MONITORING = {
 {% endfor %}
 }
 
+define MONGODB_LBA = {
+{% for ip in mongodb_lba_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {
@@ -52,6 +58,9 @@ table ip firewall {
 
     ip saddr $DOCKER_NETWORK oif "wan" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    # Allow Docker containers to connect to MongoDB LBA cluster
+    ip saddr $DOCKER_NETWORK ip daddr $MONGODB_LBA tcp dport 27017 accept
 
     iifname "wan" ip daddr $DOCKER_NETWORK ct original proto-dst { 80, 443 } accept
 
