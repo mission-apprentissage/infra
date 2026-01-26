@@ -10,6 +10,34 @@ on:
         description: The environment to setup
         type: string
         required: true
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY:
+        description: SSH private key
+        required: true
+      DEPLOY_PASS:
+        description: SSH PWD TO DEPLOY
+        required: true
+      SLACK_WEBHOOK_ALERTS:
+        description: Slack webhook URL
+        required: true
+      SLACK_WEBHOOK_NOTIF:
+        description: Slack webhook URL
+        required: true
+      VAULT_PWD:
+        description: Vault Password
+        required: true
+      HABILITATIONS:
+        description: Product habilitations
+        required: true
+      OVH_APP_TOKEN:
+        description: OVH Application token
+        required: true
+      OVH_APP_KEY:
+        description: OVH Application key
+        required: true
+      OVH_APP_SECRET:
+        description: OVH Application secret
+        required: true
 
 jobs:
   setup:
