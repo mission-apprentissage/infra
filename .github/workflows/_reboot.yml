@@ -24,6 +24,9 @@ on:
       SLACK_WEBHOOK_ALERTS:
         description: Slack webhook URL
         required: true
+      SLACK_WEBHOOK_NOTIF:
+        description: Slack webhook URL
+        required: true
       VAULT_PWD:
         description: Vault Password
         required: true

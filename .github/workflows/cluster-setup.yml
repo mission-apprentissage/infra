@@ -50,6 +50,9 @@ on:
       OPENPGP_PRIVATE_SUBKEY:
         description: Github Actions' OpenPGP private subkey
         required: true
+      TOKEN_MNA_SHARED:
+        description: Github Actions' OpenPGP private subkey
+        required: true
 
 jobs:
   setup:

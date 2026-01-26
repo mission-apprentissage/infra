@@ -13,7 +13,7 @@ on:
 
 jobs:
   setup:
-    name: Setup ${{ inputs.product }} on ${{ inputs.environment }}
+    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     uses: "./.github/workflows/_reboot.yml"
     with:
       product: ${{ inputs.product}}
@@ -29,5 +29,3 @@ jobs:
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-      OPENPGP_PRIVATE_SUBKEY: ${{ secrets[format('{0}_OPENPGP_PRIVATE_SUBKEY', inputs.product)] }}
-      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}

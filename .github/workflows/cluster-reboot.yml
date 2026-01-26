@@ -26,6 +26,8 @@ on:
         required: true
       SLACK_WEBHOOK_ALERTS:
         required: true
+      SLACK_WEBHOOK_NOTIF:
+        required: true
       VAULT_PWD:
         required: true
       OVH_APP_TOKEN:
@@ -54,10 +56,9 @@ jobs:
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
       SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+      SLACK_WEBHOOK_NOTIF: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
       VAULT_PWD: ${{ secrets.VAULT_PWD }}
       HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-      OPENPGP_PRIVATE_SUBKEY: ${{ secrets.MONGODB_OPENPGP_PRIVATE_SUBKEY }}
-      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}

@@ -102,7 +102,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.TOKEN_MNA_SHARED }}
-          submodules: "recursive"
+          submodules: "true"
 
       - uses: actions/setup-node@v4
         with:
