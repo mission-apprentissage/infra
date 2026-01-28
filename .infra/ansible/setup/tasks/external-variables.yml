@@ -83,11 +83,6 @@
   become: false
   register: tdb_recette_ips
 
-- name: Récupération des adresses IPv4 des serveurs tdb de demo 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/env.ini -l demo | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: tdb_demo_ips
-
 - name: Récupération des adresses IPv4 de la grappe mongodb-tdb-x
   local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l tdb_1,tdb_2,tdb_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
@@ -131,7 +126,6 @@
     tdb_production_ips: "{{ tdb_production_ips.stdout_lines }}"
     tdb_preprod_ips: "{{ tdb_preprod_ips.stdout_lines }}"
     tdb_recette_ips: "{{ tdb_recette_ips.stdout_lines }}"
-    tdb_demo_ips: "{{ tdb_demo_ips.stdout_lines }}"
     mongodb_tdb_ips: "{{ mongodb_tdb_ips.stdout_lines }}"
     mongodb_recette_ips: "{{ mongodb_recette_ips.stdout_lines }}"
     monitoring_ips: "{{ monitoring_ips.stdout_lines }}"

@@ -25,12 +25,6 @@ define TDB_PRODUCTION = {
 {% endfor %}
 }
 
-define TDB_DEMO = {
-{% for ip in tdb_demo_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
 define DATA = {
 {% for ip in data_ips %}
   {{ ip }},
@@ -74,7 +68,6 @@ table ip firewall {
 
     ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
     ip saddr $TDB_PRODUCTION tcp dport 27017 accept
-    ip saddr $TDB_DEMO tcp dport 27017 accept
     ip saddr $DATA tcp dport 27017 accept
     ip saddr $VPN tcp dport 27017 accept
     ip saddr $MONITORING tcp dport 27017 accept
