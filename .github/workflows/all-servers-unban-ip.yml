@@ -27,7 +27,6 @@ jobs:
         environment:
           [
             "production",
-            "demo",
             "recette",
             "preview",
             "pentest",
