@@ -10,6 +10,7 @@ shift
 if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "data" ] \
   && [ "$PRODUCT_NAME" != "api" ] \
+  && [ "$PRODUCT_NAME" != "lba" ] \
   ; then
 
   env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"

@@ -22,3 +22,11 @@
 	path = products/api/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = api
+[submodule "products/lba/inventories"]
+	path = products/lba/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = lba
+[submodule "products/lba/authorizations"]
+	path = products/lba/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = lba
