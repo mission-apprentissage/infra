@@ -20,6 +20,11 @@
   apt:
     name: ["vim", "htop", "jq", "git", "python3-pip", "python3-docker"]
 
+- name: Installation d'Ansible
+  apt:
+    name: ["ansible"]
+  when: env_type == 'preview'
+
 - name: Configuration du fuseau horaire (Europe/Paris)
   community.general.timezone:
     name: Europe/Paris
