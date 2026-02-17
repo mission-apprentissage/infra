@@ -12,7 +12,7 @@ nginx -t
 
 # Remove cache files
 
-rm -rf /tmp/nginx_cache
+rm -rf /tmp/nginx_cache/*
 
 # Trigger nginx reload
 
