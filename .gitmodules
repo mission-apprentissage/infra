@@ -30,3 +30,11 @@
 	path = products/lba/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = lba
+[submodule "products/monitoring/inventories"]
+	path = products/monitoring/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = monitoring
+[submodule "products/monitoring/authorizations"]
+	path = products/monitoring/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = monitoring
