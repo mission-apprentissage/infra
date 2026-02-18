@@ -96,7 +96,7 @@
   register: mongodb_recette_ips
 
 - name: Récupération des adresses IPv4 du serveur monitoring
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/monitoring/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/monitoring/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: monitoring_ips
 
