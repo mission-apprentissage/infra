@@ -50,7 +50,7 @@ services:
     environment:
       - SERVER_NAME={{dns_name}}
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
-      - MODSEC_REQ_BODY_NOFILES_LIMIT={{modsec_body_limit}}
+      - MODSEC_REQ_BODY_NOFILES_LIMIT=5243904
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
     volumes:
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
