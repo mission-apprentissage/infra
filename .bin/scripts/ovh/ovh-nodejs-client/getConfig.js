@@ -12,7 +12,7 @@ export default async function getConfig() {
   for (const file of files) {
     if (file.isDirectory() && file.name !== "infra") {
 
-      if (file.name == "api" || file.name == "bal" || file.name == "data" || file.name == "lba" || file.name == "monitoring") {
+      if (file.name == "api" || file.name == "bal" || file.name == "data" || file.name == "lba" || file.name == "monitoring" || file.name == "mongodb") {
         var envFile = join(productDir, file.name, "inventories/env.ini");
       } else {
         var envFile = join(productDir, file.name, "env.ini");

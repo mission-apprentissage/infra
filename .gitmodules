@@ -38,3 +38,11 @@
 	path = products/monitoring/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = monitoring
+[submodule "products/mongodb/authorizations"]
+	path = products/mongodb/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = mongodb
+[submodule "products/mongodb/inventories"]
+	path = products/mongodb/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = mongodb
