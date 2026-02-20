@@ -21,7 +21,7 @@
   register: lba_preview_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-lba-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l lba_1,lba_2,lba_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l lba_1,lba_2,lba_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_lba_ips
 
@@ -38,7 +38,7 @@
   register: api_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-api-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l api_1,api_2,api_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l api_1,api_2,api_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_api_ips
 
@@ -55,7 +55,7 @@
   register: bal_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-bal-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_bal_ips
 
@@ -84,14 +84,14 @@
   register: tdb_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-tdb-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l tdb_1,tdb_2,tdb_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l tdb_1,tdb_2,tdb_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_tdb_ips
 
 ### Misc
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-recette-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/env.ini -l recette_1 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l recette_1 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_recette_ips
 
