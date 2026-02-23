@@ -46,3 +46,11 @@
 	path = products/mongodb/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
 	branch = mongodb
+[submodule "products/vpn/inventories"]
+	path = products/vpn/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = vpn
+[submodule "products/vpn/authorizations"]
+	path = products/vpn/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = vpn

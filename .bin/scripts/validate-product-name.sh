@@ -13,6 +13,7 @@ if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "lba" ] \
   && [ "$PRODUCT_NAME" != "monitoring" ] \
   && [ "$PRODUCT_NAME" != "mongodb" ] \
+  && [ "$PRODUCT_NAME" != "vpn" ] \
   ; then
 
   env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
