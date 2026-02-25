@@ -29,6 +29,7 @@ while [ $retries -gt 0 ]; do
       --agree-tos \
       --non-interactive \
       --domain ${SERVER_NAME} \
+      --required-profile tlsclient \
       "$@"
 
   if [ $? -eq 0 ]; then
