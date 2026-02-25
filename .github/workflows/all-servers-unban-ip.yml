@@ -29,7 +29,6 @@ jobs:
             "production",
             "recette",
             "preview",
-            "pentest",
             "preprod"
           ]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}

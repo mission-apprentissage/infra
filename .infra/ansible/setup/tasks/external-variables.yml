@@ -5,11 +5,6 @@
   become: false
   register: lba_production_ips
 
-- name: Récupération des adresses IPv4 des serveurs lba de pentest 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l pentest | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: lba_pentest_ips
-
 - name: Récupération des adresses IPv4 des serveurs lba de recette 
   local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
@@ -112,7 +107,6 @@
 
 - set_fact:
     lba_production_ips: "{{ lba_production_ips.stdout_lines }}"
-    lba_pentest_ips: "{{ lba_pentest_ips.stdout_lines }}"
     lba_recette_ips: "{{ lba_recette_ips.stdout_lines }}"
     lba_preview_ips: "{{ lba_preview_ips.stdout_lines }}"
     mongodb_lba_ips: "{{ mongodb_lba_ips.stdout_lines }}"
