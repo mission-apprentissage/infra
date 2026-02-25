@@ -25,7 +25,6 @@ jobs:
             "production",
             "recette",
             "preview",
-            "pentest",
             "preprod",
           ]
         exclude:

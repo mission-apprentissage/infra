@@ -19,12 +19,6 @@ define MONGODB_CLUSTER = {
 {% endfor %}
 }
 
-define LBA_PENTEST = {
-{% for ip in lba_pentest_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
 define LBA_RECETTE = {
 {% for ip in lba_recette_ips %}
   {{ ip }},
@@ -102,7 +96,6 @@ table ip firewall {
     udp dport 4789 accept
 
     ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
-    ip saddr $LBA_PENTEST tcp dport 27017 accept
     ip saddr $LBA_RECETTE tcp dport 27017 accept
     ip saddr $API_RECETTE tcp dport 27017 accept
     ip saddr $BAL_RECETTE tcp dport 27017 accept
