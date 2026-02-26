@@ -9,7 +9,7 @@
 - name: Chargement des variables du fichier d'habilitations avec SOPS
   community.sops.load_vars:
     file: "{{ habilitations_file_sops }}"
-    expressions: ignore
+    expressions: lazy-evaluation
   when: habilitations_file is none
 
 - import_tasks: external-variables.yml
