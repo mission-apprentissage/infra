@@ -127,6 +127,10 @@ services:
         limits:
           cpus: "1.00"
     image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     ports:
       - "127.0.0.1:24224:24224/tcp"
       - "127.0.0.1:24224:24224/udp"
