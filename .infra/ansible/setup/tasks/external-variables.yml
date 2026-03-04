@@ -64,17 +64,17 @@
 ### TDB
 
 - name: Récupération des adresses IPv4 des serveurs tdb de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_production_ips
 
 - name: Récupération des adresses IPv4 des serveurs tdb de preprod 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/env.ini -l preprod | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l preprod | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_preprod_ips
 
 - name: Récupération des adresses IPv4 des serveurs tdb de recette 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_recette_ips
 
