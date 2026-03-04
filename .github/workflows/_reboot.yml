@@ -42,6 +42,9 @@ on:
       OVH_APP_SECRET:
         description: OVH Application secret
         required: true
+      TOKEN_MNA_SHARED:
+        description: Authentication token for accessing private repositories
+        required: true
 
 jobs:
   setup:
@@ -51,7 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.TOKEN_MNA_SHARED }}
+          submodules: "true"
 
       - uses: actions/setup-node@v4
         with:
