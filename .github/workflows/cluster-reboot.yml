@@ -38,6 +38,9 @@ on:
         required: true
       MONGODB_HABILITATIONS:
         required: true
+      TOKEN_MNA_SHARED:
+        description: Github Actions' OpenPGP private subkey
+        required: true
 
 jobs:
   setup:
@@ -62,3 +65,4 @@ jobs:
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}
