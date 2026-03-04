@@ -22,6 +22,7 @@ if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "mongodb" ] \
   && [ "$PRODUCT_NAME" != "vpn" ] \
   && [ "$PRODUCT_NAME" != "lab" ] \
+  && [ "$PRODUCT_NAME" != "tdb" ] \
   ; then
 
   mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"

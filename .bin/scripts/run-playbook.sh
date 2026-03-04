@@ -87,6 +87,7 @@ if [[ -z "${CI:-}" ]] \
   && [[ "${PRODUCT_NAME}" != "mongodb" ]] \
   && [[ "${PRODUCT_NAME}" != "vpn" ]] \
   && [[ "${PRODUCT_NAME}" != "lab" ]] \
+  && [[ "${PRODUCT_NAME}" != "tdb" ]] \
   ; then
   op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" --out-file="${PRODUCT_DIR}/habilitations.yml" --force
 fi

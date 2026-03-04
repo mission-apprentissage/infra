@@ -62,3 +62,11 @@
 	path = products/lab/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = lab
+[submodule "products/tdb/inventories"]
+	path = products/tdb/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = tdb
+[submodule "products/tdb/authorizations"]
+	path = products/tdb/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = tdb
