@@ -54,3 +54,11 @@
 	path = products/vpn/authorizations
 	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
 	branch = vpn
+[submodule "products/lab/inventories"]
+	path = products/lab/inventories
+	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
+	branch = lab
+[submodule "products/lab/authorizations"]
+	path = products/lab/authorizations
+	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
+	branch = lab
