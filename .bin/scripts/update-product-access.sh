@@ -61,6 +61,7 @@ if [ "$PRODUCT_NAME" != "bal" ] \
   && [ "$PRODUCT_NAME" != "monitoring" ] \
   && [ "$PRODUCT_NAME" != "mongodb" ] \
   && [ "$PRODUCT_NAME" != "vpn" ] \
+  && [ "$PRODUCT_NAME" != "lab" ] \
   ; then
 
   DOCUMENT_CONTENT=$(op document get "habilitations-${PRODUCT_NAME}" --vault "${OP_VAULT_PASSWORD}" --account "${OP_ACCOUNT}" || echo "")
