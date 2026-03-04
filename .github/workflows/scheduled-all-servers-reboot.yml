@@ -72,4 +72,4 @@ jobs:
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
       MONGODB_HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
-    
+      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}
