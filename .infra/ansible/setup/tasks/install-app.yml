@@ -50,7 +50,16 @@
   async: 1800
   poll: 10
   when:
-    - env_type == 'preview' or product_name == 'monitoring' or product_name == 'data'
+    - product_name == 'monitoring' or product_name == 'data'
+
+- name: Démarrage des services systèmes Docker Compose
+  ansible.builtin.shell:
+    chdir: /opt/app
+    cmd: docker compose -f /opt/app/docker-compose.system.yml up -d --wait
+  async: 1800
+  poll: 10
+  when:
+    - product_name == 'monitoring' or product_name == 'data'
 
 - name: Root only pour tous les répertoires applicatifs
   file:
