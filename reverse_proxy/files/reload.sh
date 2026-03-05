@@ -12,7 +12,8 @@ nginx -t
 
 # Remove cache files
 
-rm -rf /tmp/nginx_cache/*
+find /tmp/nginx_cache/ -maxdepth 1 -type f -name "*.pdf" -print0 \
+  | xargs -0 rm -f
 
 # Trigger nginx reload
 
