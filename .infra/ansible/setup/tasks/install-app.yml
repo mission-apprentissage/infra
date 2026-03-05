@@ -41,7 +41,6 @@
   async: 1800
   poll: 10
   when:
-    - network.stdout == ""
     - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
 
 - name: Démarrage des services systèmes Docker Compose
@@ -51,7 +50,6 @@
   async: 1800
   poll: 10
   when:
-    - network.stdout == ""
     - env_type == 'preview' or product_name == 'monitoring' or product_name == 'data'
 
 - name: Root only pour tous les répertoires applicatifs
