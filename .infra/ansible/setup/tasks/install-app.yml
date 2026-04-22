@@ -61,6 +61,11 @@
   when:
     - product_name == 'monitoring' or product_name == 'data'
 
+- name: Verification des certificats X.509
+  shell:
+    chdir: /opt/app
+    cmd: "/opt/app/tools/ssl/renew-certificate.sh {{ dns_name }}"
+
 - name: Root only pour tous les répertoires applicatifs
   file:
     path: "/opt/app"

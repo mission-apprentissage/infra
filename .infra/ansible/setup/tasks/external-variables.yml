@@ -83,6 +83,13 @@
   become: false
   register: mongodb_tdb_ips
 
+### Sandbox
+
+- name: Récupération des adresses IPv4 de la grappe mongodb-sandbox-x
+  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l sandbox_1,sandbox_2,sandbox_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  become: false
+  register: mongodb_sandbox_ips
+
 ### Misc
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-recette-x
@@ -125,4 +132,5 @@
     monitoring_ips: "{{ monitoring_ips.stdout_lines }}"
     data_ips: "{{ data_ips.stdout_lines }}"
     vpn_ips: "{{ vpn_ips.stdout_lines }}"
+    mongodb_sandbox_ips: "{{ mongodb_sandbox_ips.stdout_lines }}"
 
