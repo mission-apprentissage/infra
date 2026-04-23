@@ -2,12 +2,20 @@
 
 set -euo pipefail
 
+export PRODUCT_NAME=infra
+export GITHUB_ORGANIZATION=mission-apprentissage
+export REPO_INFRA=mission-apprentissage/infra
+export OP_VAULT_PASSWORD=mna-vault-passwords-common
+export OP_ACCOUNT=mission-apprentissage.1password.com
+export USER_GROUP=mna
+
 export BIN_DIR="$(dirname -- "$( readlink -f -- "$0"; )")"
+export BIN_SHARED_DIR="$BIN_DIR/shared"
 export ROOT_DIR="$(dirname "${BIN_DIR}")"
 export SCRIPT_DIR="$BIN_DIR/scripts"
+export SCRIPT_SHARED_DIR="$BIN_SHARED_DIR/scripts"
 
-source "${ROOT_DIR}/products/infra/infra-meta.sh"
-source "${BIN_DIR}/commands.sh"
+. "${BIN_DIR}/commands.sh"
 
 ################################################################################
 ################################################################################
@@ -17,17 +25,21 @@ source "${BIN_DIR}/commands.sh"
 
 readonly command=${1:-}
 if [ -z "$command" ]; then
-  Help
-fi;
+  _help
+fi
 shift
 
 if [[ `command -v $command` != $command ]]; then
   echo "Err: Command '$command' not found"
   echo
-  Help
-fi;
+  _help
+fi
 
-"${SCRIPT_DIR}/check-dependencies.sh"
+if [ -z "${CI:-}" ]; then
+  dev:dependencies:check
+fi
+
 "${SCRIPT_DIR}/ensure-gh-op-auth.sh"
 
 $command "$@"
+

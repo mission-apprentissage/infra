@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+products/*/habilitations.yml
+
 # dependencies
 /node_modules
 /.pnp
@@ -144,23 +146,15 @@ setEnv.sh
 **/node_modules/
 yarn-error.log
 
-
 # Builds
 dist
 build
 sdk/lib
 .npmrc
 
-
-**/.vault-password-previous.gpg
-**/.vault-password.gpg
-**/habilitations.yml
-
 # Local History for Visual Studio Code
 .history/
 
-.vault_pwd.txt
 node_modules.tar.gz
 /.env_server
-vault-tmp-*.*
 id_rsa_deploy.key

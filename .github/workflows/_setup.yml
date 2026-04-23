@@ -27,12 +27,6 @@ on:
       SLACK_WEBHOOK_NOTIF:
         description: Slack webhook URL
         required: true
-      VAULT_PWD:
-        description: Vault Password
-        required: true
-      HABILITATIONS:
-        description: Product habilitations
-        required: true
       OVH_APP_TOKEN:
         description: OVH Application token
         required: true
@@ -130,20 +124,9 @@ jobs:
       - name: Setup SOPS
         uses: nhedger/setup-sops@v2
 
-      - name: Create vault pwd file
-        run: echo ${VAULT_PWD} > .infra/.vault_pwd.txt
-        env:
-          VAULT_PWD: ${{ secrets.VAULT_PWD }}
-
-      - name: Create habilitations file
-        run:  bash -c '[ ! -z "${HABILITATIONS}" ] && echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml || true'
-        env:
-          HABILITATIONS: ${{ secrets.HABILITATIONS }}
-
       - name: Run playbook
         run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
         env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
           ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
           APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
@@ -151,10 +134,8 @@ jobs:
           APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
 
       - name: Encrypt logs
-        run: .bin/infra deploy:log:encrypt
+        run: .bin/infra app:deploy:log:encrypt
         if: always()
-        env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
 
       - name: Upload logs artifacts
         if: always()
@@ -165,7 +146,7 @@ jobs:
 
       - name: Add Job summary
         if: always()
-        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
         uses: ravsamhq/notify-slack-action@v2
@@ -173,7 +154,7 @@ jobs:
         with:
           status: ${{ job.status }}
           notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
           notify_when: "failure"
           mention_groups: "!channel"
         env:
