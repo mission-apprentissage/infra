@@ -20,6 +20,8 @@ unset _meta_help["seed:apply"]
 unset seed:apply
 unset _meta_help["docker:login"]
 unset docker:login
+unset _meta_help["product:access:update"]
+unset product:access:update
 
 ################################################################################
 # Non-shared commands

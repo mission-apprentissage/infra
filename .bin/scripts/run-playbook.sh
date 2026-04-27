@@ -2,15 +2,23 @@
 
 set -euo pipefail
 
-. "${BIN_DIR}/commands.sh"
+if [ -z "${SCRIPT_DIR:-}" ]; then
+  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
-PLAYBOOK_NAME=${1:?"Merci de préciser le playbook a éxécuter"}
+if [ -z "${ROOT_DIR:-}" ]; then
+  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
+PRODUCT_NAME=infra . "${ROOT_DIR}/.bin/commands.sh"
+
+PLAYBOOK_NAME=${1:?"Merci de préciser le playbook à exécuter !"}
 shift
 
-PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
+PRODUCT_NAME=${1:?"Merci de préciser le nom du produit !"}
 shift
 
-ENV_FILTER=${1:?"Merci de préciser un ou plusieurs environnements (ex. recette ou production)"}
+ENV_FILTER=${1:?"Merci de préciser l'environnement !"}
 shift
 
 env_ini=$(product:ini_file "${PRODUCT_NAME}")
