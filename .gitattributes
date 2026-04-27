@@ -2,8 +2,6 @@
 * text=auto
 # Force the following filetypes to have unix eols, so Windows does not break them
 *.* text eol=lf
-# Vault
-products/infra/vault/vault.yml diff=diff-vault merge=merge-vault
 # Force images/fonts to be handled as binaries
 # Documents
 *.doc       diff=astextplain
@@ -77,3 +75,4 @@ products/infra/vault/vault.yml diff=diff-vault merge=merge-vault
 *.otf       binary
 *.woff      binary
 *.woff2     binary
+.infra/env.global.yml diff=sopsdiffer

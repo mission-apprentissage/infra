@@ -2,12 +2,20 @@
 
 set -euo pipefail
 
-. "${BIN_DIR}/commands.sh"
+if [ -z "${SCRIPT_DIR:-}" ]; then
+  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
-PRODUCT_NAME=${1:?"Merci de préciser le produit (bal, tdb)"}
+if [ -z "${ROOT_DIR:-}" ]; then
+  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
+PRODUCT_NAME=infra . "${ROOT_DIR}/.bin/commands.sh"
+
+PRODUCT_NAME=${1:?"Merci de préciser le produit !"}
 shift
 
-VAR_NAME=${1:?"Merci de préciser la variable"}
+VAR_NAME=${1:?"Merci de préciser la variable !"}
 shift
 
 env_ini=$(product:ini_file "${PRODUCT_NAME}")
