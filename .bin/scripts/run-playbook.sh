@@ -122,15 +122,15 @@ function runPlaybook() {
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
-	install_role_if_needed "patrickjahns.promtail" "1.31.0"
-	install_role_if_needed "geerlingguy.docker" "7.4.7"
-	install_collection_if_needed "community.general"
-	install_collection_if_needed "community.crypto"
-	install_collection_if_needed "ansible.posix"
-	install_collection_if_needed "community.sops"
-
-  ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible/ansible.cfg" ansible-playbook \
-    -i "${ROOT_DIR}/.infra/env.ini" \
+#	install_role_if_needed "patrickjahns.promtail" "1.31.0"
+#	install_role_if_needed "geerlingguy.docker" "7.4.7"
+#	install_collection_if_needed "community.general"
+#	install_collection_if_needed "community.crypto"
+#	install_collection_if_needed "ansible.posix"
+#	install_collection_if_needed "community.sops"
+#
+  ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible.cfg" ansible-playbook \
+    -i "${ROOT_DIR}/.infra/inventories/env.ini" \
     -i "${env_ini}" \
     --limit "${ENV_FILTER}" \
     -e "product=${PRODUCT_NAME}" \

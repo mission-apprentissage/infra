@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly TEXT_MESSAGE=${1:?"Please provide a text message"}
-readonly SLACK_URL="{{ vault[product_name].SLACK_WEBHOOK_URL }}"
+readonly SLACK_URL="{{ product_name.SLACK_WEBHOOK_URL }}"
 readonly CURRENT_ENV="{{ product_name }}_{{ env_type }}"
 
 curl -s -o /dev/null -X POST --data-urlencode \

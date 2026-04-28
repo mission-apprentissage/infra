@@ -1,3 +1,8 @@
+- name: Chargement des variables du fichier de variables d'environnement
+  community.sops.load_vars:
+    file: "{{ playbook_dir }}/../env.global.yml"
+    expressions: lazy-evaluation
+
 - name: Chargement des variables du fichier d'habilitations avec SOPS
   community.sops.load_vars:
     file: "{{ habilitations_file_sops }}"

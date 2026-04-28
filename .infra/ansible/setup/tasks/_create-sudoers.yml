@@ -6,7 +6,7 @@
 - name: Création de l'utilisateur '{{ habilitation.username }}'
   user:
     name: "{{ habilitation.username }}"
-    password: "{{ vault.HABILITATION_PASSWORD }}"
+    password: "{{ HABILITATION_PASSWORD }}"
     update_password: on_create
     shell: /bin/bash
     groups: sudo,{{ user_group }}

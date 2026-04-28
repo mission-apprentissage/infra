@@ -61,10 +61,10 @@
         promtail_config_server:
           disable: true
         promtail_config_clients:
-          - url: "{{ vault.PROMTAIL_URL }}"
+          - url: "{{ PROMTAIL_URL }}"
             basic_auth:
               username: "monitoring"
-              password: "{{ vault.MONITORING_PASSWORD }}"
+              password: "{{ MONITORING_PASSWORD }}"
             external_labels:
               product: "{{ product_name }}"
               env: "{{ env_type }}"

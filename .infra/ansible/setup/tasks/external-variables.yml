@@ -1,114 +1,114 @@
 ### LBA
 
 - name: Récupération des adresses IPv4 des serveurs lba de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: lba_production_ips
 
 - name: Récupération des adresses IPv4 des serveurs lba de recette 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: lba_recette_ips
 
 - name: Récupération des adresses IPv4 des serveurs lba de preview 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l preview | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lba/inventories/env.ini -l preview | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: lba_preview_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-lba-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l lba_1,lba_2,lba_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l lba_1,lba_2,lba_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_lba_ips
 
 ### API
 
 - name: Récupération des adresses IPv4 des serveurs api de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/api/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/api/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: api_production_ips
 
 - name: Récupération des adresses IPv4 des serveurs api de recette 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/api/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/api/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: api_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-api-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l api_1,api_2,api_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l api_1,api_2,api_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_api_ips
 
 ### BAL
 
 - name: Récupération des adresses IPv4 des serveurs bal de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: bal_production_ips
 
 - name: Récupération des adresses IPv4 des serveurs bal de recette 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: bal_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-bal-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_bal_ips
 
 ### LAB
 
 - name: Récupération des adresses IPv4 des serveurs lab de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lab/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lab/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: lab_production_ips
 
 ### TDB
 
 - name: Récupération des adresses IPv4 des serveurs tdb de production 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_production_ips
 
 - name: Récupération des adresses IPv4 des serveurs tdb de preprod 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l preprod | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l preprod | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_preprod_ips
 
 - name: Récupération des adresses IPv4 des serveurs tdb de recette 
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/tdb/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: tdb_recette_ips
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-tdb-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l tdb_1,tdb_2,tdb_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l tdb_1,tdb_2,tdb_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_tdb_ips
 
 ### Sandbox
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-sandbox-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l sandbox_1,sandbox_2,sandbox_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l sandbox_1,sandbox_2,sandbox_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_sandbox_ips
 
 ### Misc
 
 - name: Récupération des adresses IPv4 de la grappe mongodb-recette-x
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l recette_1 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l recette_1 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: mongodb_recette_ips
 
 - name: Récupération des adresses IPv4 du serveur monitoring
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/monitoring/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/monitoring/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: monitoring_ips
 
 - name: Récupération des adresses IPv4 du serveur data
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/data/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/data/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: data_ips
 
 - name: Récupération des adresses IPv4 du serveur vpn
-  local_action: ansible.builtin.shell sh -c "unset ANSIBLE_VAULT_PASSWORD_FILE; ansible-inventory --export --list -i {{ playbook_dir }}/../../products/vpn/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/vpn/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
   register: vpn_ips
 

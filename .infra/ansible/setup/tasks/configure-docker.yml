@@ -43,9 +43,9 @@
   when: gpu_instance == 'true'
 
 - name: Docker login
-  shell: "echo $PASS | docker login -u '{{ vault.DOCKER_LOGIN.user }}' --password-stdin"
+  shell: "echo $PASS | docker login -u '{{ DOCKER_LOGIN.user }}' --password-stdin"
   environment: 
-    PASS: "{{ vault.DOCKER_LOGIN.token }}"
+    PASS: "{{ DOCKER_LOGIN.token }}"
 
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}

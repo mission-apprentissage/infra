@@ -1,8 +1,6 @@
 ---
 - hosts: all
   become: true
-  vars_files:
-    - "{{ playbook_dir }}/../../products/infra/vault/vault.yml"
   vars:
     habilitations_file_sops: "{{ lookup('first_found', playbook_dir ~ '/../../products/' ~ product ~ '/authorizations/habilitations.yml', errors='ignore') }}"
   roles:

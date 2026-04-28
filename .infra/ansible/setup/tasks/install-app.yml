@@ -79,4 +79,4 @@
     name: [apache2-utils]
 
 - name: Create monitoring access file
-  shell: htpasswd -bBc "/opt/app/configs/reverse_proxy/locations/monitoring.htpasswd" monitoring {{ vault.MONITORING_PASSWORD }}
+  shell: htpasswd -bBc "/opt/app/configs/reverse_proxy/locations/monitoring.htpasswd" monitoring {{ MONITORING_PASSWORD }}
