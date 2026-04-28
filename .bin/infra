@@ -39,7 +39,7 @@ if [ -z "${CI:-}" ]; then
   dev:dependencies:check
 fi
 
-"${SCRIPT_DIR}/ensure-gh-op-auth.sh"
+"${SCRIPT_DIR}/ensure-gh-auth.sh"
 
 $command "$@"
 

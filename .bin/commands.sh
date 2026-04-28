@@ -90,7 +90,7 @@ function system:setup() {
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
   firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_SHARED_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 
   #TAG="$PRODUCT_NAME-$ENV_NAME"
 
@@ -116,7 +116,7 @@ function system:user:remove() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_SHARED_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
 
 }
 
@@ -135,7 +135,7 @@ function system:unban() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_SHARED_DIR/run-playbook.sh" "unban.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "ip='${IP}'" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "unban.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "ip='${IP}'" "$@"
 
 }
 
@@ -151,7 +151,7 @@ function system:password:rotate() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_SHARED_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 _meta_help["system:reboot"]="Reboot server if needed"
@@ -166,7 +166,7 @@ function system:reboot() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_SHARED_DIR/run-playbook.sh" "reboot.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "$SCRIPT_DIR/run-playbook.sh" "reboot.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
 _meta_help["system:setup:initial"]="Initial server setup"
@@ -255,11 +255,61 @@ function product:env:ip() {
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
+  env_ini=$(product:ini_file "${PRODUCT_NAME}")
+
   if [[ -z $env_ini ]]; then
     exit 1
   fi
 
-  "$SCRIPT_DIR/get-product-env-ip.sh" "$PRODUCT_NAME" "$@"
+  "$SCRIPT_DIR/get-product-repo.sh" "$PRODUCT_NAME" "$@"
+}
+
+_meta_help["product:validate:env"]="Validate product environnement name"
+
+function product:validate:env() {
+
+  local env_ip=$(product:env:ip "$@")
+
+  if [ -z $env_ip ]; then
+    if [[ -z "${CI:-}" ]]; then
+      exit 1
+    else
+      # If we are in CI just exit 0 to allow batch
+      exit 0
+    fi
+  fi
+
+}
+
+_meta_help["product:create"]="Create a new repository"
+
+function product:create() {
+  "$SCRIPT_DIR/create-product.sh" "$@"
+}
+
+_meta_help["product:ini_file"]="Get product ini file location"
+
+function product:ini_file() {
+  "$SCRIPT_DIR/validate-product-name.sh" "$@"
+}
+
+_meta_help["product:env:ip"]="Get production environnement IP"
+
+function product:env:ip() {
+
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+  shift
+
+  local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
+  shift
+
+  env_ini=$(product:ini_file "${PRODUCT_NAME}")
+
+  if [[ -z $env_ini ]]; then
+    exit 1
+  fi
+
+  "$SCRIPT_DIR/get-product-env-ip.sh" "$PRODUCT_NAME" "$ENV_NAME"
 }
 
 _meta_help["ssh:known_hosts:print"]="Print SSH known host for a product"
