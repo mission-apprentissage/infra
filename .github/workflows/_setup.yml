@@ -176,7 +176,7 @@ jobs:
         uses: slackapi/slack-github-action@v3
         if: failure()
         with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
           webhook-type: incoming-webhook
           payload: |
             attachments:
