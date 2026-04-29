@@ -67,7 +67,7 @@ jobs:
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
 
       - name: Notify failure on Slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         if: failure()
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
@@ -97,17 +97,23 @@ jobs:
     steps:
 
       - name: Notify new deployment on Slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         if: always()
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
           webhook-type: incoming-webhook
           payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
             attachments:
               - color: "#808080"
-                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                    short: true
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    short: true
 
       - name: Checkout project
         uses: actions/checkout@v6
@@ -115,7 +121,7 @@ jobs:
           token: ${{ secrets.TOKEN_MNA_SHARED }}
           submodules: "true"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
 
@@ -141,7 +147,10 @@ jobs:
           PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
 
       - name: Setup SOPS
-        uses: nhedger/setup-sops@v2
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
+          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
 
       - name: Run playbook
         run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
@@ -158,7 +167,7 @@ jobs:
 
       - name: Upload logs artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: logs-${{ inputs.product }}-${{ inputs.environment }}
           path: /tmp/deploy.log.gpg
@@ -168,7 +177,7 @@ jobs:
         run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         if: failure()
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
@@ -189,17 +198,15 @@ jobs:
                     short: true
 
       - name: Notify success on Slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         if: success()
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
           webhook-type: incoming-webhook
           payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
             attachments:
               - color: "good"
-                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                 fields:
                   - title: "Branch"
                     value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
@@ -207,3 +214,4 @@ jobs:
                   - title: "Commit"
                     value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
                     short: true
+                footer: "View Run | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
