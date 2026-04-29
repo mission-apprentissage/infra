@@ -110,8 +110,6 @@ function runPlaybook() {
   
   local ansible_extra_opts=()
 
-	echo "DEBUG 1"
-
   if [[ ! -z "${ANSIBLE_BECOME_PASS:-}" ]]; then
     echo "Récupération du mot de passe 'become_pass' depuis l'environnement variable ANSIBLE_BECOME_PASS" 
   else
@@ -124,15 +122,12 @@ function runPlaybook() {
 
   export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
-#	install_role_if_needed "patrickjahns.promtail" "1.31.0"
-#	install_role_if_needed "geerlingguy.docker" "7.4.7"
-#	install_collection_if_needed "community.general"
-#	install_collection_if_needed "community.crypto"
-#	install_collection_if_needed "ansible.posix"
-#	install_collection_if_needed "community.sops"
-
-	echo "DEBUG 2"
-	gpg -k
+	install_role_if_needed "patrickjahns.promtail" "1.31.0"
+	install_role_if_needed "geerlingguy.docker" "7.4.7"
+	install_collection_if_needed "community.general"
+	install_collection_if_needed "community.crypto"
+	install_collection_if_needed "ansible.posix"
+	install_collection_if_needed "community.sops"
 
   ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible.cfg" ansible-playbook \
     -i "${ROOT_DIR}/.infra/inventories/env.ini" \
@@ -149,8 +144,5 @@ function runPlaybook() {
 if [[ -z "${CI:-}" ]]; then
   runPlaybook "$@"
 else
-	echo "DEBUG A 1"
-	gpg --with-subkey-fingerprint -k
   runPlaybook "$@" &> /tmp/deploy.log
-	echo "DEBUG A 2"
 fi
