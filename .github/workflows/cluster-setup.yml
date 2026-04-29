@@ -32,12 +32,6 @@ on:
       SLACK_WEBHOOK_NOTIF:
         description: Slack webhook URL
         required: true
-      VAULT_PWD:
-        description: Vault Password
-        required: true
-      MONGODB_HABILITATIONS:
-        description: Product habilitations
-        required: true
       OVH_APP_TOKEN:
         description: OVH Application token
         required: true
@@ -47,11 +41,14 @@ on:
       OVH_APP_SECRET:
         description: OVH Application secret
         required: true
-      OPENPGP_PRIVATE_SUBKEY:
+      INFRA_OPENPGP_PRIVATE_SUBKEY:
+        description: Github Actions' OpenPGP private subkey
+        required: true
+      MONGODB_OPENPGP_PRIVATE_SUBKEY:
         description: Github Actions' OpenPGP private subkey
         required: true
       TOKEN_MNA_SHARED:
-        description: Github Actions' OpenPGP private subkey
+        description: Authentication token for accessing private repositories
         required: true
 
 jobs:
@@ -72,10 +69,9 @@ jobs:
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
       SLACK_WEBHOOK_ALERTS: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
       SLACK_WEBHOOK_NOTIF: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-      VAULT_PWD: ${{ secrets.VAULT_PWD }}
-      HABILITATIONS: ${{ secrets.MONGODB_HABILITATIONS }}
       OVH_APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-      OPENPGP_PRIVATE_SUBKEY: ${{ secrets.MONGODB_OPENPGP_PRIVATE_SUBKEY }}
+      INFRA_OPENPGP_PRIVATE_SUBKEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+      PRODUCT_OPENPGP_PRIVATE_SUBKEY: ${{ secrets.MONGODB_OPENPGP_PRIVATE_SUBKEY }}
       TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}

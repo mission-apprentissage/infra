@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -euo pipefail
 
 readonly MODULE_DIR="${SCRIPT_DIR}/ovh/ovh-nodejs-client"

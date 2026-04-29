@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-readonly TAG_PREFIX=${1:?"Merci de préciser le directory (ex. reverse_proxy, fluentd)"}
+readonly TAG_PREFIX=${1:?"Merci de préciser l'image Docker !"}
 shift
+
 readonly VERSION=$("$SCRIPT_DIR/release/get-version.sh" $TAG_PREFIX)
 
 echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/${GITHUB_ORGANIZATION}/)"
@@ -64,12 +65,12 @@ select_version() {
     case $overwrite in
       [yY][eE][sS]|[yY]|"")
         echo "$VERSION"
-        return;
+        return
         ;;
       *)
         ;;
     esac
-  fi;
+  fi
 
   read -p "Current version $VERSION > New version ($NEXT_PATCH_VERSION) ? [Y/n]: " response
   case $response in
@@ -102,13 +103,12 @@ case $RES_LOGIN in
     ;;
 esac
 
-
 set +e
 docker buildx create --name infra --driver docker-container --bootstrap --use 2> /dev/null
 set -e
 
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
-docker buildx build "$ROOT_DIR/$TAG_PREFIX" \
+docker buildx build "$ROOT_DIR/docker/$TAG_PREFIX" \
       --platform linux/amd64,linux/arm64 \
       --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:"$NEXT_VERSION" \
       --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \

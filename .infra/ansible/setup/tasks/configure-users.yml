@@ -6,7 +6,7 @@
 - name: Création de l'utilisateur 'deploy'
   user:
     name: "deploy"
-    password: "{{ vault.GH_USER_PASS_HASH }}"
+    password: "{{ GH_USER_PASS_HASH }}"
     update_password: always
     shell: /bin/bash
     groups: sudo,{{ user_group }}
@@ -18,12 +18,12 @@
   authorized_key:
     user: "deploy"
     state: present
-    key: "{{ vault.GH_USER_PUBLIC_KEY }}"
+    key: "{{ GH_USER_PUBLIC_KEY }}"
 
 - name: Ajout de la SSH privée
   copy:
     dest: "~/.ssh/id_ed25519"
-    content: "{{ vault.GH_USER_PRIVATE_KEY }}"
+    content: "{{ GH_USER_PRIVATE_KEY }}"
     owner: root
     mode: "700"
 

@@ -27,12 +27,6 @@ on:
       SLACK_WEBHOOK_NOTIF:
         description: Slack webhook URL
         required: true
-      VAULT_PWD:
-        description: Vault Password
-        required: true
-      HABILITATIONS:
-        description: Product habilitations
-        required: true
       OVH_APP_TOKEN:
         description: OVH Application token
         required: true
@@ -42,7 +36,10 @@ on:
       OVH_APP_SECRET:
         description: OVH Application secret
         required: true
-      OPENPGP_PRIVATE_SUBKEY:
+      INFRA_OPENPGP_PRIVATE_SUBKEY:
+        description: Github Actions' OpenPGP private subkey
+        required: true
+      PRODUCT_OPENPGP_PRIVATE_SUBKEY:
         description: Github Actions' OpenPGP private subkey
         required: true
       TOKEN_MNA_SHARED:
@@ -70,16 +67,23 @@ jobs:
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
 
       - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
+        uses: slackapi/slack-github-action@v3
+        if: failure()
         with:
-          status: ${{ job.status }}
-          notification_title: "${{ inputs.product }} for ${{ inputs.environment }} setup failed!"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. Suspected traces of known attacks on the NPM supply chain!"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
 
   setup:
     if: ${{ success() }}
@@ -89,14 +93,23 @@ jobs:
     name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
+
       - name: Notify new deployment on Slack
-        uses: ravsamhq/notify-slack-action@v2
+        uses: slackapi/slack-github-action@v3
         if: always()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+            attachments:
+              - color: "#808080"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
 
       - name: Checkout project
         uses: actions/checkout@v6
@@ -104,7 +117,7 @@ jobs:
           token: ${{ secrets.TOKEN_MNA_SHARED }}
           submodules: "true"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
 
@@ -123,27 +136,21 @@ jobs:
 
       - name: Initialize the GnuPG keyring
         run: |
-          echo -n "$OPENPGP_KEY" | gpg --import
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
         env:
-          OPENPGP_KEY: ${{ secrets.OPENPGP_PRIVATE_SUBKEY }}
+          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
 
       - name: Setup SOPS
-        uses: nhedger/setup-sops@v2
-
-      - name: Create vault pwd file
-        run: echo ${VAULT_PWD} > .infra/.vault_pwd.txt
-        env:
-          VAULT_PWD: ${{ secrets.VAULT_PWD }}
-
-      - name: Create habilitations file
-        run:  bash -c '[ ! -z "${HABILITATIONS}" ] && echo "${HABILITATIONS}" > products/${{inputs.product}}/habilitations.yml || true'
-        env:
-          HABILITATIONS: ${{ secrets.HABILITATIONS }}
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
+          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
 
       - name: Run playbook
         run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
         env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
           ANSIBLE_REMOTE_USER: deploy
           ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
           APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
@@ -151,40 +158,55 @@ jobs:
           APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
 
       - name: Encrypt logs
-        run: .bin/infra deploy:log:encrypt
+        run: .bin/infra app:deploy:log:encrypt
         if: always()
-        env:
-          ANSIBLE_VAULT_PASSWORD_FILE: .infra/.vault_pwd.txt
 
       - name: Upload logs artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: logs-${{ inputs.product }}-${{ inputs.environment }}
           path: /tmp/deploy.log.gpg
 
       - name: Add Job summary
         if: always()
-        run: echo 'You can get logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
+        uses: slackapi/slack-github-action@v3
+        if: failure()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+                fields:
+                  - title: ""
+                    value: ""
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
 
       - name: Notify success on Slack
-        uses: ravsamhq/notify-slack-action@v2
-        if: always()
+        uses: slackapi/slack-github-action@v3
+        if: success()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-          notify_when: "success"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+            attachments:
+              - color: "good"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"

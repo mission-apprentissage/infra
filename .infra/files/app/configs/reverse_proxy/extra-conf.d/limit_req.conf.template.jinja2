@@ -4,7 +4,7 @@ geo $remote_addr $rate_limit_wl {
     10.0.0.0/8 1; # For private network connections
     172.16.0.0/12 1; # For private network connections
     192.168.0.0/16 1; # For private network connections
-{% for ip in vault.trust_ips %}
+{% for ip in trust_ips %}
     {{ ip }} 1;
 {% endfor %}
 }

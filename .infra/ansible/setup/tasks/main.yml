@@ -1,16 +1,12 @@
-- name: Debug
-  debug:
-    var: habilitations_file
-
-- name: Chargement des variables du fichier d'habilitations
-  include_vars: "{{ habilitations_file }}"
-  when: habilitations_file is not none
+- name: Chargement des variables du fichier de variables d'environnement
+  community.sops.load_vars:
+    file: "{{ playbook_dir }}/../env.global.yml"
+    expressions: lazy-evaluation
 
 - name: Chargement des variables du fichier d'habilitations avec SOPS
   community.sops.load_vars:
     file: "{{ habilitations_file_sops }}"
     expressions: lazy-evaluation
-  when: habilitations_file is none
 
 - import_tasks: external-variables.yml
 

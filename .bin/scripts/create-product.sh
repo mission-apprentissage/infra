@@ -2,9 +2,17 @@
 
 set -euo pipefail
 
-. "${BIN_DIR}/commands.sh"
+if [ -z "${SCRIPT_DIR:-}" ]; then
+  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
-PRODUCT_NAME=${1:?"Merci de préciser le nom du product"}
+if [ -z "${ROOT_DIR:-}" ]; then
+  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
+PRODUCT_NAME=infra . "${ROOT_DIR}/.bin/commands.sh"
+
+PRODUCT_NAME=${1:?"Merci de préciser le nom du produit !"}
 shift
 
 env_ini=$(product:ini_file "${PRODUCT_NAME}")
@@ -14,18 +22,4 @@ if [ -f "${env_ini}" ]; then
   return 1
 fi
 
-if [ "$PRODUCT_NAME" != "bal" ] \
-  && [ "$PRODUCT_NAME" != "data" ] \
-  && [ "$PRODUCT_NAME" != "api" ] \
-  && [ "$PRODUCT_NAME" != "lba" ] \
-  && [ "$PRODUCT_NAME" != "monitoring" ] \
-  && [ "$PRODUCT_NAME" != "mongodb" ] \
-  && [ "$PRODUCT_NAME" != "vpn" ] \
-  && [ "$PRODUCT_NAME" != "lab" ] \
-  && [ "$PRODUCT_NAME" != "tdb" ] \
-  ; then
-
-  mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"
-
-fi
-
+mkdir -p "${ROOT_DIR}/products/${PRODUCT_NAME}"

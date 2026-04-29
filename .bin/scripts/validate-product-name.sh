@@ -2,32 +2,21 @@
 
 set -euo pipefail
 
-. "${BIN_DIR}/commands.sh"
-
-PRODUCT_NAME=${1:?"Merci le produit (bal, tdb)"}
-shift
-
-if [ "$PRODUCT_NAME" != "bal" ] \
-  && [ "$PRODUCT_NAME" != "data" ] \
-  && [ "$PRODUCT_NAME" != "api" ] \
-  && [ "$PRODUCT_NAME" != "lba" ] \
-  && [ "$PRODUCT_NAME" != "monitoring" ] \
-  && [ "$PRODUCT_NAME" != "mongodb" ] \
-  && [ "$PRODUCT_NAME" != "vpn" ] \
-  && [ "$PRODUCT_NAME" != "lab" ] \
-  && [ "$PRODUCT_NAME" != "tdb" ] \
-  ; then
-
-  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/env.ini"
-
-else
-
-  env_ini="${ROOT_DIR}/products/$PRODUCT_NAME/inventories/env.ini"
-
+if [ -z "${SCRIPT_DIR:-}" ]; then
+  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
+if [ -z "${ROOT_DIR:-}" ]; then
+  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
+PRODUCT_NAME=${1:?"Merci de préciser le produit !"}
+shift
+
+env_ini="${ROOT_DIR}/products/${PRODUCT_NAME}/inventories/env.ini"
+
 if [ ! -f "${env_ini}" ]; then
-  >&2 echo "Product $PRODUCT_NAME not found (${env_ini})"
+  >&2 echo "Product ${PRODUCT_NAME} not found (${env_ini})"
 fi
 
 echo $env_ini
