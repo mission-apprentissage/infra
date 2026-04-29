@@ -128,7 +128,10 @@ function runPlaybook() {
 #	install_collection_if_needed "community.crypto"
 #	install_collection_if_needed "ansible.posix"
 #	install_collection_if_needed "community.sops"
-#
+
+	echo "DEBUG 1"
+	gpg -k
+
   ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible.cfg" ansible-playbook \
     -i "${ROOT_DIR}/.infra/inventories/env.ini" \
     -i "${env_ini}" \
