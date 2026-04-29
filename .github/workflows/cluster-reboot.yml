@@ -34,8 +34,6 @@ on:
         required: true
       OVH_APP_SECRET:
         required: true
-      MONGODB_HABILITATIONS:
-        required: true
       TOKEN_MNA_SHARED:
         description: Authentication token for accessing private repositories
         required: true
