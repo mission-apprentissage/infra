@@ -150,7 +150,7 @@ if [[ -z "${CI:-}" ]]; then
   runPlaybook "$@"
 else
 	echo "DEBUG A 1"
-	gpg -k
+	gpg --with-subkey-fingerprint -k
   runPlaybook "$@" &> /tmp/deploy.log
 	echo "DEBUG A 2"
 fi
