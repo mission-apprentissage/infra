@@ -73,7 +73,19 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
           webhook-type: incoming-webhook
           payload: |
-            text: "<!channel> :x: *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                    short: true
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    short: true
 
   setup:
     if: ${{ success() }}
@@ -91,7 +103,11 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
           webhook-type: incoming-webhook
           payload: |
-            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+            attachments:
+              - color: "#808080"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Checkout project
         uses: actions/checkout@v6
@@ -158,7 +174,19 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
           webhook-type: incoming-webhook
           payload: |
-            text: "<!channel> :x: *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                    short: true
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    short: true
 
       - name: Notify success on Slack
         uses: slackapi/slack-github-action@v2
@@ -167,4 +195,15 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
           webhook-type: incoming-webhook
           payload: |
-            text: ":white_check_mark: Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+            attachments:
+              - color: "good"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                    short: true
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    short: true
