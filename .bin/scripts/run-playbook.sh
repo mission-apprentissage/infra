@@ -110,6 +110,8 @@ function runPlaybook() {
   
   local ansible_extra_opts=()
 
+	echo "DEBUG 1"
+
   if [[ ! -z "${ANSIBLE_BECOME_PASS:-}" ]]; then
     echo "Récupération du mot de passe 'become_pass' depuis l'environnement variable ANSIBLE_BECOME_PASS" 
   else
@@ -129,7 +131,7 @@ function runPlaybook() {
 #	install_collection_if_needed "ansible.posix"
 #	install_collection_if_needed "community.sops"
 
-	echo "DEBUG 1"
+	echo "DEBUG 2"
 	gpg -k
 
   ANSIBLE_CONFIG="${ROOT_DIR}/.infra/ansible.cfg" ansible-playbook \
@@ -147,5 +149,8 @@ function runPlaybook() {
 if [[ -z "${CI:-}" ]]; then
   runPlaybook "$@"
 else
+	echo "DEBUG A 1"
+	gpg -k
   runPlaybook "$@" &> /tmp/deploy.log
+	echo "DEBUG A 2"
 fi
