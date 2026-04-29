@@ -106,14 +106,12 @@ jobs:
             text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
             attachments:
               - color: "#808080"
-                text: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
                 fields:
                   - title: "Branch"
                     value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-                    short: true
                   - title: "Commit"
                     value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-                    short: true
+                footer: "View Run | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
 
       - name: Checkout project
         uses: actions/checkout@v6
