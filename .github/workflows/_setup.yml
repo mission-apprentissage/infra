@@ -67,16 +67,13 @@ jobs:
         run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
 
       - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@2.5.0
-        if: always()
+        uses: slackapi/slack-github-action@v2
+        if: failure()
         with:
-          status: ${{ job.status }}
-          notification_title: "${{ inputs.product }} for ${{ inputs.environment }} setup failed!"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. Suspected traces of known attacks on the NPM supply chain!"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "<!channel> :x: *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
 
   setup:
     if: ${{ success() }}
@@ -86,14 +83,15 @@ jobs:
     name: Setup ${{ inputs.product }}-${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
+
       - name: Notify new deployment on Slack
-        uses: ravsamhq/notify-slack-action@2.5.0
+        uses: slackapi/slack-github-action@v2
         if: always()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
 
       - name: Checkout project
         uses: actions/checkout@v6
@@ -154,23 +152,19 @@ jobs:
         run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@2.5.0
-        if: always()
+        uses: slackapi/slack-github-action@v2
+        if: failure()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "<!channel> :x: *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
 
       - name: Notify success on Slack
-        uses: ravsamhq/notify-slack-action@2.5.0
-        if: always()
+        uses: slackapi/slack-github-action@v2
+        if: success()
         with:
-          status: ${{ job.status }}
-          notification_title: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-          notify_when: "success"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: ":white_check_mark: Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
