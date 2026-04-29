@@ -184,7 +184,7 @@ jobs:
                 fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
                 title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
                 title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>.\n\nYou can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`\n\n"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>.\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`\n\n"
                 fields:
                   - title: "Branch"
                     value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
