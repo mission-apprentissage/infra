@@ -37,7 +37,7 @@ on:
       MONGODB_HABILITATIONS:
         required: true
       TOKEN_MNA_SHARED:
-        description: Github Actions' OpenPGP private subkey
+        description: Authentication token for accessing private repositories
         required: true
 
 jobs:
