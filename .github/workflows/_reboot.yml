@@ -89,13 +89,20 @@ jobs:
         run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
 
       - name: Notify failure on Slack
-        uses: ravsamhq/notify-slack-action@2.5.0
-        if: always()
+        uses: slackapi/slack-github-action@v3
+        if: failure()
         with:
-          status: ${{ job.status }}
-          notification_title: "Reboot en ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-          message_format: "{emoji} *[${{ inputs.product }}-${{ inputs.environment }}]* *{workflow}* {status_message} in <{repo_url}|{branch}> on <{commit_url}|{commit_sha}>. You can get error logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-          notify_when: "failure"
-          mention_groups: "!channel"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "danger"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+                fields:
+                  - title: ""
+                    value: ""
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
