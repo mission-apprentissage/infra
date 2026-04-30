@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs:4.23.0-nginx-202602050102
+FROM owasp/modsecurity-crs:4.25.0-nginx-202604040104
 
 COPY files/templates /etc/nginx/templates
 COPY files/reload.sh /reload.sh
