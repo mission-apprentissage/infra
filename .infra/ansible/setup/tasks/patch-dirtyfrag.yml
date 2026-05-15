@@ -1,0 +1,18 @@
+- name: Créer le fichier de blocage Dirty Frag / Fragnesia
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/dirty-frag.conf
+    content: |
+      install esp4 /bin/false
+      install esp6 /bin/false
+      install rxrpc /bin/false
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Régénérer l'initramfs
+  ansible.builtin.command: update-initramfs -u -k all
+  changed_when: true
+
+- name: Décharger les modules vulnérables si chargés
+  ansible.builtin.shell: rmmod esp4 esp6 rxrpc 2>/dev/null; true
+  changed_when: false
