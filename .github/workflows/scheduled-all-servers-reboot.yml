@@ -16,7 +16,6 @@ jobs:
             "lab",
             "lba",
             "monitoring",
-            "sandbox",
             "tdb",
             "vpn",
           ]
