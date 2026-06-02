@@ -2,13 +2,16 @@
   community.sops.load_vars:
     file: "{{ playbook_dir }}/../env.global.yml"
     expressions: lazy-evaluation
+  tags: always
 
 - name: Chargement des variables du fichier d'habilitations avec SOPS
   community.sops.load_vars:
     file: "{{ habilitations_file_sops }}"
     expressions: lazy-evaluation
+  tags: always
 
 - import_tasks: external-variables.yml
+  tags: always
 
 - import_tasks: configure-kernel.yml
   tags: kernel
