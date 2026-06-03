@@ -1,3 +1,8 @@
+- name: Verification des certificats X.509
+  shell:
+    chdir: /opt/app
+    cmd: "/opt/app/tools/ssl/renew-certificate.sh {{ dns_name }}"
+
 - name: Add cron to ensure SSL certificate will be renewed
   ansible.builtin.cron:
     name: "renew-certificate"
