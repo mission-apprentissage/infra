@@ -6,22 +6,6 @@
 	path = products/data/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
 	branch = data
-[submodule "products/monitoring/inventories"]
-	path = products/monitoring/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = monitoring
-[submodule "products/monitoring/authorizations"]
-	path = products/monitoring/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = monitoring
-[submodule "products/mongodb/authorizations"]
-	path = products/mongodb/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = mongodb
-[submodule "products/mongodb/inventories"]
-	path = products/mongodb/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = mongodb
 [submodule "products/vpn/inventories"]
 	path = products/vpn/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
