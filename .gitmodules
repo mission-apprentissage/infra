@@ -6,14 +6,6 @@
 	path = products/data/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
 	branch = data
-[submodule "products/bal/inventories"]
-	path = products/bal/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = bal
-[submodule "products/bal/authorizations"]
-	path = products/bal/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = bal
 [submodule "products/api/inventories"]
 	path = products/api/inventories
 	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
