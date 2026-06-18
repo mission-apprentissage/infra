@@ -50,6 +50,20 @@ jobs:
             Host *
               IdentityFile ~/.ssh/github_actions
 
+      - name: Initialize the GnuPG keyring
+        run: |
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
+        env:
+          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+
+      - name: Setup SOPS
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
+          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
+
       - name: Run playbook
         run: ".bin/infra system:unban ${{ matrix.product }} ${{ matrix.environment }} ${{ inputs.ip }}"
         env:
