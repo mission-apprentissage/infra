@@ -37,9 +37,6 @@ on:
       INFRA_OPENPGP_PRIVATE_SUBKEY:
         description: Github Actions' OpenPGP private subkey
         required: true
-      TOKEN_MNA_SHARED:
-        description: Authentication token for accessing private repositories
-        required: true
 
 jobs:
   setup:
@@ -63,4 +60,3 @@ jobs:
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
       INFRA_OPENPGP_PRIVATE_SUBKEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}

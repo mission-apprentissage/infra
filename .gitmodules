@@ -1,27 +1,3 @@
-[submodule "products/data/authorizations"]
-	path = products/data/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = data
-[submodule "products/data/inventories"]
-	path = products/data/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = data
-[submodule "products/vpn/inventories"]
-	path = products/vpn/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = vpn
-[submodule "products/vpn/authorizations"]
-	path = products/vpn/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = vpn
-[submodule "products/lab/inventories"]
-	path = products/lab/inventories
-	url = git@github.com:mission-apprentissage/mna-shared-inventories.git
-	branch = lab
-[submodule "products/lab/authorizations"]
-	path = products/lab/authorizations
-	url = git@github.com:mission-apprentissage/mna-shared-authorizations.git
-	branch = lab
 [submodule ".bin/shared"]
 	path = .bin/shared
 	url = git@github.com:mission-apprentissage/mna-shared-bin.git

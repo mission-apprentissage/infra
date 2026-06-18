@@ -50,7 +50,6 @@ jobs:
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
       INFRA_OPENPGP_PRIVATE_SUBKEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}
   reboot_mongodb:
     strategy:
       fail-fast: false
@@ -70,4 +69,3 @@ jobs:
       OVH_APP_KEY: ${{ secrets.OVH_APP_KEY }}
       OVH_APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
       INFRA_OPENPGP_PRIVATE_SUBKEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-      TOKEN_MNA_SHARED: ${{ secrets.TOKEN_MNA_SHARED }}
