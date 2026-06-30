@@ -51,12 +51,14 @@
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
   register: docker_swarm_status
   when:
-    - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
 
 - name: initialisation de docker swarm
   ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
   when:
-    - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
     - docker_swarm_status.stdout.find('inactive') != -1
 
 - name: check du docker network
@@ -74,7 +76,8 @@
     cmd: docker network create -d overlay --attachable {{docker_network}}
   when:
     - network.stdout == ""
-    - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
 
 - name: création du docker network en compose mode
   ansible.builtin.shell:
@@ -82,7 +85,7 @@
     cmd: docker network create --attachable {{docker_network}}
   when:
     - network.stdout == ""
-    - env_type == 'preview' or product_name == 'monitoring' or product_name == 'data'
+    - env_type == 'preview' or product_name in ['monitoring', 'sentry', 'data']
 
 - shell: "docker node ls --format '{{ '{{' }} .ID {{ '}}' }}'"
   register: node_id
