@@ -56,7 +56,7 @@ jobs:
           echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
         env:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+          PRODUCT_OPENPGP_KEY: ${{ secrets[format('{0}_OPENPGP_PRIVATE_SUBKEY', matrix.product)] }}
 
       - name: Setup SOPS
         run: |
