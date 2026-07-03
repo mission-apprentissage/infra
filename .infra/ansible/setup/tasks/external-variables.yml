@@ -102,6 +102,11 @@
   become: false
   register: monitoring_ips
 
+- name: Récupération des adresses IPv4 du serveur sentry
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/sentry/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  become: false
+  register: sentry_ips
+
 - name: Récupération des adresses IPv4 du serveur data
   local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/data/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
@@ -130,6 +135,7 @@
     mongodb_tdb_ips: "{{ mongodb_tdb_ips.stdout_lines }}"
     mongodb_recette_ips: "{{ mongodb_recette_ips.stdout_lines }}"
     monitoring_ips: "{{ monitoring_ips.stdout_lines }}"
+    sentry_ips: "{{ sentry_ips.stdout_lines }}"
     data_ips: "{{ data_ips.stdout_lines }}"
     vpn_ips: "{{ vpn_ips.stdout_lines }}"
     mongodb_sandbox_ips: "{{ mongodb_sandbox_ips.stdout_lines }}"
