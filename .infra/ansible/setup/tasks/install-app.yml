@@ -41,7 +41,8 @@
   async: 1800
   poll: 10
   when:
-    - env_type != 'preview' and product_name != 'monitoring' and product_name != 'data'
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
 
 - name: Démarrage des services systèmes Docker Compose
   ansible.builtin.shell:
@@ -50,7 +51,7 @@
   async: 1800
   poll: 10
   when:
-    - product_name == 'monitoring' or product_name == 'data'
+    - product_name == 'monitoring' or product_name == 'sentry' or product_name == 'data'
 
 - name: Root only pour tous les répertoires applicatifs
   file:
