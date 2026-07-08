@@ -12,7 +12,7 @@ habilitations:
       gpg_keys:
         - ENC[AES256_GCM,data:zir0EYY5cOklTGdLcVSsHSBIo2vp33yFfN+DmS+KktOINYTcOVgFEg==,iv:vtv8IafJMWfyP0IeyyzU/0PHDWJELP4iK2RUqXdBunM=,tag:3u+Shd2bu4o/rX5hk+jLTA==,type:str]
       authorized_keys:
-        - ENC[AES256_GCM,data:xLcut4ZdPVohWrnXnKzHG27A1a4M0HwgYIMh8hAFWUTbEkchWg==,iv:W0gWtLrUWywblXLVhCdbTCpagOgsOeSOmhYwKGtFG8k=,tag:l2wy6y890oxI+ZmkxyX0uQ==,type:str]
+        - ENC[AES256_GCM,data:n2mRA+cqR6bc+dgoqi1W+VIT7GoM9EUIPfU7R4csOzOk6w==,iv:UYXw+dtr8gAYgrJbHy5hs1fK+U8HCSko8ceLd1NymgQ=,tag:8KBkjnBbz6uqwFEg6t09VA==,type:str]
     - name: ENC[AES256_GCM,data:fMZ9Uy1gwaOTmz9v7Q==,iv:q4FOVcBjmnbRhgiWvTYwwluJ7Y2l9fPu6YE3VvpwGJk=,tag:Si59N5Bc510ULBEkBlHhaw==,type:str]
       username: ENC[AES256_GCM,data:KtEmJg==,iv:ZmQwlEST+uywvfe4Ujc5FBtyAHwQYUtx7VzxvxbtL2c=,tag:AJSDRqaaTCaV6faRpMQ+Ug==,type:str]
       email: ENC[AES256_GCM,data:T/C6guq6fyrJ1uNVLSd+0seo43Z13pMZoA==,iv:wVJxSnLjNMEYSdckxsz4r5p1Q4P4T+qtL5q/bpICaRk=,tag:p0U4sc1y5FXAeYSdrhP55Q==,type:str]
@@ -22,8 +22,8 @@ habilitations:
         - ENC[AES256_GCM,data:jnSiZmebOdrmvhwQHs5WvIgBg3XOpic496iDfjmT,iv:cXOt6YgAn2LMLpn5sMg4adI9Mf1odiqmdViU8WE0PYI=,tag:0XdzicV3DheGuv93uVm0Cg==,type:str]
 team_gpg_keys: ENC[AES256_GCM,data:dpMWAu/yE1VqyrNUhKSIQitBA7Q7X2/d1mVNpFw0jeixp3TlnI4bLUVmlrL7JwVjPHKnnsu2ueLwIMIOBlraqBo5l7fClWdDKXLE/74EvRZB,iv:iRZgdlKTotBm8Rt2BzGMQzgcs2pbfKU+TrSSCUrBEys=,tag:tYcye+2xY0rltMjOv94oDA==,type:str]
 sops:
-    lastmodified: "2026-06-17T15:10:14Z"
-    mac: ENC[AES256_GCM,data:24uAV6FInd4nzfTw2+dqsBH9y+czY7qCYp/AtmTlqQE6lm8lMRXk1JJgysmQ0VkgzkJzTdNCEuxkbaGq1EWC1Pi+K/T2hTm3cZ2pej+EzovjPXJi68yOdlIgGVxIVz9YNS65OTRypZw9SqRGIsBsxp+ifrdN31U+ZbR59m/uf/I=,iv:nPeIiRsTyoYiJ+SCgtMLSlPYieNKJA0YPvvlsNj5faw=,tag:Q7nK2/JZ2UcKxnYPfETOXA==,type:str]
+    lastmodified: "2026-07-08T20:19:14Z"
+    mac: ENC[AES256_GCM,data:nte3momV46s8bJwI3K9zwNEAkcw/4+n3crOU2orukcaXYu7adF8mBK4DHOLBV7NUJWnCsLkOgDKm3uPKVNknVfTamdAsKBv1t5y+LrLq5DOvs1u6myb/nXm1JbbmLXts2x/sYZv/fnsZ8GSmDhc1bPWhpa5ICAkKsJ0wWICwlXE=,iv:FnAejEiGpAPCoA1yTNxWouKHQfRpsyMuY4DSsEYuIKg=,tag:BiR+ssc/8Kor36TcDKIR3A==,type:str]
     pgp:
         - created_at: "2026-02-20T09:48:50Z"
           enc: |-
@@ -78,4 +78,4 @@ sops:
             -----END PGP MESSAGE-----
           fp: 238A951080ACC247E15C99D2096694D347AD79F0
     unencrypted_suffix: _unencrypted
-    version: 3.11.0
+    version: 3.13.2

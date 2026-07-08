@@ -12,11 +12,11 @@ habilitations:
       gpg_keys:
         - ENC[AES256_GCM,data:HyQDYQ4eBZMUYNFP8D8je/VNoGbq+840PX6R7p1KbrAuvBG17F/DJQ==,iv:zgV4k4ET7Be7vnmBXyuLO5r8zaL75nm2TjLTVw/ze9I=,tag:sYz4JDr7OPiAS1kDtip2gg==,type:str]
       authorized_keys:
-        - ENC[AES256_GCM,data:1cgYNNqC7Fn0eDUTk5nynv1vQjH95QtD5sPdnilY8vb5WtZ/8A==,iv:zTTiHfb1XXcMlUXcJj61JXNmGAKQXO1APWdp8ltiAwg=,tag:6D5gkZwhj3gqwaqAmh92Jw==,type:str]
+        - ENC[AES256_GCM,data:03rgIFLa2qS0rB1Ce8ZogxN/X2FtfDO2QLnNORVJmdHn1A==,iv:J5ym6EAyijKdzPmVliCE1I5V4ibSxiNG3huHALDyJug=,tag:sPLJPwRccps5M6iZiL7pcg==,type:str]
 team_gpg_keys: ENC[AES256_GCM,data:wqoAttEut2Dg6tJ+ejSM+k+Ev78d0zAtiyLI7/kEaZZ9eFe0ZkVfgju2E616KU9cjWDJ2kP1QpG7rHuY2xsi5KIh1ZrqTfIFT8LfoZOsyOKn,iv:hKkEsMy9Uq1ZibBnnWbRGMSyGtDD4DuGvF9scAV00Vc=,tag:ufYq8BTGcPNHGgAiCLImSA==,type:str]
 sops:
-    lastmodified: "2026-03-04T21:13:57Z"
-    mac: ENC[AES256_GCM,data:MrURxJA/EDFfCDJH7Qtv2xKFkagE4TtSOhXOWy/S4j4oukYkHmqjPV/A+eIzCNTyV9NmRuIYIHEJDXgORT0q8XFbOV2hZQ/p6bX0rqJSNEDEDMeIHo/6lsOqS+0iaCxZXk35Ur0B+VN41OYw73a/lAIkVuDpIJdjV7JBZ1F48Ls=,iv:6ZnSv2zuFfDUULUdsI9REZvejwcB8A+HM1krlwTiLHs=,tag:L1uw5K5tgEHNzL7SSYhOmA==,type:str]
+    lastmodified: "2026-07-08T20:19:58Z"
+    mac: ENC[AES256_GCM,data:v3es8MJfIWCWxhhSXJ60jtFGY93pTw6CB7oKwm1ySTbYDSAgklMxCYJxBFVuhue/JF7vHdGMiAvOx3a6A298cMKibwHXdBfoGG0z7WDmZodWJaYBmfZ/CA6fa2U53qTlNAjwTNjX7hQgMMBYgtYc8OYqDfgDuau6PiJf2cSXQwE=,iv:Y+cgL7731gl9zKaHpJxbM+d4B4TO0e8CiY/1b035n/Y=,tag:UBy3/EDVuFIUZEy3Onp9Qg==,type:str]
     pgp:
         - created_at: "2026-02-20T22:03:54Z"
           enc: |-
@@ -58,4 +58,4 @@ sops:
             -----END PGP MESSAGE-----
           fp: 1BE4ACA42D290C747BE464436D46D2C330CCC5BD
     unencrypted_suffix: _unencrypted
-    version: 3.11.0
+    version: 3.13.2
