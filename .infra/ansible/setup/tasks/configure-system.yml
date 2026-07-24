@@ -52,6 +52,26 @@
     group: root
     mode: '0755'
 
+- name: Correctif pour l'ajustement de la hauteur d'un terminal pour tmux
+  ansible.builtin.blockinfile:
+    path: /root/.bashrc
+    marker: "# {mark} ANSIBLE MANAGED - PTY size resync"
+    marker_begin: "\nBEGIN"
+    insertafter: "shopt -s checkwinsize"
+    block: |
+
+      # Resync terminal size from parent PTY (fix sudo -i PTY size)
+      _resync_tty_size() {
+          PARENT_TTY=$(ps -o tty= -p $PPID 2>/dev/null | tr -d ' ')
+          if [ -n "$PARENT_TTY" ] && [ -r "/dev/$PARENT_TTY" ]; then
+              read ROWS COLS < <(stty size < /dev/$PARENT_TTY)
+              stty rows $ROWS cols $COLS
+          fi
+      }
+
+      _resync_tty_size
+      trap '_resync_tty_size' SIGWINCH
+
 - include_role:
     name: patrickjahns.promtail
     apply:
