@@ -56,7 +56,6 @@
   ansible.builtin.blockinfile:
     path: /root/.bashrc
     marker: "# {mark} ANSIBLE MANAGED - PTY size resync"
-    marker_begin: "\nBEGIN"
     insertafter: "shopt -s checkwinsize"
     block: |
 
