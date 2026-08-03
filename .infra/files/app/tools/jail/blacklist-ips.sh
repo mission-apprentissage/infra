@@ -13,6 +13,8 @@ done
 ips+=(3.92.127.83)
 ips+=(82.65.116.94)
 ips+=(82.165.82.41)
+# scraper Hetzner (UA "node") — saturation MongoDB LBA le 2026-08-03
+ips+=(94.130.70.34)
 
 # specific blacklist
 bash /opt/app/tools/jail/ban-ip.sh "${ips[@]}"
