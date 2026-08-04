@@ -85,11 +85,11 @@
 - import_tasks: configure-auth.yml
   tags: auth
 
-- import_tasks: renew-ssl-certificate.yml
-  tags: ssl
-
 - import_tasks: install-app.yml
   tags: app
+
+- import_tasks: renew-ssl-certificate.yml
+  tags: ssl
 
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban
