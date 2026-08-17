@@ -59,7 +59,7 @@
     state: directory
     owner: root
     group: root
-    mode: 770
+    mode: "0770"
 
 - name: Install htpasswd
   apt:
