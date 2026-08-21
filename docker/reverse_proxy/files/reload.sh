@@ -15,7 +15,7 @@ nginx -t
 # les entrées PDF s'identifient via l'en-tête "KEY:" (l'URL en clair) présent
 # dans chaque fichier, pas via un motif sur le nom du fichier.
 
-{ grep -irlZ "^KEY: .*\.pdf" /tmp/nginx_cache/ || true; } \
+{ grep -irlZE "^KEY: .*\.pdf(\?|$)" /tmp/nginx_cache/ || true; } \
   | xargs -0r rm -f
 
 # Trigger nginx reload
