@@ -10,10 +10,13 @@ set -euo pipefail
 
 nginx -t
 
-# Remove cache files
+# Remove PDF cache files
+# Les fichiers de cache Nginx sont nommés par hash MD5, sans extension :
+# les entrées PDF s'identifient via l'en-tête "KEY:" (l'URL en clair) présent
+# dans chaque fichier, pas via un motif sur le nom du fichier.
 
-find /tmp/nginx_cache/ -maxdepth 1 -type f -name "*.pdf" -print0 \
-  | xargs -0 rm -f
+{ grep -rlZ "^KEY: .*\.pdf" /tmp/nginx_cache/ 2> /dev/null || true; } \
+  | xargs -0r rm -f
 
 # Trigger nginx reload
 
