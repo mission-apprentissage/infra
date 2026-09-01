@@ -1,0 +1,11 @@
+location / {
+    set $upstream http://upstream:80;
+    include includes/proxy.conf;
+}
+
+# Exerce l'autre include de proxy, qui porte sa propre directive proxy_cache.
+# $2 est le chemin réel transmis à l'amont (proxy_pass $upstream/$2$is_args$args).
+location ~ ^/(sub)/(.*)$ {
+    set $upstream http://upstream:80;
+    include includes/proxy_sub_path.conf;
+}

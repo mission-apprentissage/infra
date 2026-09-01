@@ -1,0 +1,57 @@
+# Politique de cache du reverse proxy.
+#
+# Tout est regroupé ici, au niveau http. `proxy_no_cache` et `proxy_cache_bypass` ne sont pas
+# cumulatifs entre niveaux : nginx n'hérite du niveau parent que si le niveau courant ne déclare
+# aucune directive du même nom. Une seule ligne `proxy_no_cache` dans un include de location
+# écraserait donc silencieusement toutes les conditions posées ici. Vérifié en ajoutant
+# `proxy_no_cache $arg__rsc;` dans la location de test : le document Next redevenait servi depuis
+# le cache, périmé, en HIT. Ne pas redéclarer ces deux directives ailleurs.
+#
+# La zone `main` (déclarée par `proxy_cache_path` dans nginx.conf) ne définit aucun
+# `proxy_cache_valid` : nginx suit donc à la lettre le `Cache-Control` de l'origine. C'est le
+# comportement voulu pour tout ce qui est réellement immuable (les assets versionnés par un hash
+# de contenu, /_next/static/**, les images et polices du dossier public), et c'est ce cache-là
+# qui absorbe l'essentiel du trafic à la place des conteneurs applicatifs.
+#
+# 1. Requêtes RSC de Next.js
+#
+# Next suffixe ses requêtes RSC d'un cache-buster unique (?_rsc=xxx). Chaque valeur créerait une
+# entrée distincte, jamais resservie : ~25 entrées pour la seule page /salaire-alternant en prod,
+# une par combinaison _rsc/UTM. On ne les stocke pas et on ne les cherche pas dans le cache.
+#
+# 2. Réponses document de Next.js
+#
+# Une application Next configurée avec `cacheComponents` renvoie `Cache-Control: s-maxage=31536000`
+# sur ses réponses document (HTML prérendu et payloads RSC). Ce `s-maxage` d'un an vise un CDN
+# purgé à chaque déploiement : ce n'est pas une intention côté proxy. Or nginx n'a aucun mécanisme
+# de purge, et `inactive=1d` n'évince que les entrées non consultées — jamais une page qui reçoit
+# du trafic. Conséquence : le HTML d'une page reste servi pendant un an alors que les chunks JS
+# qu'il référence sont renommés à chaque build. Les chunks partent en 404, React échoue sur un
+# ChunkLoadError, la page n'est jamais hydratée.
+# C'est l'incident LBA du 2026-09-01 sur /1jeune1solution-recruteurs : formulaire SIRET
+# inutilisable, réparé en purgeant /tmp/nginx_cache.
+#
+# Le critère est l'en-tête de réponse de l'amont, pas l'URI : seul Next émet `X-Nextjs-Prerender`
+# et `X-Nextjs-Cache`, et uniquement sur ses réponses document. Mesuré sur la prod LBA
+# le 2026-09-01 :
+#
+#   /1jeune1solution-recruteurs  cc=s-maxage=31536000                 x-nextjs-prerender: 1
+#   /  et  /recherche (PPR)      cc=private, no-cache, no-store       x-nextjs-prerender: 1
+#   /_next/static/chunks/*.js    cc=public, max-age=31536000, immut.  (aucun x-nextjs-*)
+#   /favicon.ico                 cc=public, max-age=2592000, immut.   (aucun x-nextjs-*)
+#   /api/**                      (aucun Cache-Control)                (aucun x-nextjs-*)
+#
+# Les assets et l'API ne portent pas ces en-têtes : leur sémantique de cache est inchangée. On
+# n'utilise volontairement pas `proxy_ignore_headers Cache-Control`, qui écraserait aussi la
+# sémantique de cache des réponses d'API.
+#
+# `proxy_no_cache` est évalué après réception des en-têtes de la réponse amont, il empêche
+# l'écriture de l'entrée mais pas la lecture d'une entrée déjà présente. Les entrées périmées
+# existantes disparaissent avec le conteneur (/tmp/nginx_cache est dans son système de fichiers,
+# pas un volume) ; côté produit, le playbook de déploiement purge en plus le cache à chaque mise
+# en production.
+
+# $arg__rsc est évalué avant l'appel à l'amont, il peut donc aussi court-circuiter la lecture.
+# Les en-têtes de réponse, eux, ne sont connus qu'après : ils ne peuvent servir qu'au no_cache.
+proxy_cache_bypass $arg__rsc;
+proxy_no_cache $arg__rsc $upstream_http_x_nextjs_prerender $upstream_http_x_nextjs_cache;

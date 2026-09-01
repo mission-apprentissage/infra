@@ -1,0 +1,21 @@
+# Stack du test de politique de cache (voir run.sh).
+#
+# Divergence assumée avec ../docker-compose.yml, qui référence une image publiée
+# (ghcr.io/mission-apprentissage/mna_reverse_proxy:0.0.7-beta.1) : ici on construit depuis
+# ../.. pour exercer les templates du working tree. Un test de conf qui tournerait sur une
+# image figée ne prouverait rien sur le changement en cours de revue.
+services:
+  reverse_proxy:
+    build: ../..
+    ports: ["127.0.0.1:18080:8080"]
+    environment:
+      - SERVER_NAME=localhost
+      - NGINX_ALWAYS_TLS_REDIRECT=false
+      - MODSEC_RULE_ENGINE=Off
+    volumes:
+      - ./locations/:/etc/nginx/templates/locations/:ro
+  upstream:
+    image: nginx:1.29-alpine
+    volumes:
+      - ./upstream/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./srv/:/srv/:ro

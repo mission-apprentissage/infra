@@ -3,3 +3,8 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubdomains" alway
 add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy "no-referrer-when-downgrade";
+# Permet de vérifier depuis l'extérieur si une réponse sort du cache proxy (HIT/MISS/BYPASS/-),
+# sans avoir à lire la conf dans le conteneur. Attention : `add_header` n'est pas cumulatif —
+# une location qui redéclare ses propres `add_header` (ex. extra-includes/proxy-iframe.conf côté
+# produit) perd tous ceux hérités, celui-ci compris.
+add_header X-Cache-Status $upstream_cache_status always;
