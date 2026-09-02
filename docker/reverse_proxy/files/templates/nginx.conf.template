@@ -15,7 +15,8 @@ http {
     client_body_timeout 10s;
     client_header_timeout 10s;
 
-    proxy_cache_path /tmp/nginx_cache keys_zone=main:200m inactive=1d;
+    # Politique de cache (ce qui est stocké et ce qui ne l'est pas) : conf.d/cache.conf
+    proxy_cache_path /tmp/nginx_cache keys_zone=main:200m inactive=1d max_size=1g;
     
     sendfile on;
 
