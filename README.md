@@ -30,6 +30,7 @@ L'image est basée sur l'image officielle de fluentd et ajoute:
   - du firewall OVH
   - d'accès ssh (auth.log)
   - système (syslog)
+- un masquage des paramètres d'URL sensibles (`token`, `jwt`, `email`, `password`, `api_key`, ...) dans le champ brut des logs (Nginx access et error, conteneurs applicatifs) avant expédition (`docker/fluentd/conf.d/01_redact.conf`, test : `docker/fluentd/tests/redact.sh`)
 
 ## Configuration des serveurs
 
