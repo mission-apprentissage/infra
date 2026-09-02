@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
-  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fi
 
 if [ -z "${ROOT_DIR:-}" ]; then

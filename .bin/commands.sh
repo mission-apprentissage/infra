@@ -332,24 +332,12 @@ _meta_help["ssh:known_hosts:update"]="Update SSH known host for a product"
 
 function ssh:known_hosts:update() {
 
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
-
-  if [ -z "$ips" ]; then
+  if ! ssh:known_hosts:update:local "${PRODUCT_NAME}"; then
     exit 1
   fi
-
-  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519 ${ips} 2> /dev/null)
-
-  for ip in ${ips}; do
-    if [[ "${ip}" != "x.x.x.x" ]]; then
-      ssh-keygen -R ${ip}
-    fi
-  done
-
-  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts 2> /dev/null
 
   read -p "Do you want to update github variable? [Y/n]" response
 
@@ -361,10 +349,85 @@ function ssh:known_hosts:update() {
       ;;
   esac
 
+  ssh:known_hosts:update:github "${PRODUCT_NAME}"
+
+}
+
+# Met à jour ~/.ssh/known_hosts pour un produit et renseigne la variable
+# globale SSH_KNOWN_HOSTS. Retourne 1 (sans exit) pour pouvoir être
+# enchaîné sur plusieurs produits.
+function ssh:known_hosts:update:local() {
+
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
+
+  # Les entrées placeholder x.x.x.x des inventaires ne sont pas scannables
+  local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}" | tr ' ' '\n' | grep -v '^x\.x\.x\.x$' | tr '\n' ' ' || true)
+
+  if [ -z "${ips// /}" ]; then
+    >&2 echo "${PRODUCT_NAME}: aucune IP scannable dans l'inventaire"
+    return 1
+  fi
+
+  # ssh-keyscan émet les commentaires '# ip:22 ...' sur stdout : on les
+  # filtre pour ne pas les accumuler dans known_hosts ni dans la variable
+  # GitHub. Sans clé retournée (hosts injoignables), keyscan sort en erreur.
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null | grep -v '^#' || true)
+
+  if [ -z "${SSH_KNOWN_HOSTS}" ]; then
+    >&2 echo "${PRODUCT_NAME}: ssh-keyscan n'a retourné aucune clé pour : ${ips}"
+    return 1
+  fi
+
+  mkdir -p ~/.ssh
+  touch ~/.ssh/known_hosts
+
+  for ip in ${ips}; do
+    ssh-keygen -R "${ip}" > /dev/null 2>&1 || true
+  done
+
+  # Purge des commentaires laissés par les anciennes versions de la commande
+  local tmp_file=$(mktemp)
+  grep -vE "^# ($(echo "${ips}" | xargs | tr ' ' '|')):22 " ~/.ssh/known_hosts > "${tmp_file}" || true
+  cat "${tmp_file}" > ~/.ssh/known_hosts
+  rm -f "${tmp_file}" ~/.ssh/known_hosts.old
+
+  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+
+  echo "${PRODUCT_NAME}: known_hosts mis à jour (${ips})"
+
+}
+
+function ssh:known_hosts:update:github() {
+
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
+
   local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
-  gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
+  gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}"
   gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "${REPO_INFRA}"
+
+}
+
+_meta_help["ssh:known_hosts:update:all"]="Update local SSH known hosts for all products"
+
+function ssh:known_hosts:update:all() {
+
+  local failed=""
+
+  for product_dir in "${ROOT_DIR}/products"/*/; do
+
+    local product=$(basename "${product_dir}")
+
+    if ! ssh:known_hosts:update:local "${product}"; then
+      failed="${failed} ${product}"
+    fi
+
+  done
+
+  if [ -n "${failed}" ]; then
+    >&2 echo "Échec de mise à jour pour :${failed}"
+    exit 1
+  fi
 
 }
 
