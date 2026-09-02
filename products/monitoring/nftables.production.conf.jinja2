@@ -49,6 +49,12 @@ define VPN = {
 {% endfor %}
 }
 
+define MATOMO = {
+{% for ip in matomo_production_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {

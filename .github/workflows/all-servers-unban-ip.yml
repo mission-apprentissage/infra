@@ -18,6 +18,7 @@ jobs:
             "bal",
             "data",
             "lba",
+            "matomo",
             "monitoring",
             "sentry",
             "tdb",

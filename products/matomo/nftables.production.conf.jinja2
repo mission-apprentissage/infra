@@ -1,0 +1,59 @@
+#!/usr/sbin/nft -f
+
+# Serveur Matomo (natif : nginx + php-fpm + MariaDB sur l'hôte, reverse proxy en conteneur).
+#
+# Exposition réseau voulue :
+#   - 22       : SSH (wan)
+#   - 80/443   : reverse proxy en conteneur (forward vers $DOCKER_NETWORK)
+#   - 8080     : nginx hôte, upstream du reverse proxy. Écoute 0.0.0.0 mais n'est joignable
+#                que depuis les conteneurs via docker_gwbridge (accepté dans `input`) ;
+#                jamais ouvert dans `input-wan`.
+#   - 3306     : MariaDB liée à 127.0.0.1 (socket unix pour Matomo) : aucune règle nécessaire.
+#   - 444/tcp  : sortant vers percona.apprentissage.beta.gouv.fr (agent PMM), pas de règle entrante.
+# Le serveur est un Swarm mono-nœud : pas d'ouverture des ports 2377/7946/4789.
+
+table ip firewall
+delete table ip firewall
+
+define DOCKER_NETWORK = {
+  172.16.0.0/12,
+}
+
+table ip firewall {
+
+  chain input {
+
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "br-*" accept
+    iifname "wan" jump input-wan
+
+  }
+
+  chain input-wan {
+
+    tcp dport 22 accept
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
+
+  }
+
+}
