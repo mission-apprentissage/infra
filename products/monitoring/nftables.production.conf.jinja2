@@ -49,6 +49,12 @@ define VPN = {
 {% endfor %}
 }
 
+define MATOMO = {
+{% for ip in matomo_production_ips %}
+  {{ ip }},
+{% endfor %}
+}
+
 table ip firewall {
 
   chain input {
@@ -94,6 +100,9 @@ table ip firewall {
     iifname "wan" ip saddr $MONGODB_BAL_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
     iifname "wan" ip saddr $MONGODB_TDB_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
     iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+
+    # Agent PMM du serveur Matomo (MariaDB)
+    iifname "wan" ip saddr $MATOMO ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
   }
 

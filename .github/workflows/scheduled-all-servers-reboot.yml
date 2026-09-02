@@ -14,6 +14,7 @@ jobs:
             "bal",
             "data",
             "lba",
+            "matomo",
             "monitoring",
             "sentry",
             "tdb",
@@ -32,6 +33,8 @@ jobs:
           - product: "bal"
             environment: "production"
           - product: "lba"
+            environment: "production"
+          - product: "matomo"
             environment: "production"
           - product: "tdb"
             environment: "production"
