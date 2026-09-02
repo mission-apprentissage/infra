@@ -325,7 +325,7 @@ function ssh:known_hosts:print() {
     exit 1
   fi
 
-  ssh-keyscan -t ed25519,rsa ${ips}
+  ssh-keyscan -t ed25519 ${ips}
 
 }
 _meta_help["ssh:known_hosts:update"]="Update SSH known host for a product"
@@ -450,13 +450,14 @@ function ssh:config() {
   local config=""
 
   for i in "${!ips[@]}"; do
+
     config="${config}
 Host ${hostnames[$i]} ${ips[$i]}
   Port 22
   User ${username}
   Hostname ${ips[$i]}
 "
-  done;
+  done
 
   if ! grep -qF 'Include ~/.ssh/config.d/*.config' ~/.ssh/config; then
     echo '' >> ~/.ssh/config

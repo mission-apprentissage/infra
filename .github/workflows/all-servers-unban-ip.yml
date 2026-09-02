@@ -17,7 +17,6 @@ jobs:
             "api",
             "bal",
             "data",
-            "lab",
             "lba",
             "monitoring",
             "sentry",

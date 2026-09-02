@@ -15,6 +15,9 @@ proxy_buffer_size          128k;
 proxy_buffers              4 256k;
 proxy_busy_buffers_size    256k;
 proxy_request_buffering off;
+# Ce qui est stocké et ce qui ne l'est pas se décide dans conf.d/cache.conf, au niveau http.
+# Ne pas redéclarer proxy_no_cache ni proxy_cache_bypass ici : ces directives ne sont pas
+# cumulatives, une déclaration à ce niveau écraserait toutes les conditions de cache.conf.
 proxy_cache main;
 proxy_connect_timeout 60s;
 proxy_read_timeout 36000s;

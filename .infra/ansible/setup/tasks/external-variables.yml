@@ -54,13 +54,6 @@
   become: false
   register: mongodb_bal_ips
 
-### LAB
-
-- name: Récupération des adresses IPv4 des serveurs lab de production 
-  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/lab/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: lab_production_ips
-
 ### TDB
 
 - name: Récupération des adresses IPv4 des serveurs tdb de production 
@@ -128,7 +121,6 @@
     bal_production_ips: "{{ bal_production_ips.stdout_lines }}"
     bal_recette_ips: "{{ bal_recette_ips.stdout_lines }}"
     mongodb_bal_ips: "{{ mongodb_bal_ips.stdout_lines }}"
-    lab_production_ips: "{{ lab_production_ips.stdout_lines }}"
     tdb_production_ips: "{{ tdb_production_ips.stdout_lines }}"
     tdb_preprod_ips: "{{ tdb_preprod_ips.stdout_lines }}"
     tdb_recette_ips: "{{ tdb_recette_ips.stdout_lines }}"
