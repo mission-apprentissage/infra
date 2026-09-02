@@ -12,6 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # matomo : à ajouter une fois le serveur provisionné (vars/secrets matomo_SSH_KNOWN_HOSTS et
+        # matomo_OPENPGP_PRIVATE_SUBKEY créés), sinon les étapes SSH et GPG échouent avec des valeurs vides.
         product:
           [
             "api",

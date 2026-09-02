@@ -6,6 +6,8 @@ on:
         description: JSON product array
         type: string
         required: true
+        # matomo : à ajouter une fois le serveur provisionné (vars/secrets matomo_SSH_KNOWN_HOSTS et
+        # matomo_OPENPGP_PRIVATE_SUBKEY créés), sinon les étapes SSH et GPG échouent avec des valeurs vides.
         default: '["api", "bal", "data", "lba", "monitoring", "sentry", "tdb", "vpn"]'
       environments:
         description: JSON environment array
