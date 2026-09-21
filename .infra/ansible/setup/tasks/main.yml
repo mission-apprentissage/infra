@@ -46,14 +46,14 @@
 
 - import_tasks: configure-kernel.yml
   tags: kernel
-  when: add_kernel_modification == true
+  when: add_kernel_modification == True
 
 - import_tasks: patch-dirtyfrag.yml
   tags: dirtyfrag
 
 - import_tasks: configure-nvidia-gpu.yml
   tags: nvidia
-  when: gpu_instance == 'true'
+  when: gpu_instance == True
 
 - import_tasks: configure-swap.yml
   tags: swap
@@ -90,6 +90,7 @@
 
 - import_tasks: renew-ssl-certificate.yml
   tags: ssl
+  when: certbot == True
 
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban

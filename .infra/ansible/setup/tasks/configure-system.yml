@@ -8,13 +8,13 @@
   apt:
     name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
-  when: gpu_instance == 'false'
+  when: gpu_instance == False
 
 - name: Suppression de certains paquets
   apt:
     name: ["tcpdump", "gdb", "libX11", "telnet", "ftp"]
     state: absent
-  when: gpu_instance == 'true'
+  when: gpu_instance == True
 
 - name: Installation de certains paquets
   apt:
