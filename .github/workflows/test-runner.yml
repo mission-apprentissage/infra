@@ -1,6 +1,9 @@
 name: Test du runner privé
 
 on:
+  push:
+    branches:
+      - feat-runner-image
   workflow_dispatch:
 
 jobs:
