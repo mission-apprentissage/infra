@@ -1,0 +1,28 @@
+name: Test du runner privé
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted, deploy-lba]
+    steps:
+      - name: Identité et environnement
+        run: |
+          whoami
+          id
+          hostname
+          pwd
+
+      - name: Verification Ansible
+        run: ansible --version
+
+      - name: Verification clé SSH montée
+        run: |
+          ls -l ~/.ssh/
+          cat ~/.ssh/config
+
+      - name: Test de connexion via bastions
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=5 \
+            runner-deploy@bal.staging.ssh.mna.internal id
