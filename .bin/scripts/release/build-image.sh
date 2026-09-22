@@ -107,9 +107,14 @@ set +e
 docker buildx create --name infra --driver docker-container --bootstrap --use 2> /dev/null
 set -e
 
+PLATFORMS="linux/amd64,linux/arm64"
+if [ -f "$ROOT_DIR/docker/$TAG_PREFIX/PLATFORMS" ]; then
+  PLATFORMS=$(cat "$ROOT_DIR/docker/$TAG_PREFIX/PLATFORMS")
+fi
+
 echo "Building $TAG_PREFIX:$NEXT_VERSION ..."
 docker buildx build "$ROOT_DIR/docker/$TAG_PREFIX" \
-      --platform linux/amd64,linux/arm64 \
+      --platform $PLATFORMS \
       --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:"$NEXT_VERSION" \
       --tag ghcr.io/$GITHUB_ORGANIZATION/${USER_GROUP}_$TAG_PREFIX:$(get_channel $NEXT_VERSION) \
       --label "org.opencontainers.image.source=$REPO_INFRA" \

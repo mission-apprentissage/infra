@@ -45,6 +45,12 @@ function release:docker-stack-wait() {
   "$SCRIPT_DIR/release/build-image.sh" docker-stack-wait "$@"
 }
 
+_meta_help["release:runner-lba"]="Release runner-lba (runner GitHub Actions LBA) Docker image"
+
+function release:runner() {
+  "$SCRIPT_DIR/release/build-image.sh" runner "$@"
+}
+
 _meta_help["firewall:setup"]="Setup OVHcloud firewall"
 
 function firewall:setup() {
