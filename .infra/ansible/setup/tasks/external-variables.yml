@@ -110,6 +110,11 @@
   become: false
   register: vpn_ips
 
+- name: Récupération des adresses IPv4 du serveur matomo
+  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/matomo/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
+  become: false
+  register: matomo_production_ips
+
 - set_fact:
     lba_production_ips: "{{ lba_production_ips.stdout_lines }}"
     lba_recette_ips: "{{ lba_recette_ips.stdout_lines }}"
@@ -131,4 +136,5 @@
     data_ips: "{{ data_ips.stdout_lines }}"
     vpn_ips: "{{ vpn_ips.stdout_lines }}"
     mongodb_sandbox_ips: "{{ mongodb_sandbox_ips.stdout_lines }}"
+    matomo_production_ips: "{{ matomo_production_ips.stdout_lines }}"
 

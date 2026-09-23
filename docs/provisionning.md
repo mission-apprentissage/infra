@@ -103,4 +103,9 @@ Veuillez mettre à jour les matrix dans les actions Github.
 
 ## Sauvegarde de la base de données
 
-Le mécanisme de sauvegarde est géré par le (cluster mongoDB)[https://github.com/mission-apprentissage/mongodb]
+Le mécanisme de sauvegarde est géré par le dépôt de chaque produit qui héberge une base de données :
+
+- MongoDB : [mission-apprentissage/mongodb](https://github.com/mission-apprentissage/mongodb) (grappes des produits applicatifs)
+- MariaDB de Matomo : [mission-apprentissage/matomo](https://github.com/mission-apprentissage/matomo) (dépôt privé)
+
+Dans les deux cas : dump quotidien à 07h00, chiffré GPG vers les clés de l'équipe (`/opt/app/tools/gpg/encrypt.sh`), déposé sur le bucket S3 OVH `<dns_name>-backups`, avec remontée du code retour en métrique Prometheus (`export-cron-status-prom.sh`).
