@@ -49,10 +49,8 @@ define VPN = {
 {% endfor %}
 }
 
-define MATOMO = {
-{% for ip in matomo_production_ips %}
-  {{ ip }},
-{% endfor %}
+define ANALYTICS = {
+ 10.20.180.1,
 }
 
 table ip firewall {
@@ -104,7 +102,7 @@ table ip firewall {
     ### Temporary rule to ensure the ACME http-01 challenge with Let's Encrypt
     iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
     ###
-    
+ 
     #iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
     #iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
 
@@ -115,8 +113,8 @@ table ip firewall {
     iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
     ip saddr $DOCKER_NETWORK oif "vlan70" accept
-		iifname "vlan70" ip saddr 10.20.0.0/16 ip daddr $DOCKER_NETWORK ct original proto-dst 443 accept
-		iifname "vlan70" ip saddr 10.20.180.1 ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "vlan70" ip saddr 10.20.0.0/16 ip daddr $DOCKER_NETWORK ct original proto-dst 443 accept
+    iifname "vlan70" ip saddr $ANALYTICS ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
   }
 

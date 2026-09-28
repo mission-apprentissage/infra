@@ -44,11 +44,6 @@
   become: false
   register: bal_production_ips
 
-- name: Récupération des adresses IPv4 des serveurs bal de recette 
-  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l recette | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: bal_recette_ips
-
 - name: Récupération des adresses IPv4 de la grappe mongodb-bal-x
   local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
@@ -110,11 +105,6 @@
   become: false
   register: vpn_ips
 
-- name: Récupération des adresses IPv4 du serveur matomo
-  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/matomo/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: matomo_production_ips
-
 - set_fact:
     lba_production_ips: "{{ lba_production_ips.stdout_lines }}"
     lba_recette_ips: "{{ lba_recette_ips.stdout_lines }}"
@@ -124,7 +114,6 @@
     api_recette_ips: "{{ api_recette_ips.stdout_lines }}"
     mongodb_api_ips: "{{ mongodb_api_ips.stdout_lines }}"
     bal_production_ips: "{{ bal_production_ips.stdout_lines }}"
-    bal_recette_ips: "{{ bal_recette_ips.stdout_lines }}"
     mongodb_bal_ips: "{{ mongodb_bal_ips.stdout_lines }}"
     tdb_production_ips: "{{ tdb_production_ips.stdout_lines }}"
     tdb_preprod_ips: "{{ tdb_preprod_ips.stdout_lines }}"
@@ -136,5 +125,4 @@
     data_ips: "{{ data_ips.stdout_lines }}"
     vpn_ips: "{{ vpn_ips.stdout_lines }}"
     mongodb_sandbox_ips: "{{ mongodb_sandbox_ips.stdout_lines }}"
-    matomo_production_ips: "{{ matomo_production_ips.stdout_lines }}"
 
