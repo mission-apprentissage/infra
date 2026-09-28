@@ -31,6 +31,8 @@ jobs:
             environment: "production"
           - product: "bal"
             environment: "production"
+          - product: "bal"
+            environment: "recette"
           - product: "lba"
             environment: "production"
           - product: "tdb"

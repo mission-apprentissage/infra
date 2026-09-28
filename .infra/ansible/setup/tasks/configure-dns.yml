@@ -1,6 +1,6 @@
 - name: Configuration du service 'systemd-resolved'
   ansible.builtin.copy:
-    src: "{{playbook_dir}}/../files/systemd/resolved.conf"
+    src: "{{ playbook_dir }}/../files/systemd/resolved.conf"
     dest: /etc/systemd/resolved.conf
     owner: root
     group: root

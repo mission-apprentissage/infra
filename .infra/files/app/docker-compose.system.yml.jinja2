@@ -53,8 +53,14 @@ services:
       - MODSEC_REQ_BODY_NOFILES_LIMIT=5243904
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
     volumes:
+{% if certbot | default(true) | bool %}
+      # certificats émis par Certbot (ancienne infra) - arborescence live/<fqdn>/ fournie par Certbot
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
+{% else %}
+      # certificats deposes par pki (nouvelle infra) - un sous-repertoire <fqdn>/ par certificat
+      - /opt/app/configs/reverse_proxy/ssl/:/etc/nginx/ssl/live/:ro
+{% endif %}
       - /opt/app/configs/reverse_proxy/locations/:/etc/nginx/templates/locations/:ro
       - /opt/app/configs/reverse_proxy/system/:/etc/nginx/system/:ro
       - /opt/app/configs/reverse_proxy/extra-conf.d/:/etc/nginx/templates/extra-conf.d/:ro

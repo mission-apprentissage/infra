@@ -63,12 +63,25 @@ table ip firewall {
     iifname "docker_gwbridge" accept
     iifname "br-*" accept
     iifname "wan" jump input-wan
+    iifname "vlan70" jump input-vlan70
+    iifname "vlan75" jump input-vlan75
 
   }
 
   chain input-wan {
 
     tcp dport 22 accept
+
+  }
+
+  chain input-vlan70 {
+
+  }
+
+  chain input-vlan75 {
+
+    ip saddr 10.20.75.241 tcp dport 22 accept
+    ip saddr 10.20.75.242 tcp dport 22 accept
 
   }
 

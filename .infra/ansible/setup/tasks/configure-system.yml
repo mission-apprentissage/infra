@@ -8,13 +8,13 @@
   apt:
     name: ["tcpdump", "gdb", "libX11", "telnet", "gcc", "ftp"]
     state: absent
-  when: gpu_instance == 'false'
+  when: gpu_instance == False
 
 - name: Suppression de certains paquets
   apt:
     name: ["tcpdump", "gdb", "libX11", "telnet", "ftp"]
     state: absent
-  when: gpu_instance == 'true'
+  when: gpu_instance == True
 
 - name: Installation de certains paquets
   apt:
@@ -46,7 +46,7 @@
 
 - name: Configuration du multiplexeur de terminaux tmux
   template:
-    src: "{{playbook_dir}}/../files/tmux/tmux.conf.template.jinja2"
+    src: "{{ playbook_dir }}/../files/tmux/tmux.conf.template.jinja2"
     dest: /etc/tmux.conf
     owner: root
     group: root
@@ -152,6 +152,7 @@
     state: present
     regexp: '^(127\.0\.1\.1\tvps-[a-z0-9]+.vps.ovh.net(?:\.novalocal)?\tvps-[a-z0-9]+)( {{host_name}})?$'
     line: '\1 {{ host_name }}'
+  when: private == False 
 
 # https://www.mongodb.com/docs/manual/administration/production-notes/#system-c-library
 - name: Mise à jour de libc6

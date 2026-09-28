@@ -12,48 +12,56 @@
 
 - import_tasks: external-variables.yml
   tags: always
+  when: private == False 
 
 - set_fact:
     public_interface_ip: "{{ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
   tags: always
+  when: private == False 
 
 - name: Récupération du nom de l'interface réseau publique
   shell: "ip -br a | grep {{ public_interface_ip }} | awk '{print $1}'"
   register: public_interface_name
   tags: always
+  when: private == False 
 
 - set_fact:
     public_interface_name: "{{ public_interface_name.stdout }}"  
   tags: always
+  when: private == False 
 
 - name: Récupération de l'adresse MAC de l'interface réseau publique
   shell: "ip -br l show {{ public_interface_name }} | awk '{print $3}'"
   register: public_interface_mac
   tags: always
+  when: private == False 
 
 - set_fact:
     public_interface_mac: "{{ public_interface_mac.stdout }}"
   tags: always
+  when: private == False 
 
 - name: Récupération de l'adresse IP de la passerelle par défaut
   shell: "ip r | grep default | awk '{print $3}'"
   register: public_interface_gateway
   tags: always
+  when: private == False 
 
 - set_fact:
     public_interface_gateway: "{{ public_interface_gateway.stdout }}"
   tags: always
+  when: private == False 
 
 - import_tasks: configure-kernel.yml
   tags: kernel
-  when: add_kernel_modification == true
+  when: add_kernel_modification == True
 
 - import_tasks: patch-dirtyfrag.yml
   tags: dirtyfrag
 
 - import_tasks: configure-nvidia-gpu.yml
   tags: nvidia
-  when: gpu_instance == 'true'
+  when: gpu_instance == True
 
 - import_tasks: configure-swap.yml
   tags: swap
@@ -66,15 +74,18 @@
 
 - import_tasks: configure-dns.yml
   tags: dns
+  when: private == False 
 
 - import_tasks: configure-ips-blacklist.yml
   tags: ipsblacklist
+  when: private == False 
 
 - import_tasks: configure-system.yml
   tags: system
 
 - import_tasks: configure-ssh.yml
   tags: ssh
+  when: private == False 
 
 - import_tasks: configure-docker.yml
   tags: docker
@@ -90,9 +101,11 @@
 
 - import_tasks: renew-ssl-certificate.yml
   tags: ssl
+  when: certbot == True
 
 - import_tasks: configure-fail2ban.yml
   tags: fail2ban
+  when: private == False 
 
 - import_tasks: generate-gpg-key.yml
   tags: gpg
