@@ -7,6 +7,10 @@ define DOCKER_NETWORK = {
   172.16.0.0/12,
 }
 
+define MONITORING = {
+  10.20.70.200,
+}
+
 table ip firewall {
 
   chain input {
@@ -19,14 +23,18 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
-    iifname "br-*" accept
-    iifname "wan" jump input-wan
+    iifname "vlan180" jump input-vlan180
+    iifname "vlan185" jump input-vlan185
+  }
+
+  chain input-vlan180 {
 
   }
 
-  chain input-wan {
+  chain input-vlan185 {
 
-    tcp dport 22 accept
+    ip saddr 10.20.185.241 tcp dport 22 accept
+    ip saddr 10.20.185.242 tcp dport 22 accept
 
   }
 
@@ -37,10 +45,9 @@ table ip firewall {
     ct state invalid drop
     ct state { established, related } accept
 
-    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK oifname "vlan180" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
-
-    iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
+    iifname "vlan180" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 443 accept
 
   }
 
