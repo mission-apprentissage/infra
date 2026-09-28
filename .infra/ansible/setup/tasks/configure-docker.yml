@@ -60,6 +60,15 @@
     - env_type != 'preview'
     - product_name not in ['monitoring', 'sentry', 'data']
     - docker_swarm_status.stdout.find('inactive') != -1
+    - private = False
+
+- name: initialisation de docker swarm
+  ansible.builtin.shell: docker swarm init --advertise-addr "{{ private_ip }}"
+  when:
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
+    - docker_swarm_status.stdout.find('inactive') != -1
+    - private = True
 
 - name: check du docker network
   ansible.builtin.shell:
