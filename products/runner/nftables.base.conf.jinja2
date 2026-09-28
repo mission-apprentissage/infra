@@ -1,0 +1,53 @@
+#!/usr/sbin/nft -f
+
+table ip firewall
+delete table ip firewall
+
+define DOCKER_NETWORK = {
+  172.16.0.0/12,
+}
+
+define MONITORING = {
+  10.20.70.200,
+}
+
+table ip firewall {
+
+  chain input {
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "vlan60" jump input-vlan60
+    iifname "vlan65" jump input-vlan65
+  }
+
+  chain input-vlan60 {
+
+  }
+
+  chain input-vlan65 {
+
+    ip saddr 10.20.65.241 tcp dport 22 accept
+    ip saddr 10.20.65.242 tcp dport 22 accept
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oifname "vlan60" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+    iifname "vlan60" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 443 accept
+
+  }
+
+}

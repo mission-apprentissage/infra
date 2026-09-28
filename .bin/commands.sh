@@ -94,7 +94,10 @@ function system:setup() {
   shift
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
-  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+
+  if [[ "$PRODUCT_NAME" != "runner" ]]; then
+    firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  fi
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 

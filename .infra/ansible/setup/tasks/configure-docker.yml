@@ -10,7 +10,7 @@
         fluentd-address: localhost:24224
         tag: docker.txt.{{product_name}}.{{env_type}}.{{ '{{' }}.Name{{ '}}' }}_run
         fluentd-async: "true"
-  when: env_type != 'preview' and gpu_instance == False
+  when: env_type != 'preview' and gpu_instance == False and private == False
 
 - include_role:
     name: geerlingguy.docker
@@ -20,7 +20,7 @@
       ip6tables: false
       dns: ["172.17.0.1"]
       log-driver: local
-  when: env_type == 'preview' and gpu_instance == False
+  when: env_type == 'preview' and gpu_instance == False and private == False
 
 - include_role:
     name: geerlingguy.docker
@@ -64,27 +64,55 @@
 - name: check du docker network
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network ls --filter name={{docker_network}} -q
+    cmd: docker network ls --filter name={{ docker_network }} -q
   register: network
+  when: product_name != 'runner'
 
 - debug:
     var: network
+  when: product_name != 'runner'
 
 - name: création du docker network en swarm mode
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network create -d overlay --attachable {{docker_network}}
+    cmd: docker network create -d overlay --attachable {{ docker_network }}
   when:
+    - product_name != 'runner'
     - network.stdout == ""
     - env_type != 'preview'
     - product_name not in ['monitoring', 'sentry', 'data']
 
+- name: Vérification des réseaux Docker du serveur 'runner'
+  ansible.builtin.command:
+    cmd: docker network inspect {{ item.name }}
+  loop:
+    - { name: "{{ docker_network }}", attachable: true }
+    - { name: runner_network, attachable: false }
+  loop_control:
+    label: "{{ item.name }}"
+  register: runner_networks
+  changed_when: false
+  failed_when: runner_networks.rc not in [0, 1]
+  when: product_name == 'runner'
+
+- name: Création des réseaux Docker du serveur 'runner'
+  ansible.builtin.command:
+    cmd: >-
+      docker network create -d overlay
+      {{ '--attachable' if item.item.attachable else '' }}
+      {{ item.item.name }}
+  loop: "{{ runner_networks.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when:
+    - product_name == 'runner'
+    - item.rc | default(0) != 0
+
 - name: création du docker network en compose mode
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network create --attachable {{docker_network}}
+    cmd: docker network create --attachable {{ docker_network }}
   when:
-    - network.stdout == ""
     - env_type == 'preview' or product_name in ['monitoring', 'sentry', 'data']
 
 - shell: "docker node ls --format '{{ '{{' }} .ID {{ '}}' }}'"

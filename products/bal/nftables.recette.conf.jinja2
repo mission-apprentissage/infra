@@ -7,14 +7,9 @@ define DOCKER_NETWORK = {
   172.16.0.0/12,
 }
 
-#define MONITORING = {
-#{% for ip in monitoring_ips %}
-#  {{ ip }},
-#{% endfor %}
-#}
-
 define MONITORING = {
-  10.20.70.1, 
+  51.210.224.29,
+  10.20.70.200
 }
 
 table ip firewall {
@@ -28,8 +23,25 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
+    iifname "wan" jump input-wan
     iifname "vlan140" jump input-vlan140
     iifname "vlan145" jump input-vlan145
+  }
+
+  chain input-wan {
+
+    tcp dport 22 accept
+
+    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
+    tcp dport 2377 accept
+
+    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
+    tcp dport 7946 accept
+    udp dport 7946 accept
+
+    # Docker Swarm - port 4789 UDP for overlay network traffic
+    udp dport 4789 accept
+
   }
 
   chain input-vlan140 {
@@ -51,10 +63,12 @@ table ip firewall {
     ct state { established, related } accept
 
     ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK oif "vlan140" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
-    iifname "vlan140" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept 
-    iifname "vlan140" ip saddr 10.20.252.0/24 ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept 
+    iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
+    iifname "vlan140" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
+    iifname "vlan140" ip saddr 10.20.252.0/24 ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
 
   }
 
