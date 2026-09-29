@@ -39,6 +39,7 @@ services:
     # In order to bypass this, we need to use mode host port mapping
     # But we cannot replicate the service on a single node
     ports:
+{% if dns_name is defined %}
       - target: 8080
         published: 80
         protocol: tcp
@@ -47,8 +48,21 @@ services:
         published: 443
         protocol: tcp
         mode: host
+{% endif %}
+{% if host_dns_name is defined %}
+      - target: 9443
+        published: 9443
+        protocol: tcp
+        mode: host
+{% endif %}
     environment:
-      - SERVER_NAME={{dns_name}}
+      - SERVER_NAME={{ dns_name if dns_name is defined else host_dns_name }}
+{% if not (certbot | default(true) | bool) %}
+      - ACME_INCLUDE=includes/location_none.conf
+{% endif %}
+{% if host_dns_name is defined %}
+      - MONITORING_INCLUDE=includes/location_none.conf
+{% endif %}
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
       - MODSEC_REQ_BODY_NOFILES_LIMIT=5243904
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}

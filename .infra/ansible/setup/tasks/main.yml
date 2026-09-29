@@ -1,3 +1,12 @@
+- name: Un vhost privé impose des certificats X.509 émis par le serveur pki
+  ansible.builtin.assert:
+    that:
+      - private_dns_name is not defined or not (certbot | default(true) | bool)
+    fail_msg: >-
+      {{ inventory_hostname }} : private_dns_name est défini alors que Certbot est actif.
+      Un vhost privé nécessite certbot=False (certificats X.509 publics et privés émis par le serveur pki).
+    quiet: true
+
 - name: Chargement des variables du fichier de variables d'environnement
   community.sops.load_vars:
     file: "{{ playbook_dir }}/../env.global.yml"
@@ -74,7 +83,6 @@
 
 - import_tasks: configure-dns.yml
   tags: dns
-  when: private == False 
 
 - import_tasks: configure-ips-blacklist.yml
   tags: ipsblacklist

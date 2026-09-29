@@ -108,10 +108,15 @@
     - product_name == 'runner'
     - item.rc | default(0) != 0
 
-- name: création du docker network en compose mode
+- name: Création du réseau Docker en mode Compose
   ansible.builtin.shell:
     chdir: /opt/app
-    cmd: docker network create --attachable {{ docker_network }}
+    cmd: >-
+      docker network inspect {{ docker_network }} > /dev/null 2>&1
+      && echo exists
+      || docker network create --attachable {{ docker_network }}
+  register: compose_network
+  changed_when: "'exists' not in compose_network.stdout"
   when:
     - env_type == 'preview' or product_name in ['monitoring', 'sentry', 'data']
 
