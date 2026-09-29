@@ -1,0 +1,26 @@
+{% if host_dns_name is defined %}
+
+# vhost {{ host_dns_name }} - réservé au monitoring, certificat CA interne
+server {
+  listen 9443 ssl;
+  http2 on;
+  server_name {{ host_dns_name }};
+
+  include includes/ssl-params.conf;
+  ssl_certificate     /etc/nginx/ssl/live/{{ host_dns_name }}/fullchain.pem;
+  ssl_certificate_key /etc/nginx/ssl/live/{{ host_dns_name }}/privkey.pem;
+
+  include includes/location_monitoring.conf;
+
+  location / {
+    return 404;
+  }
+}
+
+# refuse le handshake pour tout SNI inconnu ou absent
+server {
+  listen ${SSL_PORT} ssl default_server;
+  listen 9443 ssl default_server;
+  ssl_reject_handshake on;
+}
+{% endif %}
