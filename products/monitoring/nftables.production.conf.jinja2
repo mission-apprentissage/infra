@@ -108,7 +108,10 @@ table ip firewall {
     iifname "wan" ip saddr $MONGODB_TDB_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
     iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
+    ip saddr $DOCKER_NETWORK oif "vlan70" accept
+		iifname "vlan70" ip saddr 10.20.0.0/16 ip daddr $DOCKER_NETWORK ct original proto-dst 443 accept
+		iifname "vlan70" ip saddr 10.20.180.1 ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+
   }
 
 }
-
