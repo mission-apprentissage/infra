@@ -95,9 +95,13 @@ function system:setup() {
 
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
-  if [[ "$PRODUCT_NAME" != "runner" ]]; then
-    firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
-  fi
+  case "${PRODUCT_NAME}/${ENV_NAME}" in
+		runner/base | bal/recette | analytics/base)
+			;;
+		*)
+			firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+			;;
+	esac
 
   "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 
