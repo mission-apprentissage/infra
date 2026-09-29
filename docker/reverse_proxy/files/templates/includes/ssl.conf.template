@@ -1,4 +1,4 @@
 listen ${SSL_PORT} ssl;
 http2 on;
 
-include includes/ssl-params.conf
+include includes/ssl-params.conf;
