@@ -11,4 +11,4 @@ ssl_prefer_server_ciphers ${SSL_PREFER_CIPHERS};
 ssl_stapling ${SSL_OCSP_STAPLING};
 ssl_stapling_verify ${SSL_OCSP_STAPLING};
 
-ssl_verify_client ${SSL_VERIFY}
+ssl_verify_client ${SSL_VERIFY};
