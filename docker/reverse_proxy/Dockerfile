@@ -1,4 +1,8 @@
-FROM owasp/modsecurity-crs:4.25.0-nginx-202604040104
+FROM owasp/modsecurity-crs:4.29.0-nginx-202609241109
+
+ENV SSL_OCSP_STAPLING=off
+ENV ACME_INCLUDE=includes/location_acme.conf
+ENV MONITORING_INCLUDE=includes/location_monitoring.conf
 
 COPY files/templates /etc/nginx/templates
 COPY files/reload.sh /reload.sh
