@@ -47,7 +47,7 @@ table ip firewall {
 
     ip saddr $DOCKER_NETWORK oifname "vlan180" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
-    iifname "vlan180" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 443 accept
+    iifname "vlan180" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
 
   }
 
