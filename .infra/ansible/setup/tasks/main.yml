@@ -8,7 +8,7 @@
       host_dns_name impose certbot=False (certificats X.509 publics et privés émis par le serveur pki),
       et au moins un des deux noms dns_name ou host_dns_name doit être déclaré.
     quiet: true
-	when: env_type != 'local'
+  when: env_type != 'local'
 
 - name: Chargement des variables du fichier de variables d'environnement
   community.sops.load_vars:
