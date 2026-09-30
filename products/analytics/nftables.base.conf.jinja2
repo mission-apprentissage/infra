@@ -14,6 +14,7 @@ define MONITORING = {
 table ip firewall {
 
   chain input {
+
     type filter hook input priority filter
     policy drop
     ct state invalid drop
@@ -22,18 +23,18 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
-    iifname "vlan60" jump input-vlan60
-    iifname "vlan65" jump input-vlan65
+    iifname "vlan180" jump input-vlan180
+    iifname "vlan185" jump input-vlan185
   }
 
-  chain input-vlan60 {
+  chain input-vlan180 {
 
   }
 
-  chain input-vlan65 {
+  chain input-vlan185 {
 
-    ip saddr 10.20.65.241 tcp dport 22 accept
-    ip saddr 10.20.65.242 tcp dport 22 accept
+    ip saddr 10.20.185.241 tcp dport 22 accept
+    ip saddr 10.20.185.242 tcp dport 22 accept
 
   }
 
@@ -44,9 +45,9 @@ table ip firewall {
     ct state invalid drop
     ct state { established, related } accept
 
-    ip saddr $DOCKER_NETWORK oifname "vlan60" accept
+    ip saddr $DOCKER_NETWORK oifname "vlan180" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
-    iifname "vlan60" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
+    iifname "vlan180" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
 
   }
 
