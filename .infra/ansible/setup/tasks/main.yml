@@ -1,11 +1,14 @@
-- name: Un vhost privé impose des certificats X.509 émis par le serveur pki
+- name: Cohérence des noms déclarés 
   ansible.builtin.assert:
     that:
-      - private_dns_name is not defined or not (certbot | default(true) | bool)
+      - host_dns_name is not defined or not (certbot | default(true) | bool)
+      - dns_name is defined or host_dns_name is defined
     fail_msg: >-
-      {{ inventory_hostname }} : private_dns_name est défini alors que Certbot est actif.
-      Un vhost privé nécessite certbot=False (certificats X.509 publics et privés émis par le serveur pki).
+      {{ inventory_hostname }} : configuration reverse_proxy incohérente.
+      host_dns_name impose certbot=False (certificats X.509 publics et privés émis par le serveur pki),
+      et au moins un des deux noms dns_name ou host_dns_name doit être déclaré.
     quiet: true
+	when: env_type != 'local'
 
 - name: Chargement des variables du fichier de variables d'environnement
   community.sops.load_vars:
