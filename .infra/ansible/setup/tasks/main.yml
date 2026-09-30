@@ -93,7 +93,7 @@
 
 - import_tasks: configure-ssh.yml
   tags: ssh
-  when: private == False 
+  when: certbot == True 
 
 - import_tasks: configure-docker.yml
   tags: docker
