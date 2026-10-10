@@ -36,7 +36,8 @@ RUNNER_TOKEN=$(curl -fsSL -X POST \
   --labels "${RUNNER_LABELS}" \
   --work "_work" \
   --unattended \
-  --ephemeral
+  --ephemeral \
+  --disableupdate
 
 cleanup() {
   ./config.sh remove --token "${RUNNER_TOKEN}" || true

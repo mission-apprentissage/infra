@@ -1,9 +1,14 @@
 FROM ubuntu:24.04
 
 ARG TARGETARCH
-ARG RUNNER_VERSION=2.319.1
-ARG RUNNER_SHA256_AMD64=3f6efb7488a183e291fc2c62876e14c9ee732864173734facc85a1bfb1744464
-ARG RUNNER_SHA256_ARM64=03d993c65e0c4daa5e3bf5a5a35ba356f363bdb5ceb6b5808fd52fdb813dd8e8
+
+ARG RUNNER_VERSION=2.337.0
+ARG RUNNER_SHA256_AMD64=70920811a4f8ad4328818682bca5c6469c1c942fab52448868071d0063816613
+ARG RUNNER_SHA256_ARM64=9b1dc70626422526e3c94767cf024896beb15da5342a3f4819bf2feac13e0393
+
+ARG SOPS_VERSION=3.12.2
+ARG SOPS_SHA256_AMD64=14e2e1ba3bef31e74b70cf0b674f6443c80f6c5f3df15d05ffc57c34851b4998
+ARG SOPS_SHA256_ARM64=f66de6f528dca946e910d74fa36a62a7714c11d0db16bd3c9bd8acf73b66704b
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -13,6 +18,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git jq libicu74 \
   && pip3 install --break-system-packages ansible-core \
   && rm -rf /var/lib/apt/lists/*
+
+RUN ansible-galaxy collection install \
+    community.general:==12.6.0 \
+    community.crypto:==3.1.1 \
+    ansible.posix:==2.1.0 \
+    community.sops:==2.5.0 \
+    -p /usr/share/ansible/collections
+
+RUN set -eu; \
+  case "${TARGETARCH}" in \
+    amd64) SOPS_SHA256="${SOPS_SHA256_AMD64}" ;; \
+    arm64) SOPS_SHA256="${SOPS_SHA256_ARM64}" ;; \
+    *) echo "Architecture non geree : ${TARGETARCH}" >&2; exit 1 ;; \
+  esac; \
+  curl -fsSL -o /usr/local/bin/sops \
+    "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.${TARGETARCH}"; \
+  echo "${SOPS_SHA256}  /usr/local/bin/sops" | sha256sum -c -; \
+  chmod 755 /usr/local/bin/sops
 
 RUN useradd --create-home --shell /bin/bash runner
 
