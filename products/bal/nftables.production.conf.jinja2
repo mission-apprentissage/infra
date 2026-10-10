@@ -8,9 +8,7 @@ define DOCKER_NETWORK = {
 }
 
 define MONITORING = {
-{% for ip in monitoring_ips %}
-  {{ ip }},
-{% endfor %}
+  10.20.70.200
 }
 
 table ip firewall {
@@ -25,11 +23,11 @@ table ip firewall {
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
     iifname "wan" jump input-wan
+    iifname "vlan120" jump input-vlan120
+    iifname "vlan125" jump input-vlan125
   }
 
   chain input-wan {
-
-    tcp dport 22 accept
 
     # Docker Swarm - port 2377 TCP for communication with and between manager nodes
     tcp dport 2377 accept
@@ -40,6 +38,17 @@ table ip firewall {
 
     # Docker Swarm - port 4789 UDP for overlay network traffic
     udp dport 4789 accept
+
+  }
+
+  chain input-vlan120 {
+
+  }
+
+  chain input-vlan125 {
+
+    ip saddr 10.20.125.241 tcp dport 22 accept
+    ip saddr 10.20.125.242 tcp dport 22 accept
 
   }
 
@@ -54,6 +63,7 @@ table ip firewall {
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
     iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
+    iifname "vlan120" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
 
   }
 
