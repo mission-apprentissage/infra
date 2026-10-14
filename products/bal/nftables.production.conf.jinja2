@@ -22,23 +22,8 @@ table ip firewall {
     iif "lo" accept
     iifname "docker0" accept
     iifname "docker_gwbridge" accept
-    iifname "wan" jump input-wan
     iifname "vlan120" jump input-vlan120
     iifname "vlan125" jump input-vlan125
-  }
-
-  chain input-wan {
-
-    # Docker Swarm - port 2377 TCP for communication with and between manager nodes
-    tcp dport 2377 accept
-
-    # Docker Swarm - port 7946 TCP/UDP for overlay network node discovery
-    tcp dport 7946 accept
-    udp dport 7946 accept
-
-    # Docker Swarm - port 4789 UDP for overlay network traffic
-    udp dport 4789 accept
-
   }
 
   chain input-vlan120 {
@@ -59,11 +44,11 @@ table ip firewall {
     ct state invalid drop
     ct state { established, related } accept
 
-    ip saddr $DOCKER_NETWORK oif "wan" accept
+    ip saddr $DOCKER_NETWORK oifname "120" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
-    iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
-    iifname "vlan120" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
+    iifname "vlan120" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 443, 9443 } accept
+    iifname "vlan120" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
 
   }
 
