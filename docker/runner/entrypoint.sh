@@ -1,5 +1,11 @@
 #!/bin/sh
+
 set -eu
+
+for key in /run/secrets/openpgp_*; do
+  [ -f "${key}" ] || continue
+  gpg --batch --quiet --import "${key}"
+done
 
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
