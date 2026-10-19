@@ -30,7 +30,7 @@
     name: Europe/Paris
 
 - name: Disable bash history for all users
-  copy:
+  ansible.builtin.copy:
     dest: /etc/profile.d/disable_history.sh
     owner: root
     group: root
@@ -44,8 +44,16 @@
       export HISTFILESIZE=0
       unset HISTFILE
 
+- name: Configuration de rsyslog
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../files/rsyslog/rsyslog.conf"
+    dest: /etc/rsyslog.conf
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Configuration du multiplexeur de terminaux tmux
-  template:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/../files/tmux/tmux.conf.template.jinja2"
     dest: /etc/tmux.conf
     owner: root
@@ -58,6 +66,8 @@
     marker: "# {mark} ANSIBLE MANAGED - PTY size resync"
     insertafter: "shopt -s checkwinsize"
     block: |
+
+      stty -ixon
 
       # Resync terminal size from parent PTY (fix sudo -i PTY size)
       _resync_tty_size() {

@@ -96,7 +96,7 @@ function system:setup() {
   product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
 
   case "${PRODUCT_NAME}/${ENV_NAME}" in
-		runner/base | bal/recette | bal/production | analytics/base)
+		runner/base | bal/staging | bal/production | analytics/base)
 			;;
 		*)
 			firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
