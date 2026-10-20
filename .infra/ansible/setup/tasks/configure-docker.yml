@@ -42,6 +42,39 @@
       node-generic-resources: ["gpu={{ gpu_uuid }}"]
   when: gpu_instance == True
 
+- name: Vérification du montage du disque dédié à Docker
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.mounts | selectattr('mount', 'equalto', '/var/lib/docker') | list | length == 1
+    fail_msg: >-
+      docker_dedicated_disk est actif mais /var/lib/docker n'est pas un point de montage :
+      containerd écrirait sur le disque système.
+    quiet: true
+  when: docker_dedicated_disk == True
+
+- name: Création de la racine containerd sur le disque dédié
+  ansible.builtin.file:
+    path: "/var/lib/docker/containerd"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  when: docker_dedicated_disk == True
+
+- name: Configuration de containerd (racine sur le disque dédié)
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/containerd/config.toml.jinja2"
+    dest: /etc/containerd/config.toml
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  notify: containerd config changed
+  when: docker_dedicated_disk == True
+
+- name: Application immédiate de la configuration containerd
+  ansible.builtin.meta: flush_handlers
+
 - name: Docker login
   shell: "echo $PASS | docker login -u '{{ DOCKER_LOGIN.user }}' --password-stdin"
   environment: 

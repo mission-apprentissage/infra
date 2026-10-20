@@ -1,0 +1,6 @@
+disabled_plugins = ["cri"]
+{% if docker_dedicated_disk | bool %}
+root = "/var/lib/docker/containerd"
+{% else %}
+root = "/var/lib/containerd"
+{% endif %}
