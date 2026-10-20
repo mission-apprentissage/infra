@@ -44,7 +44,7 @@ table ip firewall {
     ct state invalid drop
     ct state { established, related } accept
 
-    ip saddr $DOCKER_NETWORK oifname "120" accept
+    ip saddr $DOCKER_NETWORK oifname "vlan120" accept
     ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
 
     iifname "vlan120" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 443, 9443 } accept
