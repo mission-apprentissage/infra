@@ -10,14 +10,16 @@ x-deploy-default: &deploy-default
     parallelism: 1
     delay: 10s
   restart_policy:
-    condition: on-failure
+    # any : relance aussi après un arrêt propre (code 0), par exemple lors
+    # d'un redémarrage du démon Docker. Avec on-failure, fluentd et cadvisor
+    # restaient arrêtés sans aucune erreur (sentry, 20/10/2026).
+    condition: any
     window: 360s
     delay: 30s
     # Max 24hours
     max_attempts: 240
 
 x-default: &default
-  restart: on-failure:50
   networks:
     - {{ docker_network }}
 
@@ -152,8 +154,8 @@ services:
     image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
     ulimits:
       nofile:
-        soft: 65535
-        hard: 65535
+        soft: 1048576
+        hard: 1048576
     ports:
       - "127.0.0.1:24224:24224/tcp"
       - "127.0.0.1:24224:24224/udp"
