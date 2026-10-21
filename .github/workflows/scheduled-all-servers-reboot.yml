@@ -11,7 +11,6 @@ jobs:
         product:
           [
             "api",
-            "bal",
             "data",
             "lba",
             "monitoring",
@@ -29,10 +28,6 @@ jobs:
         exclude:
           - product: "api"
             environment: "production"
-          - product: "bal"
-            environment: "production"
-          - product: "bal"
-            environment: "recette"
           - product: "lba"
             environment: "production"
           - product: "tdb"

@@ -15,7 +15,6 @@ jobs:
         product:
           [
             "api",
-            "bal",
             "data",
             "lba",
             "monitoring",
