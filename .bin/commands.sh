@@ -8,27 +8,62 @@ if [ -z "${ROOT_DIR:-}" ]; then
   export ROOT_DIR="$(cd "${SCRIPTS_DIR}/../../" && pwd)"
 fi
 
-SUBMODULE_PATH="${ROOT_DIR}/.bin/shared"
+_local_shared_submodule_sync() {
 
-if [[ ! -f "$SUBMODULE_PATH/.git" ]] && [[ ! -d "$SUBMODULE_PATH/.git" ]]; then
+  local path="${ROOT_DIR}/.bin/shared"
 
-  echo "Initialisation du sous-module : $SUBMODULE_PATH"
-  git submodule update --init -- "$SUBMODULE_PATH"
+  [[ -n "${MNA_SHARED_CHECKED:-}" ]] && return 0
+  export MNA_SHARED_CHECKED=1
 
-else
+  if [[ -z "${CI:-}" ]]; then
 
-  expected=$(git ls-files --stage -- "$SUBMODULE_PATH" | awk '{print $2}')
-  current=$(git -C "$SUBMODULE_PATH" rev-parse HEAD)
+    local recurse
+    recurse=$(git -C "${ROOT_DIR}" config --get --type=bool submodule.recurse 2> /dev/null) || recurse=""
 
-  if [[ "$expected" != "$current" ]]; then
+    if [[ "${recurse}" != "true" ]]; then
+      git -C "${ROOT_DIR}" config --local submodule.recurse true
+      echo "submodule.recurse était '${recurse:-non defini}', forcé à 'true' pour ce dépôt." >&2
+    fi
 
-    echo "Mise à jour du sous-module :"
-    echo "$current → $expected"
-    git submodule update -- "$SUBMODULE_PATH"
+    local push_recurse
+    push_recurse=$(git -C "${ROOT_DIR}" config --get push.recurseSubmodules 2> /dev/null) || push_recurse=""
+
+    if [[ "${push_recurse}" != "check" ]]; then
+      git -C "${ROOT_DIR}" config --local push.recurseSubmodules check
+      echo "push.recurseSubmodules était '${push_recurse:-non defini}', forcé à 'check' pour ce dépôt." >&2
+    fi
+  fi
+
+  if [[ ! -e "${path}/.git" ]]; then
+    echo "Initialisation du sous-module : ${path}" >&2
+    git -C "${ROOT_DIR}" submodule update --init -- "${path}" >&2
+    return
+  fi
+
+  local expected current
+  expected=$(git -C "${ROOT_DIR}" ls-files --stage -- "${path}" | awk '{print $2}')
+  current=$(git -C "${path}" rev-parse HEAD)
+
+  [[ "${expected}" == "${current}" ]] && return 0
+
+  if ! git -C "${path}" symbolic-ref -q HEAD > /dev/null \
+    && [[ -z "$(git -C "${path}" status --porcelain)" ]] \
+    && git -C "${path}" merge-base --is-ancestor "${current}" "${expected}" 2> /dev/null; then
+
+    echo "Mise a jour du sous-module : ${current:0:7} -> ${expected:0:7}" >&2
+    git -C "${ROOT_DIR}" submodule update -- "${path}" >&2
+    return
 
   fi
 
-fi
+  {
+    echo "Attention : .bin/shared (${current:0:7}) diffère de la transaction attendue (${expected:0:7})."
+    echo "Branche, modifications locales ou divergence : aucune mise a jour automatique."
+    echo "Pour aligner : git submodule update -- .bin/shared"
+  } >&2
+}
+
+_local_shared_submodule_sync
 
 . "${ROOT_DIR}/.bin/shared/commands.sh"
 
@@ -251,8 +286,10 @@ _local_product_validate_env__help="Validate product environnement name"
 _register "product:validate:env" "_local_product_validate_env"
 
 function _local_product_validate_env() {
+
   local env_ip
-  env_ip=$(_local_product_env_ip "$@")
+  env_ip=$(_local_product_env_ip "$@") || env_ip=""
+
   if [[ -z "$env_ip" ]]; then
     if [[ -z "${CI:-}" ]]; then
       exit 1
@@ -261,12 +298,14 @@ function _local_product_validate_env() {
       exit 0
     fi
   fi
+
 }
 
 _local_product_create__help="Create a new repository"
 _register "product:create" "_local_product_create"
 
 function _local_product_create() {
+  "${SCRIPTS_DIR}/ensure-gh-auth.sh"
   "${SCRIPTS_DIR}/create-product.sh" "$@"
 }
 
@@ -328,6 +367,8 @@ function _local_ssh_known_hosts_update() {
   if [[ -z "$ips" ]]; then
     exit 1
   fi
+
+  "${SCRIPTS_DIR}/ensure-gh-auth.sh"
 
   local SSH_KNOWN_HOSTS
   SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519 ${ips} 2> /dev/null)
