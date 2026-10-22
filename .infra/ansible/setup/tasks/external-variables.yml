@@ -39,11 +39,6 @@
 
 ### BAL
 
-- name: Récupération des adresses IPv4 des serveurs bal de production 
-  local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/bal/inventories/env.ini -l production | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
-  become: false
-  register: bal_production_ips
-
 - name: Récupération des adresses IPv4 de la grappe mongodb-bal-x
   local_action: ansible.builtin.shell sh -c "ansible-inventory --export --list -i {{ playbook_dir }}/../../products/mongodb/inventories/env.ini -l bal_1,bal_2,bal_3 | jq -r '[.[].hosts]|flatten|unique|map(select(. != null)) | flatten[]'"
   become: false
@@ -113,7 +108,6 @@
     api_production_ips: "{{ api_production_ips.stdout_lines }}"
     api_recette_ips: "{{ api_recette_ips.stdout_lines }}"
     mongodb_api_ips: "{{ mongodb_api_ips.stdout_lines }}"
-    bal_production_ips: "{{ bal_production_ips.stdout_lines }}"
     mongodb_bal_ips: "{{ mongodb_bal_ips.stdout_lines }}"
     tdb_production_ips: "{{ tdb_production_ips.stdout_lines }}"
     tdb_preprod_ips: "{{ tdb_preprod_ips.stdout_lines }}"
