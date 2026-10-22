@@ -1,241 +1,259 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+if [ -z "${SCRIPTS_DIR:-}" ]; then
+  export SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts"
+fi
 
-if [ ! -f "${ROOT_DIR}/.bin/shared/commands.sh" ]; then
+if [ -z "${ROOT_DIR:-}" ]; then
+  export ROOT_DIR="$(cd "${SCRIPTS_DIR}/../../" && pwd)"
+fi
 
-  echo "Mise à jour du sous-module mna-shared-bin"
+SUBMODULE_PATH="${ROOT_DIR}/.bin/shared"
 
-  git submodule update --init "${ROOT_DIR}/.bin/shared"
+if [[ ! -f "$SUBMODULE_PATH/.git" ]] && [[ ! -d "$SUBMODULE_PATH/.git" ]]; then
+
+  echo "Initialisation du sous-module : $SUBMODULE_PATH"
+  git submodule update --init -- "$SUBMODULE_PATH"
+
+else
+
+  expected=$(git ls-files --stage -- "$SUBMODULE_PATH" | awk '{print $2}')
+  current=$(git -C "$SUBMODULE_PATH" rev-parse HEAD)
+
+  if [[ "$expected" != "$current" ]]; then
+
+    echo "Mise à jour du sous-module :"
+    echo "$current → $expected"
+    git submodule update -- "$SUBMODULE_PATH"
+
+  fi
 
 fi
 
 . "${ROOT_DIR}/.bin/shared/commands.sh"
 
-unset _meta_help["app:deploy"]
-unset app:deploy
-unset _meta_help["seed:update"]
-unset seed:update
-unset _meta_help["seed:apply"]
-unset seed:apply
-unset _meta_help["docker:login"]
-unset docker:login
-unset _meta_help["product:access:update"]
-unset product:access:update
+################################################################################
+# Shared commands
+################################################################################
+
+_register "app:deploy:log:encrypt"
+_register "app:deploy:log:decrypt"
+_register "dev:dependencies:check"
+_register "dev:setup"
+_register "vault:edit"
 
 ################################################################################
 # Non-shared commands
 ################################################################################
 
-_meta_help["release:nginx"]="Release nginx Docker image"
+_local_release_nginx__help="Release nginx Docker image"
+_register "release:nginx" "_local_release_nginx"
 
-function release:nginx() {
-  "$SCRIPT_DIR/release/build-image.sh" reverse_proxy "$@"
+function _local_release_nginx() {
+  "${SCRIPTS_DIR}/release/build-image.sh" reverse_proxy "$@"
 }
 
-_meta_help["release:fluentd"]="Release fluentd Docker image"
+_local_release_fluentd__help="Release fluentd Docker image"
+_register "release:fluentd" "_local_release_fluentd"
 
-function release:fluentd() {
-  "$SCRIPT_DIR/release/build-image.sh" fluentd "$@"
+function _local_release_fluentd() {
+  "${SCRIPTS_DIR}/release/build-image.sh" fluentd "$@"
 }
 
-_meta_help["release:docker-stack-wait"]="Release docker-stack-wait Docker image"
+_local_release_docker_stack_wait__help="Release docker-stack-wait Docker image"
+_register "release:docker-stack-wait" "_local_release_docker_stack_wait"
 
-function release:docker-stack-wait() {
-  "$SCRIPT_DIR/release/build-image.sh" docker-stack-wait "$@"
+function _local_release_docker_stack_wait() {
+  "${SCRIPTS_DIR}/release/build-image.sh" docker-stack-wait "$@"
 }
 
-_meta_help["release:runner-lba"]="Release runner-lba (runner GitHub Actions LBA) Docker image"
+_local_release_runner__help="Release runner Docker image"
+_register "release:runner" "_local_release_runner"
 
-function release:runner() {
-  "$SCRIPT_DIR/release/build-image.sh" runner "$@"
+function _local_release_runner() {
+  "${SCRIPTS_DIR}/release/build-image.sh" runner "$@"
 }
 
-_meta_help["firewall:setup"]="Setup OVHcloud firewall"
+_local_firewall_setup__help="Setup OVHcloud firewall"
+_register "firewall:setup" "_local_firewall_setup"
 
-function firewall:setup() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_firewall_setup() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
-
+  "${SCRIPTS_DIR}/ovh/create-firewall.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
-_meta_help["firewall:service:close"]="Close service on OVHcloud firewall"
+_local_firewall_service_close__help="Close service on OVHcloud firewall"
+_register "firewall:service:close" "_local_firewall_service_close"
 
-function firewall:service:close() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_firewall_service_close() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
-
+  "${SCRIPTS_DIR}/ovh/close-service.sh" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
-_meta_help["system:setup"]="Setup server"
+_local_system_setup__help="Setup server"
+_register "system:setup" "_local_system_setup"
 
-function system:setup() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_setup() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
   case "${PRODUCT_NAME}/${ENV_NAME}" in
-		runner/base | bal/staging | bal/production | analytics/base)
-			;;
-		*)
-			firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
-			;;
-	esac
+    runner/base | bal/staging | bal/production | analytics/base)
+      ;;
+    *)
+      _local_firewall_setup "$PRODUCT_NAME" "$ENV_NAME"
+      ;;
+  esac
 
-  "$SCRIPT_DIR/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "${SCRIPTS_DIR}/run-playbook.sh" "setup.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 
-  TAG="$PRODUCT_NAME-$ENV_NAME"
+  local TAG="${PRODUCT_NAME}-${ENV_NAME}"
 
-  echo "Creating tag $TAG"
+  echo "Creating tag ${TAG}"
 
-  git --git-dir="$ROOT_DIR/.git" tag -f $TAG
-  git --git-dir="$ROOT_DIR/.git" push -f origin $TAG
-
+  git --git-dir="${ROOT_DIR}/.git" tag -f "${TAG}"
+  git --git-dir="${ROOT_DIR}/.git" push -f origin "${TAG}"
 }
 
-_meta_help["system:user:remove"]="Remove user from server"
+_local_system_user_remove__help="Remove user from server"
+_register "system:user:remove" "_local_system_user_remove"
 
-function system:user:remove() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_user_remove() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
-  
+
   local USERNAME=${1:?"Merci de préciser l'utilisateur à supprimer !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
-
+  "${SCRIPTS_DIR}/run-playbook.sh" "clean.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "username='${USERNAME}'" "$@"
 }
 
-_meta_help["system:unban"]="Unban IP from server"
+_local_system_unban__help="Unban IP from server"
+_register "system:unban" "_local_system_unban"
 
-function system:unban() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_unban() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
-  
+
   local IP=${1:?"Merci de préciser l'adresse IPv4 à débannir !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/run-playbook.sh" "unban.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "ip='${IP}'" "$@"
-
+  "${SCRIPTS_DIR}/run-playbook.sh" "unban.yml" "$PRODUCT_NAME" "$ENV_NAME" --extra-vars "ip='${IP}'" "$@"
 }
 
-_meta_help["system:password:rotate"]="Rotate password of the 'deploy' user"
+_local_system_password_rotate__help="Rotate password of the 'deploy' user"
+_register "system:password:rotate" "_local_system_password_rotate"
 
-function system:password:rotate() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_password_rotate() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "${SCRIPTS_DIR}/run-playbook.sh" "password-rotate.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
-_meta_help["system:reboot"]="Reboot server if needed"
+_local_system_reboot__help="Reboot server if needed"
+_register "system:reboot" "_local_system_reboot"
 
-function system:reboot() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_reboot() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  product:validate:env "$PRODUCT_NAME" "$ENV_NAME"
+  _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
-  "$SCRIPT_DIR/run-playbook.sh" "reboot.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
+  "${SCRIPTS_DIR}/run-playbook.sh" "reboot.yml" "$PRODUCT_NAME" "$ENV_NAME" "$@"
 }
 
-_meta_help["system:setup:initial"]="Initial server setup"
+_local_system_setup_initial__help="Initial server setup"
+_register "system:setup:initial" "_local_system_setup_initial"
 
-function system:setup:initial() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_system_setup_initial() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
   export ANSIBLE_HOST_KEY_CHECKING=False
-  firewall:setup "$PRODUCT_NAME" "$ENV_NAME"
+  _local_firewall_setup "$PRODUCT_NAME" "$ENV_NAME"
 
   read -p "Do you want to setup the server with a RSA key? [Y/n]" response
 
   case $response in
     [yY][eE][sS]|[yY]|"")
-      "$SCRIPT_DIR/deploy_ssh_keyfile.sh"
-      export ANSIBLE_PRIVATE_KEY_FILE="$ROOT_DIR/.bin/id_rsa_deploy.key"
+      "${SCRIPTS_DIR}/deploy_ssh_keyfile.sh"
+      export ANSIBLE_PRIVATE_KEY_FILE="${ROOT_DIR}/.bin/id_rsa_deploy.key"
       export ANSIBLE_BECOME_PASS="-"
-      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
+      _local_system_setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu
       rm -f "${ANSIBLE_PRIVATE_KEY_FILE}"
       ;;
     *)
-      system:setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
+      _local_system_setup "$PRODUCT_NAME" "$ENV_NAME" "$@" --user ubuntu --ask-pass
       return
       ;;
   esac
-
 }
 
-_meta_help["product:repo"]="Get product repository"
+_local_product_repo__help="Get product repository"
+_register "product:repo" "_local_product_repo"
 
-function product:repo() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_product_repo() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local env_ini=$(product:ini_file "${PRODUCT_NAME}")
+  local env_ini
+  env_ini=$(_local_product_ini_file "${PRODUCT_NAME}")
 
-  if [[ -z $env_ini ]]; then
+  if [[ -z "$env_ini" ]]; then
     exit 1
   fi
 
-  "$SCRIPT_DIR/get-product-repo.sh" "$PRODUCT_NAME" "$@"
+  "${SCRIPTS_DIR}/get-product-repo.sh" "$PRODUCT_NAME" "$@"
 }
 
-_meta_help["product:validate:env"]="Validate product environnement name"
+_local_product_validate_env__help="Validate product environnement name"
+_register "product:validate:env" "_local_product_validate_env"
 
-function product:validate:env() {
-
-  local env_ip=$(product:env:ip "$@")
-
-  if [ -z $env_ip ]; then
+function _local_product_validate_env() {
+  local env_ip
+  env_ip=$(_local_product_env_ip "$@")
+  if [[ -z "$env_ip" ]]; then
     if [[ -z "${CI:-}" ]]; then
       exit 1
     else
@@ -243,122 +261,81 @@ function product:validate:env() {
       exit 0
     fi
   fi
-
 }
 
-_meta_help["product:create"]="Create a new repository"
+_local_product_create__help="Create a new repository"
+_register "product:create" "_local_product_create"
 
-function product:create() {
-  "$SCRIPT_DIR/create-product.sh" "$@"
+function _local_product_create() {
+  "${SCRIPTS_DIR}/create-product.sh" "$@"
 }
 
-_meta_help["product:ini_file"]="Get product ini file location"
+_local_product_ini_file__help="Get product ini file location"
+_register "product:ini_file" "_local_product_ini_file"
 
-function product:ini_file() {
-  "$SCRIPT_DIR/validate-product-name.sh" "$@"
+function _local_product_ini_file() {
+  "${SCRIPTS_DIR}/validate-product-name.sh" "$@"
 }
 
-_meta_help["product:env:ip"]="Get production environnement IP"
+_local_product_env_ip__help="Get production environnement IP"
+_register "product:env:ip" "_local_product_env_ip"
 
-function product:env:ip() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_product_env_ip() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
   local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
   shift
 
-  env_ini=$(product:ini_file "${PRODUCT_NAME}")
+  local env_ini
+  env_ini=$(_local_product_ini_file "${PRODUCT_NAME}")
 
-  if [[ -z $env_ini ]]; then
+  if [[ -z "$env_ini" ]]; then
     exit 1
   fi
 
-  "$SCRIPT_DIR/get-product-repo.sh" "$PRODUCT_NAME" "$@"
+  "${SCRIPTS_DIR}/get-product-env-ip.sh" "$PRODUCT_NAME" "$ENV_NAME"
 }
 
-_meta_help["product:validate:env"]="Validate product environnement name"
+_local_ssh_known_hosts_print__help="Print SSH known host for a product"
+_register "ssh:known_hosts:print" "_local_ssh_known_hosts_print"
 
-function product:validate:env() {
-
-  local env_ip=$(product:env:ip "$@")
-
-  if [ -z $env_ip ]; then
-    if [[ -z "${CI:-}" ]]; then
-      exit 1
-    else
-      # If we are in CI just exit 0 to allow batch
-      exit 0
-    fi
-  fi
-
-}
-
-_meta_help["product:create"]="Create a new repository"
-
-function product:create() {
-  "$SCRIPT_DIR/create-product.sh" "$@"
-}
-
-_meta_help["product:ini_file"]="Get product ini file location"
-
-function product:ini_file() {
-  "$SCRIPT_DIR/validate-product-name.sh" "$@"
-}
-
-_meta_help["product:env:ip"]="Get production environnement IP"
-
-function product:env:ip() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_ssh_known_hosts_print() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ENV_NAME=${1:?"Merci de préciser l'environnement !"}
-  shift
+  local ips
+  ips=$("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
 
-  env_ini=$(product:ini_file "${PRODUCT_NAME}")
-
-  if [[ -z $env_ini ]]; then
+  if [[ -z "$ips" ]]; then
     exit 1
   fi
 
-  "$SCRIPT_DIR/get-product-env-ip.sh" "$PRODUCT_NAME" "$ENV_NAME"
-}
-
-_meta_help["ssh:known_hosts:print"]="Print SSH known host for a product"
-
-function ssh:known_hosts:print() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
-  shift
-
-  local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
-
-  if [ -z "$ips" ]; then
-    exit 1
-  fi
-
+  # Word splitting volontaire : une IP par argument
   ssh-keyscan -t ed25519 ${ips}
-
 }
-_meta_help["ssh:known_hosts:update"]="Update SSH known host for a product"
 
-function ssh:known_hosts:update() {
+_local_ssh_known_hosts_update__help="Update SSH known host for a product"
+_register "ssh:known_hosts:update" "_local_ssh_known_hosts_update"
 
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_ssh_known_hosts_update() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ips=$("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
+  local ips
+  ips=$("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
 
-  if [ -z "$ips" ]; then
+  if [[ -z "$ips" ]]; then
     exit 1
   fi
 
+  local SSH_KNOWN_HOSTS
   SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519 ${ips} 2> /dev/null)
 
+  local ip
   for ip in ${ips}; do
     if [[ "${ip}" != "x.x.x.x" ]]; then
-      ssh-keygen -R ${ip}
+      ssh-keygen -R "${ip}"
     fi
   done
 
@@ -374,33 +351,32 @@ function ssh:known_hosts:update() {
       ;;
   esac
 
-  local repo=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
+  local repo=($("${SCRIPTS_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
-  gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}" 
+  gh variable set SSH_KNOWN_HOSTS --body "$SSH_KNOWN_HOSTS" -R "${repo[0]}"
   gh variable set "${PRODUCT_NAME}_SSH_KNOWN_HOSTS" --body "$SSH_KNOWN_HOSTS" --repo "${REPO_INFRA}"
-
 }
 
-_meta_help["ssh:config"]="Update your local SSH config for a product"
+_local_ssh_config__help="Update your local SSH config for a product"
+_register "ssh:config" "_local_ssh_config"
 
-function ssh:config() {
-
-  local PRODUCT_NAME=${1:?"Merci préciser le produit !"} 
+function _local_ssh_config() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ips=($("${SCRIPT_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
+  local ips=($("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
 
-  if [ -z "$ips" ]; then
+  if [[ ${#ips[@]} -eq 0 ]]; then
     exit 1
   fi
 
-  local hostnames=($("${SCRIPT_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name"))
+  local hostnames=($("${SCRIPTS_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name"))
   read -p "What is your username? " username
 
   local config=""
+  local i
 
   for i in "${!ips[@]}"; do
-
     config="${config}
 Host ${hostnames[$i]} ${ips[$i]}
   Port 22
@@ -416,7 +392,5 @@ Host ${hostnames[$i]} ${ips[$i]}
   fi
 
   mkdir -p ~/.ssh/config.d
-  echo "$config" > ~/.ssh/config.d/${PRODUCT_NAME}.config
-
+  echo "$config" > ~/.ssh/config.d/"${PRODUCT_NAME}".config
 }
-

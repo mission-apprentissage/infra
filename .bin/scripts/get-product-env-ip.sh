@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-if [ -z "${SCRIPT_DIR:-}" ]; then
-  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -z "${SCRIPTS_DIR:-}" ]; then
+  export SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
 if [ -z "${ROOT_DIR:-}" ]; then
-  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+  export ROOT_DIR="$(cd "${SCRIPTS_DIR}/../.." && pwd)"
 fi
 
 PRODUCT_NAME=infra . "${ROOT_DIR}/.bin/commands.sh"
@@ -18,7 +18,7 @@ shift
 ENV_NAME=${1:?"Merci de préciser l'environnement !"}
 shift
 
-env_ini=$(product:ini_file "${PRODUCT_NAME}")
+env_ini=$(_dispatch "product:ini_file" "${PRODUCT_NAME}")
 
 set +e
 

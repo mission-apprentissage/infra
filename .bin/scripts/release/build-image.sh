@@ -5,7 +5,7 @@ set -euo pipefail
 readonly TAG_PREFIX=${1:?"Merci de préciser l'image Docker !"}
 shift
 
-readonly VERSION=$("$SCRIPT_DIR/release/get-version.sh" $TAG_PREFIX)
+readonly VERSION=$("$SCRIPTS_DIR/release/get-version.sh" $TAG_PREFIX)
 
 echo "Build & Push docker de $TAG_PREFIX sur le registry github (https://ghcr.io/${GITHUB_ORGANIZATION}/)"
 

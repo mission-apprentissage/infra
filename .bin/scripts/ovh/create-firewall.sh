@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-if [ -z "${SCRIPT_DIR:-}" ]; then
-  export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -z "${SCRIPTS_DIR:-}" ]; then
+  export SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
 if [ -z "${ROOT_DIR:-}" ]; then
-  export ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+  export ROOT_DIR="$(cd "${SCRIPTS_DIR}/../.." && pwd)"
 fi
 
 readonly PRODUCT_NAME=${1:?"Merci de préciser le produit !"}
@@ -48,7 +48,7 @@ function main() {
     exit 1
   fi
 
-  cd "${SCRIPT_DIR}/ovh/ovh-nodejs-client"
+  cd "${SCRIPTS_DIR}/ovh/ovh-nodejs-client"
 	install_npm_if_needed
 
   if [[ -z "${APP_KEY:-}" ]]; then
