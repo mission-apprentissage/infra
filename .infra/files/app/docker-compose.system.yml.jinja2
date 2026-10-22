@@ -22,6 +22,78 @@ x-default: &default
     - {{ docker_network }}
 
 services:
+{% if env_type == 'preview' %}
+  # Preview : nginx-proxy découvre dynamiquement les conteneurs des PR
+  # (variables VIRTUAL_HOST) et acme-companion obtient leurs certificats.
+  reverse_proxy:
+    <<: *default
+    image: nginxproxy/nginx-proxy:1.11.6
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:ro
+      - /opt/app/configs/reverse_proxy/extra-conf.d/preview.conf:/etc/nginx/conf.d/preview.conf:ro
+      # Authentification sur le vhost racine, qui ne sert que /_monitoring/*
+      - /opt/app/configs/reverse_proxy/locations/monitoring.htpasswd:/etc/nginx/htpasswd/{{ dns_name }}:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - autoheal=true
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.nginx_proxy
+        fluentd-async: "true"
+
+  acme-companion:
+    <<: *default
+    image: nginxproxy/acme-companion:2.8.2
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    volumes:
+      - certs:/etc/nginx/certs:rw
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - reverse_proxy
+    environment:
+      - DEFAULT_EMAIL=misson.apprentissage.devops@gmail.com
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.acme
+        fluentd-async: "true"
+
+  autoheal:
+    <<: *default
+    image: willfarrell/autoheal:1.2.0
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.autoheal
+        fluentd-async: "true"
+{% else %}
   reverse_proxy:
     <<: *default
     image: ghcr.io/{{github_organization}}/{{user_group}}_reverse_proxy:{{reverse_proxy_version}}
@@ -87,6 +159,7 @@ services:
         fluentd-address: localhost:24224
         tag: docker.nginx.{{product_name}}.{{env_type}}.nginx
         fluentd-async: "true"
+{% endif %}
 
   nodeexporter:
     <<: *default
@@ -109,6 +182,14 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /opt/app/system/cron:/var/cron-exporter:rw
+{% if env_type == 'preview' %}
+    environment:
+      - VIRTUAL_HOST={{ dns_name }}
+      - VIRTUAL_PATH=/_monitoring/nodeexporter
+      - VIRTUAL_DEST=/metrics
+      - VIRTUAL_PORT=9100
+      - LETSENCRYPT_HOST={{ dns_name }}
+{% endif %}
     logging:
       driver: "fluentd"
       options:
@@ -134,6 +215,14 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro,rshared
       - /dev/disk/:/dev/disk:ro
+{% if env_type == 'preview' %}
+    environment:
+      - VIRTUAL_HOST={{ dns_name }}
+      - VIRTUAL_PATH=/_monitoring/cadvisor
+      - VIRTUAL_DEST=/metrics
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST={{ dns_name }}
+{% endif %}
     logging:
       driver: "fluentd"
       options:
@@ -178,11 +267,25 @@ services:
       OVH_S3_BUCKET: "{{ OVH_S3_BUCKET }}"
       OVH_S3_ENDPOINT: "{{ OVH_S3_ENDPOINT }}"
       OVH_S3_REGION: "{{ OVH_S3_REGION }}"
+{% if env_type == 'preview' %}
+      VIRTUAL_HOST: "{{ dns_name }}"
+      VIRTUAL_PATH: "/_monitoring/fluentd"
+      VIRTUAL_DEST: "/metrics"
+      VIRTUAL_PORT: "24231"
+      LETSENCRYPT_HOST: "{{ dns_name }}"
+{% endif %}
     logging:
       driver: "local"
 
 volumes:
   fluentd:
+{% if env_type == 'preview' %}
+  conf:
+  vhost:
+  html:
+  certs:
+  acme:
+{% endif %}
 
 networks:
   {{docker_network}}:

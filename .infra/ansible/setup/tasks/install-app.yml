@@ -51,7 +51,7 @@
   async: 1800
   poll: 10
   when:
-    - product_name == 'monitoring' or product_name == 'sentry' or product_name == 'data'
+    - product_name in ['monitoring', 'sentry', 'data'] or env_type == 'preview'
 
 - name: Root only pour tous les répertoires applicatifs
   file:
