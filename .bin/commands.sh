@@ -109,6 +109,13 @@ function _local_release_runner() {
   "${SCRIPTS_DIR}/release/build-image.sh" runner "$@"
 }
 
+_local_release_matomo__help="Release matomo Docker image"
+_register "release:matomo" "_local_release_matomo"
+
+function _local_release_matomo() {
+  "${SCRIPTS_DIR}/release/build-image.sh" matomo "$@"
+}
+
 _local_firewall_setup__help="Setup OVHcloud firewall"
 _register "firewall:setup" "_local_firewall_setup"
 
