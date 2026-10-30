@@ -53,46 +53,165 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-26.04]
+        os: [ubuntu-26.04]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     permissions:
       contents: read
+    env:
+      INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
     steps:
-      - name: Environnement
+      - name: Binaires et agent avant tout import
         run: |
           echo "Image : ${ImageOS} ${ImageVersion}"
-          grep PRETTY_NAME /etc/os-release
-          gpg --version | head -n 3
-          gpg-agent --version | head -n 1
-          dpkg-query -W -f='${Package} ${Version}\n' \
-            gnupg gpg gpg-agent libgcrypt20 libgpg-error0 2>/dev/null || true
-
-      - name: Etat de l agent avant import
-        run: |
-          echo "GNUPGHOME=${GNUPGHOME:-<non défini>}"
-          ls -la ~/.gnupg 2>/dev/null || echo "~/.gnupg absent"
-          gpgconf --list-dirs | grep -E '^(homedir|socketdir|agent-socket)'
+          echo "PATH=${PATH}"
+          for bin in gpg gpg-agent gpgconf gpg-connect-agent; do
+            path="$(command -v "${bin}" || true)"
+            echo "${bin} -> ${path:-introuvable} -> $(readlink -f "${path}" 2>/dev/null)"
+            "${bin}" --version 2>/dev/null | head -n 1 || true
+          done
+          type -a gpg || true
+          dpkg -S "$(readlink -f "$(command -v gpg)")" 2>/dev/null || echo "gpg hors paquet Debian"
+          gpgconf --list-components
+          gpgconf --list-dirs | grep -E '^(homedir|socketdir|agent-socket|libexecdir)'
           ls -la "/run/user/$(id -u)/gnupg" 2>/dev/null || echo "pas de socketdir sous /run/user"
           systemctl --user list-units 'gpg-agent*' --all --no-pager 2>/dev/null || echo "pas de session systemd utilisateur"
+          systemctl --user cat gpg-agent.socket gpg-agent.service 2>/dev/null || true
           pgrep -a gpg-agent || echo "aucun gpg-agent en cours"
 
-      - name: Structure des paquets (sans matériel secret)
+      # A : reproduction a l identique (attendu : echec)
+      - name: "A - ~/.gnupg, echo -n, sans --batch"
+        continue-on-error: true
         run: |
-          for name in INFRA PRODUCT; do
-            echo "=== ${name} ==="
-            printenv "${name}_OPENPGP_KEY" \
-              | gpg --batch --homedir "$(mktemp -d)" --list-packets 2>&1 \
-              | grep -E '^(# off|:|gpg:)|^\s+(version [0-9]|keyid|protect|.*S2K|.*gnu-dummy|.*AEAD|skey\[[0-9]+\]: \[)' \
-              || true
-          done
-        env:
-          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+      - name: "A - agent utilise"
+        if: always()
+        run: |
+          pgrep -a gpg-agent || true
+          gpgconf --kill gpg-agent || true
+          rm -rf ~/.gnupg
 
-      # Reproduction a l identique de l etape "Initialize the GnuPG keyring"
-      # du job setup : trousseau par defaut (~/.gnupg), echo -n, sans --batch.
-      - name: Import identique au setup
+      # B : seule difference, --batch
+      - name: "B - ~/.gnupg, echo -n, --batch"
+        continue-on-error: true
+        run: |
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --batch --import
+      - name: "B - agent utilise"
+        if: always()
+        run: |
+          pgrep -a gpg-agent || true
+          gpgconf --kill gpg-agent || true
+          rm -rf ~/.gnupg
+
+      # C : seule difference, pas d activation de l agent par systemd
+      - name: "C - ~/.gnupg, sockets systemd arretees"
+        continue-on-error: true
+        run: |
+          systemctl --user stop 'gpg-agent*.socket' gpg-agent.service 2>/dev/null || true
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+      - name: "C - agent utilise"
+        if: always()
+        run: |
+          pgrep -a gpg-agent || true
+          gpgconf --kill gpg-agent || true
+          rm -rf ~/.gnupg
+
+      # D : seule difference, trousseau hors de ~/.gnupg
+      - name: "D - GNUPGHOME temporaire, echo -n, sans --batch"
+        continue-on-error: true
+        run: |
+          export GNUPGHOME="$(mktemp -d)"
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+          pgrep -a gpg-agent || true
+          gpgconf --kill gpg-agent || true
+          rm -rf "${GNUPGHOME:?}"
+
+  npm-packages-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Clone mna-npm-check repository
+        uses: actions/checkout@v6
+        with:
+          repository: mission-apprentissage/mna-npm-check
+          path: mna-npm-check
+
+      - name: Analyze NPM dependancies
+        run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
+
+      - name: Notify failure on Slack
+        uses: slackapi/slack-github-action@v3
+        if: failure()
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+
+  setup:
+    if: ${{ success() }}
+    needs: ["npm-packages-check"]
+    concurrency:
+      group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
+    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    steps:
+
+      - name: Notify new deployment on Slack
+        uses: slackapi/slack-github-action@v3
+        if: always()
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+            attachments:
+              - color: "#808080"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+
+      - name: Checkout project
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          name: github_actions
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
+          config: |
+            Host *
+              IdentityFile ~/.ssh/github_actions
+
+      - name: Initialize the GnuPG keyring
         run: |
           echo -n "$INFRA_OPENPGP_KEY" | gpg --import
           echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
@@ -100,177 +219,71 @@ jobs:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
           PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
 
-      - name: Etat du trousseau
-        if: always()
+      - name: Setup SOPS
         run: |
-          gpg --batch --list-secret-keys --with-keygrip --keyid-format long || true
-          ls -l ~/.gnupg/private-keys-v1.d/ 2>/dev/null || echo "aucune clé privée stockée"
-          pgrep -a gpg-agent || true
+          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
+          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
 
-      - name: Nettoyage
+      - name: Run playbook
+        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
+        env:
+          ANSIBLE_REMOTE_USER: deploy
+          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
+          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+          APP_KEY: ${{ secrets.OVH_APP_KEY }}
+          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+
+      - name: Encrypt logs
+        run: .bin/infra app:deploy:log:encrypt
         if: always()
-        run: |
-          gpgconf --kill gpg-agent || true
-          rm -rf ~/.gnupg
 
-#  npm-packages-check:
-#    runs-on: ubuntu-24.04
-#    steps:
-#      - name: Checkout project
-#        uses: actions/checkout@v6
-#        with:
-#          fetch-depth: 1
-#          persist-credentials: true
-#
-#      - name: Clone mna-npm-check repository
-#        uses: actions/checkout@v6
-#        with:
-#          repository: mission-apprentissage/mna-npm-check
-#          path: mna-npm-check
-#
-#      - name: Analyze NPM dependancies
-#        run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
-#
-#      - name: Notify failure on Slack
-#        uses: slackapi/slack-github-action@v3
-#        if: failure()
-#        with:
-#          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-#          webhook-type: incoming-webhook
-#          payload: |
-#            attachments:
-#              - color: "danger"
-#                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
-#                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-#                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-#                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
-#                fields:
-#                  - title: "Branch"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-#                  - title: "Commit"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-#
-#  setup:
-#    if: ${{ success() }}
-#    needs: ["npm-packages-check"]
-#    concurrency:
-#      group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
-#    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
-#    runs-on: ubuntu-24.04
-#    steps:
-#
-#      - name: Notify new deployment on Slack
-#        uses: slackapi/slack-github-action@v3
-#        if: always()
-#        with:
-#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-#          webhook-type: incoming-webhook
-#          payload: |
-#            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-#            attachments:
-#              - color: "#808080"
-#                fields:
-#                  - title: "Branch"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-#                  - title: "Commit"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-#
-#      - name: Checkout project
-#        uses: actions/checkout@v6
-#        with:
-#          submodules: true
-#
-#      - uses: actions/setup-node@v5
-#        with:
-#          node-version: 20
-#
-#      - name: Install dependencies
-#        run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
-#
-#      - name: Install SSH key
-#        uses: shimataro/ssh-key-action@v2
-#        with:
-#          name: github_actions
-#          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-#          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
-#          config: |
-#            Host *
-#              IdentityFile ~/.ssh/github_actions
-#
-#      - name: Initialize the GnuPG keyring
-#        run: |
-#          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-#          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
-#        env:
-#          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-#          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
-#
-#      - name: Setup SOPS
-#        run: |
-#          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
-#          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
-#          chmod +x /usr/local/bin/sops
-#
-#      - name: Run playbook
-#        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
-#        env:
-#          ANSIBLE_REMOTE_USER: deploy
-#          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
-#          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
-#          APP_KEY: ${{ secrets.OVH_APP_KEY }}
-#          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-#
-#      - name: Encrypt logs
-#        run: .bin/infra app:deploy:log:encrypt
-#        if: always()
-#
-#      - name: Upload logs artifacts
-#        if: always()
-#        uses: actions/upload-artifact@v6
-#        with:
-#          name: logs-${{ inputs.product }}-${{ inputs.environment }}
-#          path: /tmp/deploy.log.gpg
-#
-#      - name: Add Job summary
-#        if: always()
-#        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
-#
-#      - name: Notify failure on Slack
-#        uses: slackapi/slack-github-action@v3
-#        if: failure()
-#        with:
-#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-#          webhook-type: incoming-webhook
-#          payload: |
-#            attachments:
-#              - color: "danger"
-#                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-#                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-#                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-#                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-#                fields:
-#                  - title: ""
-#                    value: ""
-#                  - title: "Branch"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-#                  - title: "Commit"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-#
-#      - name: Notify success on Slack
-#        uses: slackapi/slack-github-action@v3
-#        if: success()
-#        with:
-#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-#          webhook-type: incoming-webhook
-#          payload: |
-#            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-#            attachments:
-#              - color: "good"
-#                fields:
-#                  - title: "Branch"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-#                  - title: "Commit"
-#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+      - name: Upload logs artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: logs-${{ inputs.product }}-${{ inputs.environment }}
+          path: /tmp/deploy.log.gpg
+
+      - name: Add Job summary
+        if: always()
+        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify failure on Slack
+        uses: slackapi/slack-github-action@v3
+        if: failure()
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "danger"
+                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+                fields:
+                  - title: ""
+                    value: ""
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+
+      - name: Notify success on Slack
+        uses: slackapi/slack-github-action@v3
+        if: success()
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+            attachments:
+              - color: "good"
+                fields:
+                  - title: "Branch"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+                  - title: "Commit"
+                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
