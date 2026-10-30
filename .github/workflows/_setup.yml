@@ -46,7 +46,7 @@ on:
 jobs:
 
   npm-packages-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout project
         uses: actions/checkout@v6
@@ -88,7 +88,7 @@ jobs:
     concurrency:
       group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
     name: Setup ${{ inputs.product }}-${{ inputs.environment }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
 
       - name: Notify new deployment on Slack
