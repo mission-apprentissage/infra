@@ -45,6 +45,65 @@ on:
 
 jobs:
 
+  gpg-import-debug:
+    name: Debug import GnuPG (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Environnement
+        run: |
+          echo "GNUPGHOME=${RUNNER_TEMP}/gnupg-debug" >> "${GITHUB_ENV}"
+          echo "Image : ${ImageOS} ${ImageVersion}"
+          grep PRETTY_NAME /etc/os-release
+          gpg --version | head -n 3
+          gpg-agent --version | head -n 1
+          dpkg-query -W -f='${Package} ${Version}\n' \
+            gnupg gpg gpg-agent libgcrypt20 libgpg-error0 2>/dev/null || true
+          mkdir -m 700 -p "${RUNNER_TEMP}/gnupg-debug"
+
+      - name: Structure des paquets (sans matériel secret)
+        run: |
+          for name in INFRA PRODUCT; do
+            echo "=== ${name} ==="
+            printenv "${name}_OPENPGP_KEY" \
+              | gpg --batch --list-packets 2>&1 \
+              | grep -E '^(# off|:|gpg:)|^\s+(version [0-9]|keyid|protect|.*S2K|.*gnu-dummy|.*AEAD|skey\[[0-9]+\]: \[)' \
+              || true
+          done
+        env:
+          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+
+      - name: Import standard
+        run: |
+          rc=0
+          for name in INFRA PRODUCT; do
+            echo "=== ${name} ==="
+            printenv "${name}_OPENPGP_KEY" | gpg --batch --verbose --import || rc=1
+          done
+          exit "${rc}"
+        env:
+          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+
+      - name: Etat du trousseau
+        if: always()
+        run: |
+          gpg --batch --list-secret-keys --with-keygrip --keyid-format long || true
+          ls -l "${GNUPGHOME}/private-keys-v1.d/" 2>/dev/null || echo "aucune clé privée stockée"
+
+      - name: Nettoyage
+        if: always()
+        run: |
+          gpgconf --kill gpg-agent || true
+          rm -rf "${GNUPGHOME:?}"
+
   npm-packages-check:
     runs-on: ubuntu-24.04
     steps:
