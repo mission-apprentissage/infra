@@ -45,6 +45,9 @@ on:
 
 jobs:
 
+  # Diagnostic temporaire de l'import OpenPGP sur ubuntu-26.04 (Bad secret
+  # key). Job indépendant : il ne bloque pas le setup, quel que soit son
+  # résultat. N'affiche aucun matériel secret. A retirer après diagnostic.
   gpg-import-debug:
     name: Debug import GnuPG (${{ matrix.os }})
     strategy:
@@ -58,21 +61,28 @@ jobs:
     steps:
       - name: Environnement
         run: |
-          echo "GNUPGHOME=${RUNNER_TEMP}/gnupg-debug" >> "${GITHUB_ENV}"
           echo "Image : ${ImageOS} ${ImageVersion}"
           grep PRETTY_NAME /etc/os-release
           gpg --version | head -n 3
           gpg-agent --version | head -n 1
           dpkg-query -W -f='${Package} ${Version}\n' \
             gnupg gpg gpg-agent libgcrypt20 libgpg-error0 2>/dev/null || true
-          mkdir -m 700 -p "${RUNNER_TEMP}/gnupg-debug"
+
+      - name: Etat de l agent avant import
+        run: |
+          echo "GNUPGHOME=${GNUPGHOME:-<non défini>}"
+          ls -la ~/.gnupg 2>/dev/null || echo "~/.gnupg absent"
+          gpgconf --list-dirs | grep -E '^(homedir|socketdir|agent-socket)'
+          ls -la "/run/user/$(id -u)/gnupg" 2>/dev/null || echo "pas de socketdir sous /run/user"
+          systemctl --user list-units 'gpg-agent*' --all --no-pager 2>/dev/null || echo "pas de session systemd utilisateur"
+          pgrep -a gpg-agent || echo "aucun gpg-agent en cours"
 
       - name: Structure des paquets (sans matériel secret)
         run: |
           for name in INFRA PRODUCT; do
             echo "=== ${name} ==="
             printenv "${name}_OPENPGP_KEY" \
-              | gpg --batch --list-packets 2>&1 \
+              | gpg --batch --homedir "$(mktemp -d)" --list-packets 2>&1 \
               | grep -E '^(# off|:|gpg:)|^\s+(version [0-9]|keyid|protect|.*S2K|.*gnu-dummy|.*AEAD|skey\[[0-9]+\]: \[)' \
               || true
           done
@@ -80,14 +90,12 @@ jobs:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
           PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
 
-      - name: Import standard
+      # Reproduction a l identique de l etape "Initialize the GnuPG keyring"
+      # du job setup : trousseau par defaut (~/.gnupg), echo -n, sans --batch.
+      - name: Import identique au setup
         run: |
-          rc=0
-          for name in INFRA PRODUCT; do
-            echo "=== ${name} ==="
-            printenv "${name}_OPENPGP_KEY" | gpg --batch --verbose --import || rc=1
-          done
-          exit "${rc}"
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
         env:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
           PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
@@ -96,13 +104,14 @@ jobs:
         if: always()
         run: |
           gpg --batch --list-secret-keys --with-keygrip --keyid-format long || true
-          ls -l "${GNUPGHOME}/private-keys-v1.d/" 2>/dev/null || echo "aucune clé privée stockée"
+          ls -l ~/.gnupg/private-keys-v1.d/ 2>/dev/null || echo "aucune clé privée stockée"
+          pgrep -a gpg-agent || true
 
       - name: Nettoyage
         if: always()
         run: |
           gpgconf --kill gpg-agent || true
-          rm -rf "${GNUPGHOME:?}"
+          rm -rf ~/.gnupg
 
   npm-packages-check:
     runs-on: ubuntu-24.04
