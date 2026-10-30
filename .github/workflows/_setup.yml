@@ -53,78 +53,62 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-26.04]
+        os: [ubuntu-24.04, ubuntu-26.04]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     permissions:
       contents: read
     env:
       INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+      PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
     steps:
-      - name: Binaires et agent avant tout import
+      - name: Versions
         run: |
           echo "Image : ${ImageOS} ${ImageVersion}"
-          echo "PATH=${PATH}"
-          for bin in gpg gpg-agent gpgconf gpg-connect-agent; do
-            path="$(command -v "${bin}" || true)"
-            echo "${bin} -> ${path:-introuvable} -> $(readlink -f "${path}" 2>/dev/null)"
-            "${bin}" --version 2>/dev/null | head -n 1 || true
+          dpkg-query -W -f='${Package} ${Version}\n' \
+            gpg gpg-agent libgcrypt20 libgpg-error0 2>/dev/null || true
+
+      # Import en --batch (IMPORT_KEY --unattended cote agent) : l agent
+      # stocke la cle sans la deproteger, donc sans la verifier.
+      - name: Import en --batch
+        run: |
+          for name in INFRA PRODUCT; do
+            echo "=== ${name} ==="
+            printenv "${name}_OPENPGP_KEY" | gpg --batch --import
           done
-          type -a gpg || true
-          dpkg -S "$(readlink -f "$(command -v gpg)")" 2>/dev/null || echo "gpg hors paquet Debian"
-          gpgconf --list-components
-          gpgconf --list-dirs | grep -E '^(homedir|socketdir|agent-socket|libexecdir)'
-          ls -la "/run/user/$(id -u)/gnupg" 2>/dev/null || echo "pas de socketdir sous /run/user"
-          systemctl --user list-units 'gpg-agent*' --all --no-pager 2>/dev/null || echo "pas de session systemd utilisateur"
-          systemctl --user cat gpg-agent.socket gpg-agent.service 2>/dev/null || true
-          pgrep -a gpg-agent || echo "aucun gpg-agent en cours"
 
-      # A : reproduction a l identique (attendu : echec)
-      - name: "A - ~/.gnupg, echo -n, sans --batch"
-        continue-on-error: true
-        run: |
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-      - name: "A - agent utilise"
+      - name: Cles importees (algorithme, capacites, format cote agent)
         if: always()
         run: |
-          pgrep -a gpg-agent || true
-          gpgconf --kill gpg-agent || true
-          rm -rf ~/.gnupg
+          gpg --batch --with-colons --list-secret-keys \
+            | awk -F: '$1 == "sec" || $1 == "ssb" { print $1, "algo=" $4, "bits=" $3, "keyid=" $5, "cap=" $12, "curve=" $17 }'
+          gpg-connect-agent 'KEYINFO --list' /bye
 
-      # B : seule difference, --batch
-      - name: "B - ~/.gnupg, echo -n, --batch"
-        continue-on-error: true
-        run: |
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --batch --import
-      - name: "B - agent utilise"
+      # Le vrai test : la cle est-elle utilisable ? Chiffrement puis
+      # dechiffrement d un message de test pour chaque sous-cle de chiffrement.
+      - name: Aller-retour chiffrement / dechiffrement
         if: always()
         run: |
-          pgrep -a gpg-agent || true
-          gpgconf --kill gpg-agent || true
-          rm -rf ~/.gnupg
+          rc=0
+          for fpr in $(gpg --batch --with-colons --list-secret-keys \
+            | awk -F: '$1 == "ssb" && $12 ~ /e/ { getline; print $10 }'); do
+            echo "=== ${fpr} ==="
+            if echo "test-${fpr}" \
+              | gpg --batch --trust-model always --encrypt --recipient "${fpr}!" \
+              | gpg --batch --decrypt; then
+              echo "OK"
+            else
+              echo "::error::Dechiffrement impossible avec ${fpr}"
+              rc=1
+            fi
+          done
+          exit "${rc}"
 
-      # C : seule difference, pas d activation de l agent par systemd
-      - name: "C - ~/.gnupg, sockets systemd arretees"
-        continue-on-error: true
-        run: |
-          systemctl --user stop 'gpg-agent*.socket' gpg-agent.service 2>/dev/null || true
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-      - name: "C - agent utilise"
+      - name: Nettoyage
         if: always()
         run: |
-          pgrep -a gpg-agent || true
           gpgconf --kill gpg-agent || true
           rm -rf ~/.gnupg
-
-      # D : seule difference, trousseau hors de ~/.gnupg
-      - name: "D - GNUPGHOME temporaire, echo -n, sans --batch"
-        continue-on-error: true
-        run: |
-          export GNUPGHOME="$(mktemp -d)"
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-          pgrep -a gpg-agent || true
-          gpgconf --kill gpg-agent || true
-          rm -rf "${GNUPGHOME:?}"
 
   npm-packages-check:
     runs-on: ubuntu-24.04
