@@ -45,73 +45,8 @@ on:
 
 jobs:
 
-  # Diagnostic temporaire de l'import OpenPGP sur ubuntu-26.04 (Bad secret
-  # key). Job indépendant : il ne bloque pas le setup, quel que soit son
-  # résultat. N'affiche aucun matériel secret. A retirer après diagnostic.
-  gpg-import-debug:
-    name: Debug import GnuPG (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, ubuntu-26.04]
-    runs-on: ${{ matrix.os }}
-    continue-on-error: true
-    permissions:
-      contents: read
-    env:
-      INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-      PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
-    steps:
-      - name: Versions
-        run: |
-          echo "Image : ${ImageOS} ${ImageVersion}"
-          dpkg-query -W -f='${Package} ${Version}\n' \
-            gpg gpg-agent libgcrypt20 libgpg-error0 2>/dev/null || true
-
-      # Import en --batch (IMPORT_KEY --unattended cote agent) : l agent
-      # stocke la cle sans la deproteger, donc sans la verifier.
-      - name: Import en --batch
-        run: |
-          for name in INFRA PRODUCT; do
-            echo "=== ${name} ==="
-            printenv "${name}_OPENPGP_KEY" | gpg --batch --import
-          done
-
-      - name: Cles importees (algorithme, capacites, format cote agent)
-        if: always()
-        run: |
-          gpg --batch --with-colons --list-secret-keys \
-            | awk -F: '$1 == "sec" || $1 == "ssb" { print $1, "algo=" $4, "bits=" $3, "keyid=" $5, "cap=" $12, "curve=" $17 }'
-          gpg-connect-agent 'KEYINFO --list' /bye
-
-      # Le vrai test : la cle est-elle utilisable ? Chiffrement puis
-      # dechiffrement d un message de test pour chaque sous-cle de chiffrement.
-      - name: Aller-retour chiffrement / dechiffrement
-        if: always()
-        run: |
-          rc=0
-          for fpr in $(gpg --batch --with-colons --list-secret-keys \
-            | awk -F: '$1 == "ssb" && $12 ~ /e/ { getline; print $10 }'); do
-            echo "=== ${fpr} ==="
-            if echo "test-${fpr}" \
-              | gpg --batch --trust-model always --encrypt --recipient "${fpr}!" \
-              | gpg --batch --decrypt; then
-              echo "OK"
-            else
-              echo "::error::Dechiffrement impossible avec ${fpr}"
-              rc=1
-            fi
-          done
-          exit "${rc}"
-
-      - name: Nettoyage
-        if: always()
-        run: |
-          gpgconf --kill gpg-agent || true
-          rm -rf ~/.gnupg
-
   npm-packages-check:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout project
         uses: actions/checkout@v6
@@ -153,7 +88,7 @@ jobs:
     concurrency:
       group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
     name: Setup ${{ inputs.product }}-${{ inputs.environment }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
 
       - name: Notify new deployment on Slack
@@ -197,8 +132,8 @@ jobs:
 
       - name: Initialize the GnuPG keyring
         run: |
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --batch --import
+          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --batch --import
         env:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
           PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}

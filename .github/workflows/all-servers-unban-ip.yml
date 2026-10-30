@@ -30,7 +30,7 @@ jobs:
             "preprod"
           ]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout project
         uses: actions/checkout@v6
@@ -51,8 +51,8 @@ jobs:
 
       - name: Initialize the GnuPG keyring
         run: |
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
+          echo -n "$INFRA_OPENPGP_KEY" | gpg --batch --import
+          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --batch --import
         env:
           INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
           PRODUCT_OPENPGP_KEY: ${{ secrets[format('{0}_OPENPGP_PRIVATE_SUBKEY', matrix.product)] }}
