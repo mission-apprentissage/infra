@@ -113,164 +113,164 @@ jobs:
           gpgconf --kill gpg-agent || true
           rm -rf ~/.gnupg
 
-  npm-packages-check:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-          persist-credentials: true
-
-      - name: Clone mna-npm-check repository
-        uses: actions/checkout@v6
-        with:
-          repository: mission-apprentissage/mna-npm-check
-          path: mna-npm-check
-
-      - name: Analyze NPM dependancies
-        run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
-
-      - name: Notify failure on Slack
-        uses: slackapi/slack-github-action@v3
-        if: failure()
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-          webhook-type: incoming-webhook
-          payload: |
-            attachments:
-              - color: "danger"
-                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
-                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
-                fields:
-                  - title: "Branch"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-                  - title: "Commit"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-
-  setup:
-    if: ${{ success() }}
-    needs: ["npm-packages-check"]
-    concurrency:
-      group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
-    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
-    runs-on: ubuntu-24.04
-    steps:
-
-      - name: Notify new deployment on Slack
-        uses: slackapi/slack-github-action@v3
-        if: always()
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
-            attachments:
-              - color: "#808080"
-                fields:
-                  - title: "Branch"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-                  - title: "Commit"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-
-      - name: Checkout project
-        uses: actions/checkout@v6
-        with:
-          submodules: true
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
-
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          name: github_actions
-          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
-          config: |
-            Host *
-              IdentityFile ~/.ssh/github_actions
-
-      - name: Initialize the GnuPG keyring
-        run: |
-          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
-          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
-        env:
-          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
-          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
-
-      - name: Setup SOPS
-        run: |
-          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
-          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
-          chmod +x /usr/local/bin/sops
-
-      - name: Run playbook
-        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
-        env:
-          ANSIBLE_REMOTE_USER: deploy
-          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
-          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
-          APP_KEY: ${{ secrets.OVH_APP_KEY }}
-          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
-
-      - name: Encrypt logs
-        run: .bin/infra app:deploy:log:encrypt
-        if: always()
-
-      - name: Upload logs artifacts
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: logs-${{ inputs.product }}-${{ inputs.environment }}
-          path: /tmp/deploy.log.gpg
-
-      - name: Add Job summary
-        if: always()
-        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
-
-      - name: Notify failure on Slack
-        uses: slackapi/slack-github-action@v3
-        if: failure()
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-          webhook-type: incoming-webhook
-          payload: |
-            attachments:
-              - color: "danger"
-                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
-                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
-                fields:
-                  - title: ""
-                    value: ""
-                  - title: "Branch"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-                  - title: "Commit"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-
-      - name: Notify success on Slack
-        uses: slackapi/slack-github-action@v3
-        if: success()
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
-            attachments:
-              - color: "good"
-                fields:
-                  - title: "Branch"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
-                  - title: "Commit"
-                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+#  npm-packages-check:
+#    runs-on: ubuntu-24.04
+#    steps:
+#      - name: Checkout project
+#        uses: actions/checkout@v6
+#        with:
+#          fetch-depth: 1
+#          persist-credentials: true
+#
+#      - name: Clone mna-npm-check repository
+#        uses: actions/checkout@v6
+#        with:
+#          repository: mission-apprentissage/mna-npm-check
+#          path: mna-npm-check
+#
+#      - name: Analyze NPM dependancies
+#        run: mna-npm-check/npm-check.sh -p .bin/scripts/ovh/ovh-nodejs-client
+#
+#      - name: Notify failure on Slack
+#        uses: slackapi/slack-github-action@v3
+#        if: failure()
+#        with:
+#          webhook: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+#          webhook-type: incoming-webhook
+#          payload: |
+#            attachments:
+#              - color: "danger"
+#                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué. Suspected traces of known attacks on the NPM supply chain!"
+#                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+#                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed in <${{ github.server_url }}/${{ github.repository }}|${{ github.ref_name }}> on <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>. Suspected traces of known attacks on the NPM supply chain!"
+#                fields:
+#                  - title: "Branch"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+#                  - title: "Commit"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+#
+#  setup:
+#    if: ${{ success() }}
+#    needs: ["npm-packages-check"]
+#    concurrency:
+#      group: "${{ inputs.product }}-${{ inputs.environment }}-${{ github.workflow }}-${{ github.ref }}"
+#    name: Setup ${{ inputs.product }}-${{ inputs.environment }}
+#    runs-on: ubuntu-24.04
+#    steps:
+#
+#      - name: Notify new deployment on Slack
+#        uses: slackapi/slack-github-action@v3
+#        if: always()
+#        with:
+#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+#          webhook-type: incoming-webhook
+#          payload: |
+#            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} initié..."
+#            attachments:
+#              - color: "#808080"
+#                fields:
+#                  - title: "Branch"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+#                  - title: "Commit"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+#
+#      - name: Checkout project
+#        uses: actions/checkout@v6
+#        with:
+#          submodules: true
+#
+#      - uses: actions/setup-node@v5
+#        with:
+#          node-version: 20
+#
+#      - name: Install dependencies
+#        run: cd .bin/scripts/ovh/ovh-nodejs-client; npm ci --ignore-scripts
+#
+#      - name: Install SSH key
+#        uses: shimataro/ssh-key-action@v2
+#        with:
+#          name: github_actions
+#          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+#          known_hosts: ${{ inputs.SSH_KNOWN_HOSTS }}
+#          config: |
+#            Host *
+#              IdentityFile ~/.ssh/github_actions
+#
+#      - name: Initialize the GnuPG keyring
+#        run: |
+#          echo -n "$INFRA_OPENPGP_KEY" | gpg --import
+#          echo -n "$PRODUCT_OPENPGP_KEY" | gpg --import
+#        env:
+#          INFRA_OPENPGP_KEY: ${{ secrets.INFRA_OPENPGP_PRIVATE_SUBKEY }}
+#          PRODUCT_OPENPGP_KEY: ${{ secrets.PRODUCT_OPENPGP_PRIVATE_SUBKEY }}
+#
+#      - name: Setup SOPS
+#        run: |
+#          curl -LO https://github.com/getsops/sops/releases/download/v3.12.2/sops-v3.12.2.linux.amd64
+#          mv sops-v3.12.2.linux.amd64 /usr/local/bin/sops
+#          chmod +x /usr/local/bin/sops
+#
+#      - name: Run playbook
+#        run: ".bin/infra system:setup ${{ inputs.product }} ${{ inputs.environment }}"
+#        env:
+#          ANSIBLE_REMOTE_USER: deploy
+#          ANSIBLE_BECOME_PASS: ${{ secrets.DEPLOY_PASS }}
+#          APP_TOKEN: ${{ secrets.OVH_APP_TOKEN }}
+#          APP_KEY: ${{ secrets.OVH_APP_KEY }}
+#          APP_SECRET: ${{ secrets.OVH_APP_SECRET }}
+#
+#      - name: Encrypt logs
+#        run: .bin/infra app:deploy:log:encrypt
+#        if: always()
+#
+#      - name: Upload logs artifacts
+#        if: always()
+#        uses: actions/upload-artifact@v6
+#        with:
+#          name: logs-${{ inputs.product }}-${{ inputs.environment }}
+#          path: /tmp/deploy.log.gpg
+#
+#      - name: Add Job summary
+#        if: always()
+#        run: echo 'You can get logs using `.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`' >> $GITHUB_STEP_SUMMARY
+#
+#      - name: Notify failure on Slack
+#        uses: slackapi/slack-github-action@v3
+#        if: failure()
+#        with:
+#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+#          webhook-type: incoming-webhook
+#          payload: |
+#            attachments:
+#              - color: "danger"
+#                fallback: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+#                title: "Setup ${{ inputs.product }}-${{ inputs.environment }} a échoué"
+#                title_link: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#                text: "<!channel> *[${{ inputs.product }}-${{ inputs.environment }}]* *${{ github.workflow }}* failed!\n\nYou can get error logs using :\n\n`.bin/infra app:deploy:log:decrypt ${{ github.run_id }} ${{ inputs.product }}-${{ inputs.environment }}`"
+#                fields:
+#                  - title: ""
+#                    value: ""
+#                  - title: "Branch"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+#                  - title: "Commit"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+#
+#      - name: Notify success on Slack
+#        uses: slackapi/slack-github-action@v3
+#        if: success()
+#        with:
+#          webhook: ${{ secrets.SLACK_WEBHOOK_NOTIF }}
+#          webhook-type: incoming-webhook
+#          payload: |
+#            text: "Setup ${{ inputs.product }}-${{ inputs.environment }} terminé avec succès"
+#            attachments:
+#              - color: "good"
+#                fields:
+#                  - title: "Branch"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}|${{ github.ref_name }}>"
+#                  - title: "Commit"
+#                    value: "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+#                footer: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
