@@ -149,7 +149,6 @@
     dest: /env
     content: "{{env_type}}"
 
-#See https://unix.stackexchange.com/questions/186859/understand-hostname-and-etc-hosts
 - name: Définition du nom de l'hôte
   hostname:
     name: "{{ host_name }}"
@@ -206,6 +205,32 @@
     name: "apt-systemd-bug"
     minute: "30"
     job: "bash /opt/app/tools/workaround/apt-daily.sh >> /var/log/cron.log 2>&1; /opt/app/tools/monitoring/export-cron-status-prom.sh -c 'Apt Daily Workaround' -v $?"
+
+- name: Création du groupe pki
+  ansible.builtin.group:
+    name: pki
+    state: present
+
+- name: Création du répertoire /opt/app
+  ansible.builtin.file:
+    path: /opt/app
+    state: directory
+    owner: root
+    group: root
+    mode: "0770"
+
+- name: Installation du paquet acl
+  ansible.builtin.apt:
+    name: acl
+    state: present
+
+- name: Traversée de /opt/app pour le groupe pki
+  ansible.posix.acl:
+    path: /opt/app
+    entity: pki
+    etype: group
+    permissions: x
+    state: present
 
 - name: Création des répertoires 'tools' et 'configs' dans '/opt/app/'
   file:
