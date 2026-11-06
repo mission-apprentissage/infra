@@ -159,7 +159,7 @@ function _local_system_setup() {
   _local_product_validate_env "$PRODUCT_NAME" "$ENV_NAME"
 
   case "${PRODUCT_NAME}/${ENV_NAME}" in
-    runner/base | bal/staging | bal/production | analytics/base)
+    runner/base | bal/staging | bal/production | analytics/base | afw/afw1 | afw/afw2 | b/b1 | b/b2 | ns/ns1 | ns/ns2 | pki/base )
       ;;
     *)
       _local_firewall_setup "$PRODUCT_NAME" "$ENV_NAME"

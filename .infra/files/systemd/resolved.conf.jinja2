@@ -1,4 +1,12 @@
-{% if vlan is defined %}
+{% if product_name | default('') == 'afw' %}
+[Resolve]
+DNS=127.0.0.1
+DNSSEC=allow-downgrade
+Cache=yes
+DNSStubListener=udp
+MulticastDNS=no
+LLMNR=no
+{% elif vlan is defined %}
 [Resolve]
 DNS=10.20.{{ vlan }}.254#afw.mna.internal
 DNSOverTLS=yes
