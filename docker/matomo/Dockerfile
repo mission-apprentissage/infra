@@ -1,9 +1,11 @@
 FROM php:8.3-fpm-alpine
 
-ARG MATOMO_VERSION=5.13.0
-ARG MATOMO_SHA256=2877f8ce4da93eb8d202f10df5fd26de39a57a481cf0a9d91af5d8e3dbf388fb
+ARG MATOMO_VERSION=5.14.1
+ARG MATOMO_SHA256=6e2938c9a482fa715a02cacacc490f2e7d6fb1f4068e45de41181089c129080e
 ARG MCP_VERSION=5.1.0
 ARG MCP_SHA256=9f428b404bc885080299a8a3f2ae4d580390285ea435ca7d1d1e052133e8b208
+ARG MIGRATION_VERSION=5.0.8
+ARG MIGRATION_SHA256=5a6ef5591165754cfe7622db313e9399cb9d23dc0bb642da76d418bf81e56459
 
 # Extensions PHP requises par Matomo, absentes de l'image de base
 RUN set -eux; \
@@ -44,6 +46,9 @@ RUN set -eux; \
   curl -fsSL -o mcp.zip "https://plugins.matomo.org/api/2.0/plugins/McpServer/download/${MCP_VERSION}"; \
   echo "${MCP_SHA256}  mcp.zip" | sha256sum -c -; \
   unzip -q mcp.zip -d /var/www/matomo/plugins; \
+  curl -fsSL -o migration.zip "https://plugins.matomo.org/api/2.0/plugins/Migration/download/${MIGRATION_VERSION}"; \
+  echo "${MIGRATION_SHA256}  migration.zip" | sha256sum -c -; \
+  unzip -q migration.zip -d /var/www/matomo/plugins; \
   rm -rf /tmp/*; \
   chown -R root:root /var/www/matomo; \
   find /var/www/matomo -type d -exec chmod 0755 {} +; \
