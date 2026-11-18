@@ -1,8 +1,11 @@
+# backend = auto : le paquet fail2ban d'Ubuntu impose backend = systemd par défaut (defaults-debian.conf),
+# qui lit le journal et ignore logpath.
 [nginx-req-limit]
 enabled = true
 port = http,https
 filter = nginx-req-limit
 logpath = /opt/app/system/nginx/error.log
+backend = auto
 findtime=1h
 chain = DOCKER-USER
 banaction = iptables-ipset-proto6
@@ -16,6 +19,7 @@ enabled = true
 port = http,https
 filter = nginx-conn-limit
 logpath = /opt/app/system/nginx/error.log
+backend = auto
 findtime=1h
 chain = DOCKER-USER
 banaction = iptables-ipset-proto6
@@ -29,6 +33,7 @@ enabled = true
 port = http,https
 filter = nginx-conn-limit-long
 logpath = /opt/app/system/nginx/error.log
+backend = auto
 bantime = 30d
 findtime=1h
 chain = DOCKER-USER
