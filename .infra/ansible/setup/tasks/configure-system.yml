@@ -69,17 +69,33 @@
 
       stty -ixon
 
-      # Resync terminal size from parent PTY (fix sudo -i PTY size)
-      _resync_tty_size() {
-          PARENT_TTY=$(ps -o tty= -p $PPID 2>/dev/null | tr -d ' ')
-          if [ -n "$PARENT_TTY" ] && [ -r "/dev/$PARENT_TTY" ]; then
-              read ROWS COLS < <(stty size < /dev/$PARENT_TTY)
-              stty rows $ROWS cols $COLS
+      _resync_find_src_tty() {
+        local self src pid
+        self=$(ps -o tty= -p $$ 2>/dev/null | tr -d ' ')
+        pid=$PPID
+        while [ -n "$pid" ] && [ "$pid" -gt 1 ]; do
+          src=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
+          if [ -n "$src" ] && [ "$src" != "?" ] && [ "$src" != "$self" ]; then
+            _RESYNC_SRC_TTY=/dev/$src
+            return 0
           fi
+          pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+        done
+        _RESYNC_SRC_TTY=
       }
 
-      _resync_tty_size
-      trap '_resync_tty_size' SIGWINCH
+      _resync_tty_size() {
+        local size
+        [ -n "$_RESYNC_SRC_TTY" ] && [ -r "$_RESYNC_SRC_TTY" ] || return 0
+        size=$(stty size < "$_RESYNC_SRC_TTY" 2>/dev/null) || return 0
+        [ "$size" = "$(stty size 2>/dev/null)" ] || stty rows "${size% *}" cols "${size#* }"
+      }
+
+      _resync_find_src_tty
+      case ";$PROMPT_COMMAND;" in
+        *";_resync_tty_size;"*) ;;
+        *) PROMPT_COMMAND="_resync_tty_size${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
+      esac
 
 - include_role:
     name: patrickjahns.promtail
