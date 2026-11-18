@@ -1,8 +1,11 @@
 # backend = auto : le paquet fail2ban d'Ubuntu impose backend = systemd par défaut (defaults-debian.conf),
 # qui lit le journal et ignore logpath.
+# fail2ban refuse de démarrer si logpath est absent : error.log est créé par install-app.yml.
+# port : DOCKER-USER voit les paquets après DNAT, donc les ports cibles du reverse proxy
+# (cf. docker-compose.system.yml.jinja2) et non les ports publiés 80 et 443.
 [nginx-req-limit]
 enabled = true
-port = http,https
+port = 8080,8443,9443
 filter = nginx-req-limit
 logpath = /opt/app/system/nginx/error.log
 backend = auto
@@ -16,7 +19,7 @@ maxretry=50
 
 [nginx-conn-limit]
 enabled = true
-port = http,https
+port = 8080,8443,9443
 filter = nginx-conn-limit
 logpath = /opt/app/system/nginx/error.log
 backend = auto
@@ -30,7 +33,7 @@ maxretry=50
 
 [nginx-conn-limit-long]
 enabled = true
-port = http,https
+port = 8080,8443,9443
 filter = nginx-conn-limit-long
 logpath = /opt/app/system/nginx/error.log
 backend = auto
