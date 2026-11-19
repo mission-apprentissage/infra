@@ -1,4 +1,4 @@
-FROM owasp/modsecurity-crs:4.29.0-nginx-202609241109
+FROM owasp/modsecurity-crs:4.30.0-nginx-202611160811
 
 ENV SSL_OCSP_STAPLING=off
 ENV ACME_INCLUDE=includes/location_acme.conf
