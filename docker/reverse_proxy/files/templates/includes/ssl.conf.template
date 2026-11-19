@@ -1,4 +1,6 @@
 listen ${SSL_PORT} ssl;
-http2 on;
+# TEMPORAIRE - CVE-2026-123007 / CVE-2026-123633 (HTTP/2, corrigées dans nginx 1.30.7)
+# Repasser à "http2 on;" dès que l'image owasp/modsecurity-crs embarque nginx >= 1.30.7
+http2 off;
 
 include includes/ssl-params.conf;
