@@ -49,6 +49,10 @@ define VPN = {
 {% endfor %}
 }
 
+define ANALYTICS = {
+ 10.20.180.1,
+}
+
 table ip firewall {
 
   chain input {
@@ -63,12 +67,25 @@ table ip firewall {
     iifname "docker_gwbridge" accept
     iifname "br-*" accept
     iifname "wan" jump input-wan
+    iifname "vlan70" jump input-vlan70
+    iifname "vlan75" jump input-vlan75
 
   }
 
   chain input-wan {
 
     tcp dport 22 accept
+
+  }
+
+  chain input-vlan70 {
+
+  }
+
+  chain input-vlan75 {
+
+    ip saddr 10.20.75.241 tcp dport 22 accept
+    ip saddr 10.20.75.242 tcp dport 22 accept
 
   }
 
@@ -85,7 +102,7 @@ table ip firewall {
     ### Temporary rule to ensure the ACME http-01 challenge with Let's Encrypt
     iifname "wan" ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
     ###
-    
+ 
     #iifname "wan" ip saddr $VPN ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
     #iifname "wan" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst { 80, 443 } accept
 
@@ -94,8 +111,12 @@ table ip firewall {
     iifname "wan" ip saddr $MONGODB_BAL_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
     iifname "wan" ip saddr $MONGODB_TDB_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
     iifname "wan" ip saddr $MONGODB_RECETTE_CLUSTER ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr { 146.59.131.225, 91.134.72.154 } ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    iifname "wan" ip saddr { 141.94.151.77, 178.32.152.219 } ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
+    ip saddr $DOCKER_NETWORK oif "vlan70" accept
+    iifname "vlan70" ip saddr 10.20.0.0/16 ip daddr $DOCKER_NETWORK ct original proto-dst 443 accept
+    iifname "vlan70" ip saddr $ANALYTICS ip daddr $DOCKER_NETWORK ct original proto-dst 444 accept
 
   }
 
 }
-

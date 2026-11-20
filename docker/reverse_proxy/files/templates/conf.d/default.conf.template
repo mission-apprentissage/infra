@@ -15,11 +15,10 @@ map $request_uri $https_only {
 
 server {
     listen ${PORT} default_server;
-    http2 on;
 
     server_name ${SERVER_NAME};
     
-    include includes/location_acme.conf;
+    include ${ACME_INCLUDE};
     include includes/location_maintenance.conf;
 
     set $always_redirect ${NGINX_ALWAYS_TLS_REDIRECT};
@@ -51,8 +50,8 @@ server {
 
     server_name ${SERVER_NAME};
 
-    include includes/location_acme.conf;
+    include ${ACME_INCLUDE};
     include includes/location_maintenance.conf;
-    include includes/location_monitoring.conf;
+    include ${MONITORING_INCLUDE};
     include locations/*.conf;
 }

@@ -1,0 +1,28 @@
+{% if host_dns_name is defined %}
+
+# vhost {{ host_dns_name }} - réservé au monitoring, certificat CA interne
+server {
+  listen 9443 ssl;
+  # TEMPORAIRE - CVE-2026-123007 / CVE-2026-123633 (HTTP/2, corrigées dans nginx 1.30.7)
+  # Repasser à "http2 on;" dès que l'image owasp/modsecurity-crs embarque nginx >= 1.30.7
+  http2 off;
+  server_name {{ host_dns_name }};
+
+  include includes/ssl-params.conf;
+  ssl_certificate     /etc/nginx/ssl/live/{{ host_dns_name }}/fullchain.pem;
+  ssl_certificate_key /etc/nginx/ssl/live/{{ host_dns_name }}/privkey.pem;
+
+  include includes/location_monitoring.conf;
+
+  location / {
+    return 404;
+  }
+}
+
+# refuse le handshake pour tout SNI inconnu ou absent
+server {
+  listen ${SSL_PORT} ssl default_server;
+  listen 9443 ssl default_server;
+  ssl_reject_handshake on;
+}
+{% endif %}

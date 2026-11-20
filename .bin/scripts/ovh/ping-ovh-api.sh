@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-readonly MODULE_DIR="${SCRIPT_DIR}/ovh/ovh-nodejs-client"
+readonly MODULE_DIR="${SCRIPTS_DIR}/ovh/ovh-nodejs-client"
 
 cd "${MODULE_DIR}"
 npm ci --ignore-scripts --quiet

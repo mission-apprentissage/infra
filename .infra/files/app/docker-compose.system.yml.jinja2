@@ -10,18 +10,90 @@ x-deploy-default: &deploy-default
     parallelism: 1
     delay: 10s
   restart_policy:
-    condition: on-failure
+    # any : relance aussi après un arrêt propre (code 0), par exemple lors
+    # d'un redémarrage du démon Docker. Avec on-failure, fluentd et cadvisor
+    # restaient arrêtés sans aucune erreur (sentry, 20/10/2026).
+    condition: any
     window: 360s
     delay: 30s
-    # Max 24hours
-    max_attempts: 240
 
 x-default: &default
-  restart: on-failure:50
   networks:
     - {{ docker_network }}
 
 services:
+{% if env_type == 'preview' %}
+  # Preview : nginx-proxy découvre dynamiquement les conteneurs des PR
+  # (variables VIRTUAL_HOST) et acme-companion obtient leurs certificats.
+  reverse_proxy:
+    <<: *default
+    image: nginxproxy/nginx-proxy:1.11.6
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:ro
+      - /opt/app/configs/reverse_proxy/extra-conf.d/preview.conf:/etc/nginx/conf.d/preview.conf:ro
+      # Authentification sur le vhost racine, qui ne sert que /_monitoring/*
+      - /opt/app/configs/reverse_proxy/locations/monitoring.htpasswd:/etc/nginx/htpasswd/{{ dns_name }}:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - autoheal=true
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.nginx_proxy
+        fluentd-async: "true"
+
+  acme-companion:
+    <<: *default
+    image: nginxproxy/acme-companion:2.8.2
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    volumes:
+      - certs:/etc/nginx/certs:rw
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - reverse_proxy
+    environment:
+      - DEFAULT_EMAIL=misson.apprentissage.devops@gmail.com
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.acme
+        fluentd-async: "true"
+
+  autoheal:
+    <<: *default
+    image: willfarrell/autoheal:1.2.0
+    deploy:
+      <<: *deploy-default
+      resources:
+        limits:
+          memory: 128m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.txt.{{product_name}}.{{env_type}}.autoheal
+        fluentd-async: "true"
+{% else %}
   reverse_proxy:
     <<: *default
     image: ghcr.io/{{github_organization}}/{{user_group}}_reverse_proxy:{{reverse_proxy_version}}
@@ -39,6 +111,7 @@ services:
     # In order to bypass this, we need to use mode host port mapping
     # But we cannot replicate the service on a single node
     ports:
+{% if dns_name is defined %}
       - target: 8080
         published: 80
         protocol: tcp
@@ -47,14 +120,33 @@ services:
         published: 443
         protocol: tcp
         mode: host
+{% endif %}
+{% if host_dns_name is defined %}
+      - target: 9443
+        published: 9443
+        protocol: tcp
+        mode: host
+{% endif %}
     environment:
-      - SERVER_NAME={{dns_name}}
+      - SERVER_NAME={{ dns_name if dns_name is defined else host_dns_name }}
+{% if not (certbot | default(true) | bool) %}
+      - ACME_INCLUDE=includes/location_none.conf
+{% endif %}
+{% if host_dns_name is defined %}
+      - MONITORING_INCLUDE=includes/location_none.conf
+{% endif %}
       - MODSEC_REQ_BODY_LIMIT={{modsec_body_limit}}
       - MODSEC_REQ_BODY_NOFILES_LIMIT=5243904
       - MODSEC_RULE_ENGINE={{modsec_rule_engine}}
     volumes:
+{% if certbot | default(true) | bool %}
+      # certificats émis par Certbot (ancienne infra) - arborescence live/<fqdn>/ fournie par Certbot
       - /opt/app/system/certbot/conf/:/etc/nginx/ssl/:ro
       - /opt/app/system/certbot/www/:/var/www/certbot/:ro
+{% else %}
+      # certificats deposes par pki (nouvelle infra) - un sous-repertoire <fqdn>/ par certificat
+      - /opt/app/configs/reverse_proxy/ssl/:/etc/nginx/ssl/live/:ro
+{% endif %}
       - /opt/app/configs/reverse_proxy/locations/:/etc/nginx/templates/locations/:ro
       - /opt/app/configs/reverse_proxy/system/:/etc/nginx/system/:ro
       - /opt/app/configs/reverse_proxy/extra-conf.d/:/etc/nginx/templates/extra-conf.d/:ro
@@ -67,6 +159,7 @@ services:
         fluentd-address: localhost:24224
         tag: docker.nginx.{{product_name}}.{{env_type}}.nginx
         fluentd-async: "true"
+{% endif %}
 
   nodeexporter:
     <<: *default
@@ -89,6 +182,14 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /opt/app/system/cron:/var/cron-exporter:rw
+{% if env_type == 'preview' %}
+    environment:
+      - VIRTUAL_HOST={{ dns_name }}
+      - VIRTUAL_PATH=/_monitoring/nodeexporter
+      - VIRTUAL_DEST=/metrics
+      - VIRTUAL_PORT=9100
+      - LETSENCRYPT_HOST={{ dns_name }}
+{% endif %}
     logging:
       driver: "fluentd"
       options:
@@ -114,6 +215,14 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro,rshared
       - /dev/disk/:/dev/disk:ro
+{% if env_type == 'preview' %}
+    environment:
+      - VIRTUAL_HOST={{ dns_name }}
+      - VIRTUAL_PATH=/_monitoring/cadvisor
+      - VIRTUAL_DEST=/metrics
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST={{ dns_name }}
+{% endif %}
     logging:
       driver: "fluentd"
       options:
@@ -132,8 +241,8 @@ services:
     image: ghcr.io/{{github_organization}}/{{user_group}}_fluentd:{{fluentd_version}}
     ulimits:
       nofile:
-        soft: 65535
-        hard: 65535
+        soft: 1048576
+        hard: 1048576
     ports:
       - "127.0.0.1:24224:24224/tcp"
       - "127.0.0.1:24224:24224/udp"
@@ -158,11 +267,25 @@ services:
       OVH_S3_BUCKET: "{{ OVH_S3_BUCKET }}"
       OVH_S3_ENDPOINT: "{{ OVH_S3_ENDPOINT }}"
       OVH_S3_REGION: "{{ OVH_S3_REGION }}"
+{% if env_type == 'preview' %}
+      VIRTUAL_HOST: "{{ dns_name }}"
+      VIRTUAL_PATH: "/_monitoring/fluentd"
+      VIRTUAL_DEST: "/metrics"
+      VIRTUAL_PORT: "24231"
+      LETSENCRYPT_HOST: "{{ dns_name }}"
+{% endif %}
     logging:
       driver: "local"
 
 volumes:
   fluentd:
+{% if env_type == 'preview' %}
+  conf:
+  vhost:
+  html:
+  certs:
+  acme:
+{% endif %}
 
 networks:
   {{docker_network}}:
