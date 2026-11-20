@@ -30,6 +30,8 @@ jobs:
             environment: "production"
           - product: "lba"
             environment: "production"
+          - product: "lba"
+            environment: "preview"
           - product: "tdb"
             environment: "production"
     name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
