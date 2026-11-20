@@ -1,0 +1,49 @@
+# Lignes d'error.log rejouées dans filter.d/nginx-req-limit.conf.
+# Chaque ligne est précédée de « # attendu: » suivi de l'IP comptée, de « ignored » (ignoreregex)
+# ou de « missed » (aucune expression ne correspond). IP des plages de documentation uniquement.
+
+# Zone ordinaire.
+# attendu: 203.0.113.1
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.1, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Client en IPv6.
+# attendu: 2001:db8::1
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_public_search", client: 2001:db8::1, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Zone flood : ignorée.
+# attendu: ignored
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 101.000 by zone "flood", client: 203.0.113.2, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Zone suffixée _recherche : ignorée.
+# attendu: ignored
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_bff_recherche", client: 203.0.113.3, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Zones dont le nom contient « flood » sans l'être : comptées.
+# attendu: 203.0.113.4
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "flood2", client: 203.0.113.4, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# attendu: 203.0.113.5
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "api_flood", client: 203.0.113.5, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Referrer forgé désignant une autre IP : le vrai client est compté.
+# attendu: 203.0.113.6
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.6, server: example.test, request: "GET /x HTTP/2.0", host: "example.test", referrer: "x, client: 198.51.100.99"
+
+# Referrer forgé imitant une zone ignorée : la ligne reste comptée.
+# attendu: 203.0.113.7
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.7, server: example.test, request: "GET /x HTTP/2.0", host: "example.test", referrer: "by zone "a_recherche""
+
+# attendu: 203.0.113.8
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.8, server: example.test, request: "GET /x HTTP/2.0", host: "example.test", referrer: "by zone "flood", client: 198.51.100.99"
+
+# URL et referrer contenant « recherche » : la ligne reste comptée.
+# attendu: 203.0.113.9
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.9, server: example.test, request: "GET /recherche?q=x_recherche HTTP/2.0", host: "example.test", referrer: "https://example.test/recherche"
+
+# Requête retardée, non rejetée : hors filtre.
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 delaying request, excess: 0.500 by zone "lba_autocomplete", client: 203.0.113.10, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Limite de connexions : relève de nginx-conn-limit.
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting connections by zone "perip", client: 203.0.113.11, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"

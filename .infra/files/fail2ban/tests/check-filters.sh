@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Rejoue chaque ligne de cases/<filtre>.log dans fail2ban-regex et compare au résultat attendu.
+# Rejoue chaque ligne de cases/<filtre>.txt dans fail2ban-regex et compare au résultat attendu.
 # Exécuté dans le conteneur par run.sh.
 set -uo pipefail
 
 fail=0
-for cases in /repo/tests/cases/*.log; do
-  filter="$(basename "$cases" .log)"
+for cases in /repo/tests/cases/*.txt; do
+  filter="$(basename "$cases" .txt)"
   expected="" count=0
   while IFS= read -r line; do
     case "$line" in
