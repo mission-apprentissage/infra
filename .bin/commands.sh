@@ -424,7 +424,9 @@ function _local_ssh_known_hosts_update_local() {
   # ssh-keyscan émet les commentaires '# ip:22 ...' sur stdout : on les
   # filtre pour ne pas les accumuler dans known_hosts ni dans la variable
   # GitHub. Sans clé retournée (hosts injoignables), keyscan sort en erreur.
-  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null | grep -v '^#' || true)
+  # Un seul type de clé : keyscan ouvre une connexion par type, et le jail
+  # fail2ban sshd (mode aggressive, maxretry 10) les compte.
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519 ${ips} 2> /dev/null | grep -v '^#' || true)
 
   if [[ -z "${SSH_KNOWN_HOSTS}" ]]; then
     >&2 echo "${PRODUCT_NAME}: ssh-keyscan n'a retourné aucune clé pour : ${ips}"
@@ -469,19 +471,66 @@ function _local_ssh_config() {
   local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ips=($("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}"))
-
-  if [[ ${#ips[@]} -eq 0 ]]; then
-    exit 1
-  fi
-
-  local hostnames=($("${SCRIPTS_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name"))
+  local username
   read -p "What is your username? " username
 
+  if ! _local_ssh_config_write "${PRODUCT_NAME}" "${username}"; then
+    exit 1
+  fi
+}
+
+_local_ssh_config_all__help="Update your local SSH config for all products"
+_register "ssh:config:all" "_local_ssh_config_all"
+
+function _local_ssh_config_all() {
+  local username
+  read -p "What is your username? " username
+
+  local failed=""
+  local product_dir product
+
+  for product_dir in "${ROOT_DIR}/products"/*/; do
+    product=$(basename "${product_dir}")
+
+    if ! _local_ssh_config_write "${product}" "${username}"; then
+      failed="${failed} ${product}"
+    fi
+  done
+
+  if [[ -n "${failed}" ]]; then
+    >&2 echo "Échec de mise à jour pour :${failed}"
+    exit 1
+  fi
+}
+
+# Retourne 1 (sans exit) pour pouvoir être enchaîné sur plusieurs produits.
+function _local_ssh_config_write() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
+  local username=${2:?"Merci de préciser le username !"}
+
+  local ips hostnames
+  ips=($("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")) || ips=()
+  hostnames=($("${SCRIPTS_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "host_name")) || hostnames=()
+
+  if [[ ${#ips[@]} -eq 0 ]]; then
+    >&2 echo "${PRODUCT_NAME}: aucun hôte dans l'inventaire"
+    return 1
+  fi
+
+  if [[ ${#ips[@]} -ne ${#hostnames[@]} ]]; then
+    >&2 echo "${PRODUCT_NAME}: ${#ips[@]} hôtes pour ${#hostnames[@]} host_name, config non écrite"
+    return 1
+  fi
+
   local config=""
+  local count=0
   local i
 
   for i in "${!ips[@]}"; do
+    # Les entrées placeholder x.x.x.x des inventaires ne sont pas joignables
+    [[ "${ips[$i]}" == "x.x.x.x" ]] && continue
+    count=$((count + 1))
+
     config="${config}
 Host ${hostnames[$i]} ${ips[$i]}
   Port 22
@@ -490,7 +539,12 @@ Host ${hostnames[$i]} ${ips[$i]}
 "
   done
 
-  if ! grep -qF 'Include ~/.ssh/config.d/*.config' ~/.ssh/config; then
+  if [[ -z "${config}" ]]; then
+    >&2 echo "${PRODUCT_NAME}: aucun hôte joignable dans l'inventaire"
+    return 1
+  fi
+
+  if ! grep -qF 'Include ~/.ssh/config.d/*.config' ~/.ssh/config 2> /dev/null; then
     echo '' >> ~/.ssh/config
     echo 'Match All' >> ~/.ssh/config
     echo 'Include ~/.ssh/config.d/*.config' >> ~/.ssh/config
@@ -498,4 +552,6 @@ Host ${hostnames[$i]} ${ips[$i]}
 
   mkdir -p ~/.ssh/config.d
   echo "$config" > ~/.ssh/config.d/"${PRODUCT_NAME}".config
+
+  echo "${PRODUCT_NAME}: ~/.ssh/config.d/${PRODUCT_NAME}.config mis à jour (${count} hôtes)"
 }
