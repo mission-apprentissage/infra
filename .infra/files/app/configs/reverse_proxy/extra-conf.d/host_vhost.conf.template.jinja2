@@ -1,4 +1,5 @@
-{% if host_dns_name is defined %}
+{# preview (nginx-proxy) : voir configs/reverse_proxy/preview/host_vhost.conf.jinja2 #}
+{% if host_dns_name is defined and env_type != 'preview' %}
 
 # vhost {{ host_dns_name }} - réservé au monitoring, certificat CA interne
 server {

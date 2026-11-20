@@ -1,0 +1,49 @@
+{% if env_type == 'preview' and host_dns_name is defined %}
+# vhost {{ host_dns_name }} - réservé au monitoring, certificat CA interne.
+# Équivalent, pour nginx-proxy, de extra-conf.d/host_vhost.conf.template
+# (mna_reverse_proxy) : monté dans /etc/nginx/conf.d/ du conteneur.
+server {
+  listen 9443 ssl;
+  # pas de http2 : nginx-proxy embarque un nginx non corrigé
+  # (CVE-2026-123007 / CVE-2026-123633)
+  server_name {{ host_dns_name }};
+
+  ssl_certificate     /etc/nginx/certs/{{ host_dns_name }}/fullchain.pem;
+  ssl_certificate_key /etc/nginx/certs/{{ host_dns_name }}/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  # résolution à la requête : nginx démarre même si un exporter est absent
+  resolver 127.0.0.11 valid=10s ipv6=off;
+
+  allow 10.20.70.200;
+  deny all;
+
+  auth_basic "Restricted Access";
+  auth_basic_user_file /etc/nginx/monitoring.htpasswd;
+
+  location /_monitoring/cadvisor {
+    set $upstream http://cadvisor:8080/metrics;
+    proxy_pass $upstream;
+  }
+
+  location /_monitoring/nodeexporter {
+    set $upstream http://nodeexporter:9100/metrics;
+    proxy_pass $upstream;
+  }
+
+  location /_monitoring/fluentd {
+    set $upstream http://fluentd:24231/metrics;
+    proxy_pass $upstream;
+  }
+
+  location / {
+    return 404;
+  }
+}
+
+# refuse le handshake pour tout SNI inconnu ou absent sur 9443
+server {
+  listen 9443 ssl default_server;
+  ssl_reject_handshake on;
+}
+{% endif %}
