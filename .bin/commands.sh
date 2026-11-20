@@ -368,26 +368,9 @@ function _local_ssh_known_hosts_update() {
   local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
   shift
 
-  local ips
-  ips=$("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}")
-
-  if [[ -z "$ips" ]]; then
+  if ! _local_ssh_known_hosts_update_local "${PRODUCT_NAME}"; then
     exit 1
   fi
-
-  "${SCRIPTS_DIR}/ensure-gh-auth.sh"
-
-  local SSH_KNOWN_HOSTS
-  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519 ${ips} 2> /dev/null)
-
-  local ip
-  for ip in ${ips}; do
-    if [[ "${ip}" != "x.x.x.x" ]]; then
-      ssh-keygen -R "${ip}"
-    fi
-  done
-
-  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts 2> /dev/null
 
   read -p "Do you want to update github variable? [Y/n]" response
 
@@ -398,6 +381,80 @@ function _local_ssh_known_hosts_update() {
       return
       ;;
   esac
+
+  _local_ssh_known_hosts_update_github "${PRODUCT_NAME}"
+}
+
+_local_ssh_known_hosts_update_all__help="Update local SSH known hosts for all products"
+_register "ssh:known_hosts:update:all" "_local_ssh_known_hosts_update_all"
+
+function _local_ssh_known_hosts_update_all() {
+  local failed=""
+  local product_dir product
+
+  for product_dir in "${ROOT_DIR}/products"/*/; do
+    product=$(basename "${product_dir}")
+
+    if ! _local_ssh_known_hosts_update_local "${product}"; then
+      failed="${failed} ${product}"
+    fi
+  done
+
+  if [[ -n "${failed}" ]]; then
+    >&2 echo "Échec de mise à jour pour :${failed}"
+    exit 1
+  fi
+}
+
+# Met à jour ~/.ssh/known_hosts pour un produit et renseigne la variable
+# globale SSH_KNOWN_HOSTS. Retourne 1 (sans exit) pour pouvoir être
+# enchaîné sur plusieurs produits.
+function _local_ssh_known_hosts_update_local() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
+
+  # Les entrées placeholder x.x.x.x des inventaires ne sont pas scannables
+  local ips
+  ips=$("${SCRIPTS_DIR}/known_hosts/list_ips.sh" "${PRODUCT_NAME}" | tr ' ' '\n' | grep -v '^x\.x\.x\.x$' | tr '\n' ' ' || true)
+
+  if [[ -z "${ips// /}" ]]; then
+    >&2 echo "${PRODUCT_NAME}: aucune IP scannable dans l'inventaire"
+    return 1
+  fi
+
+  # ssh-keyscan émet les commentaires '# ip:22 ...' sur stdout : on les
+  # filtre pour ne pas les accumuler dans known_hosts ni dans la variable
+  # GitHub. Sans clé retournée (hosts injoignables), keyscan sort en erreur.
+  SSH_KNOWN_HOSTS=$(ssh-keyscan -t ed25519,rsa ${ips} 2> /dev/null | grep -v '^#' || true)
+
+  if [[ -z "${SSH_KNOWN_HOSTS}" ]]; then
+    >&2 echo "${PRODUCT_NAME}: ssh-keyscan n'a retourné aucune clé pour : ${ips}"
+    return 1
+  fi
+
+  mkdir -p ~/.ssh
+  touch ~/.ssh/known_hosts
+
+  local ip
+  for ip in ${ips}; do
+    ssh-keygen -R "${ip}" > /dev/null 2>&1 || true
+  done
+
+  # Purge des commentaires laissés par les anciennes versions de la commande
+  local tmp_file
+  tmp_file=$(mktemp)
+  grep -vE "^# ($(echo "${ips}" | xargs | tr ' ' '|')):22 " ~/.ssh/known_hosts > "${tmp_file}" || true
+  cat "${tmp_file}" > ~/.ssh/known_hosts
+  rm -f "${tmp_file}" ~/.ssh/known_hosts.old
+
+  echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+
+  echo "${PRODUCT_NAME}: known_hosts mis à jour (${ips})"
+}
+
+function _local_ssh_known_hosts_update_github() {
+  local PRODUCT_NAME=${1:?"Merci préciser le produit !"}
+
+  "${SCRIPTS_DIR}/ensure-gh-auth.sh"
 
   local repo=($("${SCRIPTS_DIR}/known_hosts/get_ansible_var.sh" "${PRODUCT_NAME}" "repo"))
 
