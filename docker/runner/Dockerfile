@@ -2,21 +2,21 @@ FROM ubuntu:24.04
 
 ARG TARGETARCH
 
-ARG RUNNER_VERSION=2.337.0
-ARG RUNNER_SHA256_AMD64=70920811a4f8ad4328818682bca5c6469c1c942fab52448868071d0063816613
-ARG RUNNER_SHA256_ARM64=9b1dc70626422526e3c94767cf024896beb15da5342a3f4819bf2feac13e0393
+ARG RUNNER_VERSION=2.338.0
+ARG RUNNER_SHA256_AMD64=af4b794c1bc41d73d40535e3fe092a39f9679cd8d965954c2aca25a05ca41d32
+ARG RUNNER_SHA256_ARM64=628b4a7258487b80c1d3c221095a7ded349f5ae0175fd3dfab708d07428f041b
 
-ARG SOPS_VERSION=3.12.2
-ARG SOPS_SHA256_AMD64=14e2e1ba3bef31e74b70cf0b674f6443c80f6c5f3df15d05ffc57c34851b4998
-ARG SOPS_SHA256_ARM64=f66de6f528dca946e910d74fa36a62a7714c11d0db16bd3c9bd8acf73b66704b
+ARG SOPS_VERSION=3.13.3
+ARG SOPS_SHA256_AMD64=e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b
+ARG SOPS_SHA256_ARM64=53b0abacd38ef1b12a66d6c100956691b9cefce018d91f81e73ddf7438b94d77
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates tar gnupg \
     openssh-client python3 python3-pip \
-    git jq libicu74 \
-  && pip3 install --break-system-packages ansible-core \
+    git git-lfs jq libicu74 \
+  && pip3 install --break-system-packages ansible-core jmespath \
   && rm -rf /var/lib/apt/lists/*
 
 RUN ansible-galaxy collection install \
