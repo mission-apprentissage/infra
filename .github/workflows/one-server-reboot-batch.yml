@@ -11,7 +11,7 @@ on:
         description: JSON environment array
         type: string
         required: true
-        default: '["production", "recette", "preview", "preprod"]'
+        default: '["production", "recette", "preprod"]'
 
 jobs:
   setup:

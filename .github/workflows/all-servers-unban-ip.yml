@@ -26,7 +26,6 @@ jobs:
           [
             "production",
             "recette",
-            "preview",
             "preprod"
           ]
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
