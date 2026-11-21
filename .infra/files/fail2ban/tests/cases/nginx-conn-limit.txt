@@ -1,0 +1,15 @@
+# Lignes d'error.log rejouées dans filter.d/nginx-conn-limit.conf.
+# Chaque ligne est précédée de « # attendu: » suivi de l'IP comptée, de « ignored » (ignoreregex)
+# ou de « missed » (aucune expression ne correspond). IP des plages de documentation uniquement.
+
+# Limite de connexions.
+# attendu: 203.0.113.12
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting connections by zone "perip", client: 203.0.113.12, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
+
+# Referrer forgé désignant une autre IP : le vrai client est compté.
+# attendu: 203.0.113.13
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting connections by zone "perip", client: 203.0.113.13, server: example.test, request: "GET /x HTTP/2.0", host: "example.test", referrer: "x, client: 198.51.100.99"
+
+# Limite de requêtes : relève de nginx-req-limit.
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.14, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
