@@ -1,0 +1,70 @@
+#!/usr/sbin/nft -f
+
+table ip firewall
+delete table ip firewall
+
+define DOCKER_NETWORK = {
+  172.16.0.0/12,
+}
+
+define MONITORING = {
+  10.20.70.200
+}
+
+define MONGODB_CLUSTER = {
+  10.20.130.101
+}
+
+define TDB_PREPROD = {
+  10.20.130.41
+}
+
+define WG_DEV = {
+  10.20.252.0/24
+}
+
+table ip firewall {
+
+  chain input {
+    type filter hook input priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+    ip protocol icmp accept
+    iif "lo" accept
+    iifname "docker0" accept
+    iifname "docker_gwbridge" accept
+    iifname "vlan130" jump input-vlan130
+    iifname "vlan135" jump input-vlan135
+  }
+
+  chain input-vlan130 {
+
+    ip saddr $MONGODB_CLUSTER tcp dport 27017 accept
+    ip saddr $TDB_PREPROD tcp dport 27017 accept
+    ip saddr $WG_DEV tcp dport 27017 accept
+
+  }
+
+  chain input-vlan135 {
+
+    ip saddr 10.20.135.241 tcp dport 22 accept
+    ip saddr 10.20.135.242 tcp dport 22 accept
+
+  }
+
+  chain forward {
+
+    type filter hook forward priority filter
+    policy drop
+    ct state invalid drop
+    ct state { established, related } accept
+
+    ip saddr $DOCKER_NETWORK oifname "vlan130" accept
+    ip saddr $DOCKER_NETWORK ip daddr $DOCKER_NETWORK accept
+
+    iifname "vlan130" ip saddr $MONITORING ip daddr $DOCKER_NETWORK meta l4proto tcp ct original proto-dst 9443 accept
+
+  }
+
+}
