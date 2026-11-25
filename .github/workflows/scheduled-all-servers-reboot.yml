@@ -22,6 +22,7 @@ jobs:
           [
             "production",
             "recette",
+            "staging",
             "preview",
             "preprod",
           ]
@@ -34,6 +35,11 @@ jobs:
             environment: "preview"
           - product: "tdb"
             environment: "production"
+          - product: "tdb"
+            environment: "preprod"
+          - product: "tdb"
+            environment: "staging"
+
     name: Reboot ${{ matrix.product }}-${{ matrix.environment }}
     uses: "./.github/workflows/_reboot.yml"
     with:
