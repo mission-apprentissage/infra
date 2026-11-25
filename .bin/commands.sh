@@ -177,6 +177,8 @@ function _local_system_setup() {
       ;;
     mongodb/preprod_1)
       ;;
+    tdb/production | tdb/preprod | tdb/staging)
+      ;;
     *)
       _local_firewall_setup "$PRODUCT_NAME" "$ENV_NAME"
       ;;

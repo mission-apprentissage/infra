@@ -23,37 +23,26 @@ define LBA_RECETTE = {
 {% for ip in lba_recette_ips %}
   {{ ip }},
 {% endfor %}
+  141.94.151.77,
+  178.32.152.219,
 }
 
 define API_RECETTE = {
 {% for ip in api_recette_ips %}
   {{ ip }},
 {% endfor %}
-}
-
-define BAL_RECETTE = {
-  146.59.131.225,
-  91.134.72.154,
   141.94.151.77,
   178.32.152.219,
 }
 
-define TDB_PRODUCTION = {
-{% for ip in tdb_production_ips %}
-  {{ ip }},
-{% endfor %}
-}
-
-define TDB_PREPROD = {
-{% for ip in tdb_preprod_ips %}
-  {{ ip }},
-{% endfor %}
+define BAL_RECETTE = {
+  141.94.151.77,
+  178.32.152.219,
 }
 
 define TDB_RECETTE = {
-{% for ip in tdb_recette_ips %}
-  {{ ip }},
-{% endfor %}
+  141.94.151.77,
+  178.32.152.219,
 }
 
 define DATA = {
@@ -100,12 +89,9 @@ table ip firewall {
     ip saddr $LBA_RECETTE tcp dport 27017 accept
     ip saddr $API_RECETTE tcp dport 27017 accept
     ip saddr $BAL_RECETTE tcp dport 27017 accept
-    ip saddr $TDB_PRODUCTION tcp dport 27017 accept
-    ip saddr $TDB_PREPROD tcp dport 27017 accept
     ip saddr $TDB_RECETTE tcp dport 27017 accept
     ip saddr $DATA tcp dport 27017 accept
     ip saddr $VPN tcp dport 27017 accept
-    ip saddr $MONITORING tcp dport 27017 accept
 
     # MongoDB Search (mongot) - métriques Prometheus
     ip saddr $MONITORING tcp dport 9946 accept

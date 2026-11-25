@@ -15,6 +15,7 @@ jobs:
         product:
           [
             "api",
+            "bal",
             "data",
             "lba",
             "monitoring",
@@ -26,8 +27,23 @@ jobs:
           [
             "production",
             "recette",
+            "staging",
             "preprod"
           ]
+        exclude:
+          - product: "lba"
+            environment: "preview"
+          - product: "bal"
+            environment: "production"
+          - product: "bal"
+            environment: "staging"
+          - product: "tdb"
+            environment: "production"
+          - product: "tdb"
+            environment: "preprod"
+          - product: "tdb"
+            environment: "staging"
+
     name: Unban ${{ inputs.ip }} on ${{ matrix.product }}-${{ matrix.environment }}
     runs-on: ubuntu-26.04
     steps:
