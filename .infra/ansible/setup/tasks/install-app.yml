@@ -34,6 +34,40 @@
   with_fileglob:
     - "{{playbook_dir}}/../files/app/docker-compose.system.yml.jinja2"
 
+# Les certificats livrés par pki ne sont installés pour nginx que par le hook
+# (/opt/app/x509-hooks/hook <fqdn>). Si un fichier manque, nginx ne démarre pas,
+# Swarm revient à l'ancien spec, qui échoue aussi (montages partagés) : reverse
+# proxy à 0/0 (tdb-preprod le 24/11, api-recette et lba-recette le 26/11).
+- name: Liste des certificats attendus par le reverse proxy
+  ansible.builtin.set_fact:
+    reverse_proxy_certificates: >-
+      {{
+        ([host_dns_name] if host_dns_name is defined else [])
+        + ([dns_name] if not (certbot | default(true) | bool) and dns_name is defined
+           and env_type != 'preview' else [])
+      }}
+  # Tous les hôtes : Swarm, Compose (monitoring, sentry, data) et preview, qui
+  # monte le même répertoire ssl/ sur /etc/nginx/certs/ pour son vhost 9443.
+  # Sur la preview, le wildcard public suit la convention nginx-proxy
+  # (ssl/<domaine>.crt/.key, facultatif au démarrage) : dns_name non contrôlé.
+
+- name: Contrôle des certificats du reverse proxy
+  ansible.builtin.stat:
+    path: "/opt/app/configs/reverse_proxy/ssl/{{ item.0 }}/{{ item.1 }}"
+  loop: "{{ reverse_proxy_certificates | product(['fullchain.pem', 'privkey.pem']) | list }}"
+  register: reverse_proxy_certificates_stat
+
+- name: Arrêt si un certificat du reverse proxy manque
+  ansible.builtin.fail:
+    msg: >-
+      /opt/app/configs/reverse_proxy/ssl/{{ item.item.0 }}/{{ item.item.1 }} absent ou vide.
+      Lancer « sudo -u pki-x509-api sudo /opt/app/x509-hooks/hook {{ item.item.0 }} »
+      pour chaque FQDN, puis relancer le setup. Les services systèmes n'ont pas été redéployés.
+  loop: "{{ reverse_proxy_certificates_stat.results }}"
+  loop_control:
+    label: "{{ item.item.0 }}/{{ item.item.1 }}"
+  when: not (item.stat.exists and item.stat.size > 0)
+
 - name: Démarrage des services systèmes Docker Swarm
   ansible.builtin.shell:
     chdir: /opt/app

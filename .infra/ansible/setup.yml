@@ -1,6 +1,10 @@
 ---
 - hosts: all
   become: true
+  # Un échec en fin de setup (stack système) ne doit pas faire perdre les
+  # redémarrages en attente : le modèle déjà copié ne les redéclencherait
+  # plus au setup suivant (nftables non rechargé sur lba-recette le 26/11).
+  force_handlers: true
   vars:
     habilitations_file_sops: "{{ lookup('first_found', playbook_dir ~ '/../../products/' ~ product ~ '/authorizations/habilitations.yml', errors='ignore') }}"
   roles:
