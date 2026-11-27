@@ -70,28 +70,65 @@
   environment: 
     PASS: "{{ DOCKER_LOGIN.token }}"
 
+- name: Adresse d'annonce de docker swarm
+  ansible.builtin.set_fact:
+    swarm_advertise_addr: "{{ private_ip if private | bool else ansible_default_ipv4.address }}"
+  when:
+    - env_type != 'preview'
+    - product_name not in ['monitoring', 'sentry', 'data']
+
 - name: récupération du status de docker swarm
   ansible.builtin.shell: docker info --format={% raw %}'{{.Swarm.LocalNodeState}}'{% endraw %}
   register: docker_swarm_status
+  changed_when: false
+  check_mode: false
   when:
     - env_type != 'preview'
     - product_name not in ['monitoring', 'sentry', 'data']
 
+# La sortie standard contient le jeton d'adhesion : elle n'est pas conservee.
+# Le pool overlay par defaut (10.0.0.0/8) recouvre le plan d'adressage
+# 10.20.0.0/16 : il n'est fixe qu'a l'initialisation.
 - name: initialisation de docker swarm
-  ansible.builtin.shell: docker swarm init --advertise-addr "{{ ansible_default_ipv4.address }}"
+  ansible.builtin.shell: >-
+    docker swarm init
+    --advertise-addr "{{ swarm_advertise_addr }}"
+    --listen-addr "{{ swarm_advertise_addr }}:2377"
+    --default-addr-pool "{{ swarm_default_addr_pool }}"
+    --default-addr-pool-mask-length "{{ swarm_default_addr_pool_mask_length }}"
+    > /dev/null
   when:
     - env_type != 'preview'
     - product_name not in ['monitoring', 'sentry', 'data']
     - docker_swarm_status.stdout.find('inactive') != -1
-    - private == False
 
-- name: initialisation de docker swarm
-  ansible.builtin.shell: docker swarm init --advertise-addr "{{ private_ip }}"
+- name: Lecture du pool overlay et de l'adresse Raft de docker swarm
+  ansible.builtin.shell: >-
+    docker info --format '{% raw %}{{json .Swarm.Cluster.DefaultAddrPool}}{% endraw %}'
+    && docker node inspect self --format '{% raw %}{{.ManagerStatus.Addr}}{% endraw %}'
+  register: docker_swarm_cluster
+  changed_when: false
+  failed_when: false
+  check_mode: false
   when:
     - env_type != 'preview'
     - product_name not in ['monitoring', 'sentry', 'data']
-    - docker_swarm_status.stdout.find('inactive') != -1
-    - private == True
+    - docker_swarm_status.stdout.find('active') == 0
+
+# Avertissement seulement : une grappe existante ne se corrige que par sa
+# recreation (leave, init, reseau, system:setup puis app:deploy).
+- name: Avertissement si la grappe docker swarm est à recréer
+  ansible.builtin.debug:
+    msg: >-
+      ATTENTION grappe Swarm a recreer : pool overlay {{ docker_swarm_cluster.stdout_lines[0] }}
+      (attendu ["{{ swarm_default_addr_pool }}"]), adresse Raft {{ docker_swarm_cluster.stdout_lines[1] }}
+      (attendue {{ swarm_advertise_addr }}:2377)
+  when:
+    - docker_swarm_cluster is not skipped
+    - docker_swarm_cluster.stdout_lines | length == 2
+    - >-
+      docker_swarm_cluster.stdout_lines[0] != ('["' ~ swarm_default_addr_pool ~ '"]')
+      or docker_swarm_cluster.stdout_lines[1] != (swarm_advertise_addr ~ ':2377')
 
 - name: check du docker network
   ansible.builtin.shell:
