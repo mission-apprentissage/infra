@@ -173,7 +173,9 @@ function _local_system_setup() {
       ;;
     pki/base)
       ;;
-    lba/preview)
+    lba/production | lba/staging | lba/preview)
+      ;;
+    api/production | api/staging )
       ;;
     mongodb/preprod_1)
       ;;
