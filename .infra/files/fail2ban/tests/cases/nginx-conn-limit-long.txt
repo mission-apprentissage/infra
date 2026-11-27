@@ -1,0 +1,13 @@
+# Lignes d'error.log rejouées dans filter.d/nginx-conn-limit-long.conf.
+# Chaque ligne est précédée de « # attendu: » suivi de l'IP comptée, de « ignored » (ignoreregex)
+# ou de « missed » (aucune expression ne correspond). IP des plages de documentation uniquement.
+
+# Jail réservé au ban manuel : aucune ligne de nginx ne doit correspondre.
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 open() "/x" failed (2: No such file or directory), client: 203.0.113.15, server: example.test, request: "GET /x HTTP/2.0", host: "example.test", referrer: "fausse sequence improbable pour garantir uniquement le declenchement manuel, client: 198.51.100.99"
+
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 fausse sequence improbable pour garantir uniquement le declenchement manuel, client: 203.0.113.16
+
+# attendu: missed
+2026/11/18 17:29:55 [error] 15531#15531: *1 limiting requests, excess: 5.000 by zone "lba_autocomplete", client: 203.0.113.17, server: example.test, request: "GET /x HTTP/2.0", host: "example.test"
